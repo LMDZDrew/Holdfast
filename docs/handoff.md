@@ -9,7 +9,7 @@
 
 ## Character animation milestone — 2026-10-16 (Claude)
 
-**Branch:** `claude/character-animation`. Draft PR against `main`; do not merge until it has been tested in game.
+**Branch:** `claude/character-animation`; milestone commit `d00417a`. Draft PR against `main`; do not merge until it has been tested in game.
 
 **Created**
 - Upright walker and lower-half crawler models (Bedrock geometry for GeckoLib), 4 placeholder walker outfits, placeholder 64×64 vanilla-layout player skin.
