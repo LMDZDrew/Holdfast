@@ -4,9 +4,9 @@ This checks a clean Forge installation and the two animation libraries. It does 
 
 ## 1. Prepare
 
-- Use a Java 17 runtime on your Windows PATH. In PowerShell, `java -version` should print version 17. If not, stop and tell Codex what it printed.
-- Get `tools/gate0-windows.ps1` from the `codex/gate0-windows-kit` branch. In PowerShell, run it from a clean folder with `powershell -ExecutionPolicy Bypass -File .\gate0-windows.ps1`. It downloads the exact Forge installer, GeckoLib and Player Animator jars, verifies the recorded hashes and ZIP structure, installs the server into `holdfast-gate0/server`, and stops before accepting the Minecraft EULA. This script has not been executed on Windows by Codex.
-- If it fails, save the full PowerShell output and `holdfast-gate0/server/forge-install.log` (if present), then stop. Do not substitute a different mod version silently.
+- Use a Java 17 runtime on your Windows PATH. In PowerShell, `java -version` should print version 17. If it prints nothing or another version, install Temurin 17 (`winget install EclipseAdoptium.Temurin.17.JDK`), then open a **new** PowerShell window and check again. Prism Launcher's own Java does not count: Prism keeps it private, and the server's `run.bat` uses the `java` on PATH.
+- Get `tools/gate0-windows.ps1` from the `codex/gate0-windows-kit` branch. In PowerShell, run it from a clean folder with `powershell -ExecutionPolicy Bypass -File .\gate0-windows.ps1`. It downloads the exact Forge installer, GeckoLib and Player Animator jars, verifies the recorded hashes and ZIP structure, installs the server into `holdfast-gate0/server`, and stops before accepting the Minecraft EULA. The script has not yet been run on Windows. Claude revised it on 2026-10-16 (Java version check under Windows PowerShell 5.1, explicit installer target folder, TLS 1.2 and basic parsing for downloads, transcript), also without a Windows run.
+- The script saves its full output to `holdfast-gate0/gate0-transcript.txt`. If it fails, send that file plus `holdfast-gate0/forge-install.log` and `forge-install-error.log` (if present), then stop. Do not substitute a different mod version silently.
 
 ## 2. Clean client in Prism Launcher
 
