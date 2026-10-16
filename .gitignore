@@ -9,3 +9,5 @@ crash-reports/
 .idea/
 .vscode/
 *.iml
+art/characters/build/
+__pycache__/

@@ -1,0 +1,257 @@
+{
+ "format_version": "1.8.0",
+ "holdfast_meta": {
+  "weapon": "bat",
+  "vanilla_pose": null
+ },
+ "animations": {
+  "exec_bat_quick": {
+   "loop": false,
+   "animation_length": 0.65,
+   "bones": {
+    "camera": {
+     "rotation": {
+      "0.0": {
+       "post": [
+        2.2,
+        0.0,
+        0.0
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.05": {
+       "post": [
+        1.88,
+        5.69,
+        -0.28
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.1": {
+       "post": [
+        2.65,
+        5.27,
+        -0.45
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.15": {
+       "post": [
+        4.52,
+        -1.09,
+        -0.05
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.2": {
+       "post": [
+        6.27,
+        -9.15,
+        1.45
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.25": {
+       "post": [
+        6.41,
+        -17.36,
+        4.13
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.3": {
+       "post": [
+        5.32,
+        -27.41,
+        3.19
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.35": {
+       "post": [
+        4.89,
+        -32.68,
+        3.2
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.4": {
+       "post": [
+        3.73,
+        -30.46,
+        2.98
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.45": {
+       "post": [
+        3.81,
+        -25.22,
+        2.05
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.5": {
+       "post": [
+        3.09,
+        -18.25,
+        1.52
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.55": {
+       "post": [
+        2.84,
+        -10.85,
+        0.82
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.6": {
+       "post": [
+        2.43,
+        -4.33,
+        0.28
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.65": {
+       "post": [
+        2.2,
+        0.0,
+        0.01
+       ],
+       "lerp_mode": "linear"
+      }
+     },
+     "position": {
+      "0.0": {
+       "post": [
+        0.0,
+        0.0,
+        0.0
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.05": {
+       "post": [
+        0.02,
+        -0.21,
+        0.54
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.1": {
+       "post": [
+        -0.04,
+        -0.42,
+        0.14
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.15": {
+       "post": [
+        -0.05,
+        -0.59,
+        -1.26
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.2": {
+       "post": [
+        0.22,
+        -0.75,
+        -2.61
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.25": {
+       "post": [
+        0.51,
+        -0.79,
+        -2.94
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.3": {
+       "post": [
+        0.64,
+        -0.72,
+        -2.54
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.35": {
+       "post": [
+        0.57,
+        -0.59,
+        -1.98
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.4": {
+       "post": [
+        0.44,
+        -0.5,
+        -1.69
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.45": {
+       "post": [
+        0.3,
+        -0.39,
+        -1.38
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.5": {
+       "post": [
+        0.16,
+        -0.28,
+        -1.01
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.55": {
+       "post": [
+        0.06,
+        -0.16,
+        -0.61
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.6": {
+       "post": [
+        0.01,
+        -0.07,
+        -0.25
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.65": {
+       "post": [
+        0.0,
+        0.0,
+        0.0
+       ],
+       "lerp_mode": "linear"
+      }
+     }
+    }
+   },
+   "sound_effects": {
+    "0.06": {
+     "effect": "holdfast:player.exert_light"
+    },
+    "0.22": {
+     "effect": "holdfast:player.exert_heavy"
+    }
+   },
+   "timeline": {
+    "0.12": "commit",
+    "0.22": "stagger"
+   }
+  }
+ }
+}
