@@ -44,9 +44,15 @@
 3. Play Player Animator clips `holdfast:<clip>` from server-synced state. Apply `*.extras.json` camera tracks in first person.
 4. Run the in-game test plan at the end of `docs/animation.md` and record results in `testing.md`.
 
+## Animation test harness — 2026-10-16 (Claude)
+
+- Gate 0 library loading passed on Andrew's PC (rows on PR #2). TaCZ, part of roadmap Gate 0 step 2, is still untested.
+- Added `testmod/animtest/`: test-only Forge 1.20.1 mod (MDK layout, ForgeGradle 6, Gradle 8.8 wrapper from MinecraftForge `1.20.1`) that takes `art/characters/export` as its resources, runs a load check on world join, and plays walker, crawler, player and paired clips by `/hfa` command, logging timing. `art/characters/source/gen_testmod_clips.py` generates its clip table; `make_all.sh` runs it.
+- **Not compiled yet** (no Forge or Mojang access here; Java parse check only). Next: Andrew builds it, loads it with the Gate 0 setup, and we record per-clip results.
+
 ## Next task
 
-Complete roadmap Gate 0. Obtain exact upstream versions, then run a clean client and dedicated-server compatibility test with TaCZ. Record real results before scaffolding custom code.
+Build and run the harness; record load-check, pose, first-person, held-item, crawl and timing results per clip in `testing.md`; fix the editable source and re-export where clips fail. Then the TaCZ part of Gate 0. World generation stays on hold until stage one is complete.
 
 ## Handoff format for future work
 

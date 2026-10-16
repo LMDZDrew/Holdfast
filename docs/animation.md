@@ -11,7 +11,9 @@ Branch `claude/character-animation`. Source of truth for the character rigs, cli
 | First-person camera, sounds, events per player clip | `.../player_animation_extras/*.extras.json` | **Exported data for our core mod.** No consumer exists yet. |
 | Walker textures (4 outfits), player skin | `.../textures/entity/walker/*.png`, `.../textures/entity/player/survivor_default.png` | **Placeholder.** Procedural pixel art to prove UV layout and readability; replace with authored art. |
 | Browser preview, frame sheets | `art/characters/preview/` | **Preview.** Our own renderer of the exported keyframes. Not Minecraft, GeckoLib or Player Animator. |
-| Anything tested in game | — | **None.** No Minecraft client or server has loaded these files. |
+| Library loading (Gate 0) | `docs/testing.md` on PR #2 (`codex/gate0-windows-kit`) | **Tested in game, libraries only.** Forge 1.20.1-47.4.8 client and dedicated server on Andrew's Windows PC loaded GeckoLib 4.8.4 and Player Animator 1.0.2-rc1+1.20 with no errors (2026-10-16). Says nothing about our files. |
+| In-game test harness | `testmod/animtest/` | **Source, not yet compiled.** Test-only Forge mod that loads the exports unchanged, checks them at load, and plays them by command. See its README. |
+| Our assets tested in game | — | **None yet.** Pending the harness build. |
 
 ## Before integration (CLAUDE.md checklist)
 
@@ -27,9 +29,9 @@ Nothing here selects a platform. These are what the files were checked against.
 
 | Library | Version and source checked | License | Used for | Checked how |
 |---|---|---|---|---|
-| Minecraft Java + Forge | 1.20.1; GeckoLib branch builds against Forge 47.4.8 (range `[47.1,)`), Player Animator against 47.0.1 | — | candidate platform from `decisions.md` | metadata only; no launch |
-| GeckoLib | 4.8.4, `bernie-g/geckolib` branch `1.20.1`, commit `7d6f32db` | MIT | walker and crawler models and animations | read `BakedAnimationsAdapter`, `KeyFramesAdapter`, `Cube`, `FormatVersion`, `BakedModelFactory`, `Animation.LoopType`, `EasingType`; encoded in `validate_exports.py` |
-| Player Animator (KosmX) | 1.0.2-rc1, `KosmX/minecraftPlayerAnimator` branch `1.20`, commit `a17ecb85` | MIT | player clips, held-item transforms, first-person arms | read `GeckoLibSerializer`, `KeyframeAnimation`, `Easing`, `PlayerAnimationRegistry`, `AnimationApplier`, `PlayerRendererMixin`, `HeldItemMixin`; encoded in `validate_exports.py` and `check_pa_semantics.py` |
+| Minecraft Java + Forge | 1.20.1, Forge 47.4.8 (installer SHA-256 `08dce804…9d57`) | — | candidate platform from `decisions.md` | Gate 0 launch on Windows 11, client + dedicated server, libraries only |
+| GeckoLib | 4.8.4, `bernie-g/geckolib` branch `1.20.1`, commit `7d6f32db`; jar Modrinth `aC5KMoNg` (SHA-512 `443a321a…febf`) | MIT | walker and crawler models and animations | read `BakedAnimationsAdapter`, `KeyFramesAdapter`, `Cube`, `FormatVersion`, `BakedModelFactory`, `Animation.LoopType`, `EasingType`; encoded in `validate_exports.py` |
+| Player Animator (KosmX) | 1.0.2-rc1, `KosmX/minecraftPlayerAnimator` branch `1.20`, commit `a17ecb85`; jar Modrinth `xe2EVE6q` (SHA-512 `cb9f6a3a…3729`) | MIT | player clips, held-item transforms, first-person arms | read `GeckoLibSerializer`, `KeyframeAnimation`, `Easing`, `PlayerAnimationRegistry`, `AnimationApplier`, `PlayerRendererMixin`, `HeldItemMixin`; encoded in `validate_exports.py` and `check_pa_semantics.py` |
 
 bendy-lib is **not** required: the GeckoLib-format reader in Player Animator ignores `bend`, and no clip uses it.
 
@@ -134,7 +136,7 @@ Clip lengths are presentation lengths. The server's own timings are the ones lis
 
 ## Not verified (needs the game)
 
-1. That GeckoLib 4.8.4 and Player Animator 1.0.2-rc1 load these files without warnings in a real Forge 1.20.1 client, and that a dedicated server starts with them installed.
+1. That GeckoLib 4.8.4 and Player Animator 1.0.2-rc1 load **our** files without warnings in a real Forge 1.20.1 client (the libraries themselves load and a dedicated server starts with them: Gate 0, 2026-10-16).
 2. Visual match of GeckoLib's Catmull-Rom easing to the preview.
 3. That Player Animator's `rightItem`/`leftItem` rotation, applied in `HeldItemMixin`, orients our weapon item models as the preview assumes (blade out of the fist, at a right angle to the arm). Item model display transforms will need tuning.
 4. First-person view with Player Animator's `FirstPersonConfiguration`, plus our camera track applied by the core.
@@ -143,9 +145,9 @@ Clip lengths are presentation lengths. The server's own timings are the ones lis
 7. Two-handed grips: vanilla arms have no elbows, so grips sit low and centred. Left-hand bracing reaches on the knife, machete and ground stab fall 4–8 px short of the walker.
 8. Hitboxes for prone walkers, crawlers and corpses.
 
-## In-game test plan (to run after the platform gate)
+## In-game test plan
 
-Load in a clean Forge 1.20.1 client and a dedicated server with GeckoLib and Player Animator only. Then check:
+Load the harness (`testmod/animtest`) in the Gate 0 client and dedicated server with GeckoLib and Player Animator only. Stage 1 (harness): load check passes; each clip's pose, first person, held items, the legless crawl, and logged timing. Stage 2 (needs the core mod's server logic) then checks:
 
 - every clip plays with no log errors;
 - walker controllers layer correctly;
