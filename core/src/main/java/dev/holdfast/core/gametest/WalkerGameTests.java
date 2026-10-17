@@ -13,6 +13,8 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.UUID;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
@@ -26,7 +28,7 @@ public final class WalkerGameTests {
     private WalkerGameTests() {}
 
     private static WalkerEntity walker(GameTestHelper h, Posture posture) {
-        WalkerEntity w = h.spawn(CoreEntities.WALKER.get(), new BlockPos(3, 1, 3));
+        WalkerEntity w = h.spawn(CoreEntities.WALKER.get(), new BlockPos(3, 2, 3));
         w.setPosture(posture);
         w.setNoAi(true);
         return w;
@@ -105,5 +107,78 @@ public final class WalkerGameTests {
         corpse.load(dead);
         h.assertTrue(corpse.isCorpse(), "corpse lost on reload");
         h.succeed();
+    }
+
+    // ------------------------------------------------------------ corpse grounding (Andrew 2026-10-17: deaths floated)
+
+    /** Feet height above the arena floor (its stone is placed at structure y 1, top at y 2), blocks. */
+    static double aboveFloor(GameTestHelper h, WalkerEntity w) {
+        return w.getY() - h.absoluteVec(new Vec3(0, 2, 0)).y;
+    }
+
+    static void assertGrounded(GameTestHelper h, WalkerEntity w, String what) {
+        double up = aboveFloor(h, w);
+        h.assertTrue(Math.abs(up) < 1.0E-3 && w.onGround(), what + " corpse is " + String.format(java.util.Locale.ROOT, "%.3f", up)
+                + " blocks above the floor (onGround " + w.onGround() + ", y " + w.getY() + ", origin " + h.absoluteVec(Vec3.ZERO).y
+                + ", below " + h.getLevel().getBlockState(w.blockPosition().below()) + ")");
+        h.assertFalse(w.isNoAi(), what + " corpse kept NoAI, which disables gravity");
+    }
+
+    /** An ordinary brain kill after the walker has ticked (vanilla's grow-lift only applies then) leaves it on the floor. */
+    @GameTest(template = "arena", timeoutTicks = 80)
+    public static void brainKilledCorpsesLieOnTheFloor(GameTestHelper h) {
+        Posture[] postures = {Posture.UPRIGHT, Posture.PRONE, Posture.CRAWLER};
+        WalkerEntity[] ws = new WalkerEntity[3];
+        for (int i = 0; i < 3; i++) {
+            ws[i] = h.spawn(CoreEntities.WALKER.get(), new BlockPos(1 + 2 * i, 2, 3));
+            ws[i].setPosture(postures[i]);
+            ws[i].setNoAi(true);
+        }
+        h.runAfterDelay(5, () -> {
+            for (WalkerEntity w : ws) {
+                double head = w.posture() == Posture.UPRIGHT ? 29 : 4;
+                Strikes.apply(null, w, WeaponClass.KNIFE, at(w, head), BodyRegion.HEAD, 1.0, 0);
+                h.assertTrue(w.isCorpse(), w.posture() + " head hit did not kill");
+            }
+        });
+        h.runAfterDelay(30, () -> {
+            for (WalkerEntity w : ws) assertGrounded(h, w, w.posture().name());
+            h.succeed();
+        });
+    }
+
+    /** A walker killed in the air (knocked off a ledge, NoAI hovering) falls and lies on the floor. */
+    @GameTest(template = "arena", timeoutTicks = 80)
+    public static void corpseKilledInTheAirFalls(GameTestHelper h) {
+        WalkerEntity w = h.spawn(CoreEntities.WALKER.get(), new Vec3(3.5, 3.6, 3.5));
+        w.setNoAi(true);
+        h.runAfterDelay(3, () -> w.brainKill(null, 0));
+        h.runAfterDelay(50, () -> {
+            assertGrounded(h, w, "airborne");
+            h.succeed();
+        });
+    }
+
+    /** A corpse saved by the earlier build (lifted, NoAI) settles after loading; the reloaded state is still a corpse. */
+    @GameTest(template = "arena", timeoutTicks = 80)
+    public static void savedFloatingCorpseSettlesOnLoad(GameTestHelper h) {
+        WalkerEntity w = walker(h, Posture.UPRIGHT);
+        w.brainKill(null, 0);
+        CompoundTag tag = new CompoundTag();
+        w.saveWithoutId(tag);
+        tag.putBoolean("NoAI", true);
+        w.discard();
+        WalkerEntity copy = CoreEntities.WALKER.get().create(h.getLevel());
+        h.assertTrue(copy != null, "could not create a walker");
+        copy.load(tag);
+        copy.setUUID(UUID.randomUUID());
+        Vec3 lifted = h.absoluteVec(new Vec3(3.5, 2.72, 3.5));
+        copy.moveTo(lifted.x, lifted.y, lifted.z, 0, 0);
+        h.getLevel().addFreshEntity(copy);
+        h.runAfterDelay(40, () -> {
+            h.assertTrue(copy.isCorpse(), "corpse lost on reload");
+            assertGrounded(h, copy, "reloaded");
+            h.succeed();
+        });
     }
 }

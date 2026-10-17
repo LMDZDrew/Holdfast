@@ -72,6 +72,8 @@ public class WalkerEntity extends PathfinderMob implements GeoEntity {
     private final String[] seenClip = {"", "", ""};
     private String localClip;
     private int localNonce = -1;
+    /** Client: this walker was already a corpse when it was first rendered (chunk load, rejoin), so show it lying. */
+    private boolean settledCorpse;
 
     /** Paired presentation begins on the same client packet as the player's clip. Later data sync must not restart it. */
     public void startLocally(String clip, int nonce) { localClip = clip; localNonce = nonce; }
@@ -174,9 +176,9 @@ public class WalkerEntity extends PathfinderMob implements GeoEntity {
     public void brainKill(String reactionClip, int reactionTicks) {
         if (isCorpse()) return;
         Grabs.releaseByAttacker(this);
-        entityData.set(CORPSE, true);
-        setNoAi(true);
         getNavigation().stop();
+        setNoAi(false);                        // NoAI also disables travel(), i.e. gravity; isImmobile() holds a corpse still
+        entityData.set(CORPSE, true);          // resizes to the lying box at the same feet position (refreshDimensions)
         String clip = reactionClip != null ? reactionClip : switch (posture()) {
             case UPRIGHT -> "death_headshot";
             case CRAWLER -> "crawler_death";
@@ -209,6 +211,26 @@ public class WalkerEntity extends PathfinderMob implements GeoEntity {
     public net.minecraft.world.entity.EntityDimensions getDimensions(net.minecraft.world.entity.Pose pose) {
         if (posture().onGround() || isCorpse()) return net.minecraft.world.entity.EntityDimensions.scalable(1.6F, 0.5F);
         return super.getDimensions(pose);
+    }
+
+    /**
+     * Vanilla lifts a mob whose box grows (to keep it out of walls) to the old box's mid-height, which for the 1.95 to
+     * 0.5 lying box puts a fresh corpse 0.72 blocks in the air. A lying walker keeps its feet where they were when that
+     * box is free; otherwise vanilla's free spot stands and gravity settles it.
+     */
+    @Override
+    public void refreshDimensions() {
+        double x = getX(), y = getY(), z = getZ();
+        super.refreshDimensions();
+        if (level().isClientSide || (!posture().onGround() && !isCorpse()) || getY() == y) return;
+        net.minecraft.world.phys.AABB atFeet = getDimensions(getPose()).makeBoundingBox(x, y, z);
+        if (level().noCollision(this, atFeet.deflate(1.0E-7))) setPos(x, y, z);
+    }
+
+    /** Corpses run no goals, navigation or look control, but still fall and collide (unlike NoAI). */
+    @Override
+    protected boolean isImmobile() {
+        return isCorpse() || super.isImmobile();
     }
 
     @Override
@@ -271,7 +293,7 @@ public class WalkerEntity extends PathfinderMob implements GeoEntity {
             entityData.set(CORPSE, true);
             entityData.set(FULL_CLIP, tag.getString("HfDeathClip"));
             fullClipTicks = Integer.MAX_VALUE;
-            setNoAi(true);
+            setNoAi(false);                    // corpses saved before 2026-10-17 carry NoAI and a lifted position; let them settle
         }
     }
 
@@ -378,7 +400,13 @@ public class WalkerEntity extends PathfinderMob implements GeoEntity {
         String[] names = {"body", "arms", "head"};
         for (int i = 0; i < 3; i++) {
             final int layer = i;
-            controllers.add(new AnimationController<>(this, names[i], 4, state -> handle(layer, state)));
+            controllers.add(new AnimationController<>(this, names[i], 4, state -> handle(layer, state)) {
+                @Override
+                protected double adjustTick(double tick) {
+                    // a death clip already over before this client saw it plays from its held last frame
+                    return settledCorpse ? 1.0E6 : super.adjustTick(tick);
+                }
+            });
         }
     }
 
@@ -403,6 +431,7 @@ public class WalkerEntity extends PathfinderMob implements GeoEntity {
         String prefix = posture() == Posture.CRAWLER ? "animation.holdfast.crawler." : "animation.holdfast.walker.";
         state.getController().setTransitionLength(fullClip().isEmpty() ? 4 : 0);
         int nonce = clipNonce();
+        if (layer == 0 && seenNonce[0] == -1) settledCorpse = isCorpse();
         if (nonce != seenNonce[layer] || !clip.equals(seenClip[layer])) {
             seenNonce[layer] = nonce;
             seenClip[layer] = clip;

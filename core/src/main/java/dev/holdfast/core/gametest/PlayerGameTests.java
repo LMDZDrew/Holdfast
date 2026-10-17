@@ -42,13 +42,13 @@ public final class PlayerGameTests {
 
     private static ServerPlayer player(GameTestHelper h) {
         ServerPlayer p = FakePlayerFactory.get(h.getLevel(), new GameProfile(UUID.randomUUID(), "hf_test"));
-        Vec3 at = h.absoluteVec(new Vec3(3.5, 1, 1.5));
+        Vec3 at = h.absoluteVec(new Vec3(3.5, 2, 1.5));
         p.moveTo(at.x, at.y, at.z, 0.0F, 0.0F);       // facing +z, toward the walker
         return p;
     }
 
     private static WalkerEntity walker(GameTestHelper h) {
-        WalkerEntity w = h.spawn(CoreEntities.WALKER.get(), new BlockPos(3, 1, 2));
+        WalkerEntity w = h.spawn(CoreEntities.WALKER.get(), new BlockPos(3, 2, 2));
         w.setPosture(Posture.UPRIGHT);
         w.setNoAi(true);
         return w;
@@ -103,6 +103,38 @@ public final class PlayerGameTests {
         h.runAfterDelay(30, () -> {
             h.assertTrue(w.isCorpse(), "the execution didn't kill at its tick");
             h.assertFalse(Executions.isExecuting(p), "execution still running after the clip");
+            WalkerGameTests.assertGrounded(h, w, "executed");
+            h.succeed();
+        });
+    }
+
+    /** Ground executions (prone and crawler targets) kill and leave the corpse on the floor. */
+    @GameTest(template = "arena", timeoutTicks = 100)
+    public static void groundExecutionCorpsesLieOnTheFloor(GameTestHelper h) {
+        Posture[] postures = {Posture.PRONE, Posture.CRAWLER};
+        WalkerEntity[] ws = new WalkerEntity[2];
+        for (int i = 0; i < 2; i++) {
+            ServerPlayer p = FakePlayerFactory.get(h.getLevel(), new GameProfile(UUID.randomUUID(), "hf_test" + i));
+            Vec3 at = h.absoluteVec(new Vec3(1.5 + 4 * i, 2, 0.5));
+            p.moveTo(at.x, at.y, at.z, 0.0F, 0.0F);
+            p.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(CoreItems.KNIFE.get()));
+            double d = dev.holdfast.core.rules.ExecutionRules.clipFor(dev.holdfast.core.rules.WeaponClass.KNIFE, postures[i])
+                    .orElseThrow().distPx() / 16.0;
+            WalkerEntity w = h.spawn(CoreEntities.WALKER.get(), new Vec3(1.5 + 4 * i, 2, 0.5 + d));
+            w.setPosture(postures[i]);
+            w.setNoAi(true);
+            ws[i] = w;
+            final int n = i;
+            h.runAfterDelay(5, () -> {
+                Executions.request(p, ws[n]);
+                h.assertTrue(Executions.isExecuting(p), postures[n] + " knife execution was refused");
+            });
+        }
+        h.runAfterDelay(60, () -> {
+            for (WalkerEntity w : ws) {
+                h.assertTrue(w.isCorpse(), w.posture() + " execution did not kill");
+                WalkerGameTests.assertGrounded(h, w, w.posture() + " executed");
+            }
             h.succeed();
         });
     }
