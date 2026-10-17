@@ -99,6 +99,14 @@ def swing(name, weapon, length, poses, two=False, sounds=(), commit=None, strike
     return b
 
 
+# Weapons whose carry orientation is authored rather than hung blade-down: (grip-to-head axis, edge direction).
+# Hatchet (Andrew 2026-10-17: the carry held it incorrectly, the swing is fine): a low ready carry with the head
+# forward and a little up and the bit down, the rest pose its accepted swing was authored around
+# (swing_hatchet's final key P(6, 10, -5), axis (0.15, -0.15, -0.97), edge down). Wind-up and recovery then pitch
+# the hatchet through its arc instead of turning it over from a hanging head.
+CARRY_ORIENT = {"hatchet": ((0.12, 0.3, -0.95), (0.0, -1.0, 0.0))}
+
+
 @cache
 def relaxed_hold(weapon):
     """Construct the carry from the shoulder and fist, then orient the weapon around that fixed grip.
@@ -123,10 +131,18 @@ def relaxed_hold(weapon):
         axis = U(0.15, -0.97, -0.18) if not two else U(0.0, 0.42, -0.91)
         if weapon in ("axe", "bat"):
             axis = U(0.32, -0.65, -0.69)  # low diagonal carry, head clear of the legs
-        z = -axis
-        hint = U(0, 0, 1) if not two else U(0, 1, 0)
-        x = np.cross(hint, z); x /= np.linalg.norm(x)
-        y = np.cross(z, x)
+        if weapon in CARRY_ORIENT:
+            axis = U(*CARRY_ORIENT[weapon][0])
+            edge = np.array(CARRY_ORIENT[weapon][1], float)
+            edge = edge - (edge @ axis) * axis
+            edge /= np.linalg.norm(edge)
+            z, y = -axis, -edge
+            x = np.cross(y, z)
+        else:
+            z = -axis
+            hint = U(0, 0, 1) if not two else U(0, 1, 0)
+            x = np.cross(hint, z); x /= np.linalg.norm(x)
+            y = np.cross(z, x)
         wrist = bb_euler(W["rightItem"][:3, :3].T @ np.column_stack((x, y, z)))
         a.key(t, "rightItem", rot=wrist)
     # Same grip on every key; support hand can slide only within the physical handle.
@@ -159,7 +175,7 @@ def families():
     out, rep = {}, []
 
     def add(b, info):
-        out[b.name] = (b.a, info)
+        out[b.name] = (b.a, dict(info, geodesic_items=True))
         rep.extend(b.report)
 
     # ---------------------------------------------------------------- knife
@@ -259,7 +275,7 @@ def families():
             commit=wind, strike=contact), dict(weapon="bat", impacts=[]))
     for weapon in ("knife", "machete", "hatchet", "katana", "axe", "bat"):
         carry, report = relaxed_hold(weapon)
-        out["hold_" + weapon] = (carry, dict(weapon=weapon, impacts=[]))
+        out["hold_" + weapon] = (carry, dict(weapon=weapon, impacts=[], geodesic_items=True))
         rep.extend(report)
     # Empty-hand attacks also replace the vanilla swing, including attacks into the air.
     for heavy, length, contact in ((False, .45, .16), (True, .65, .26)):
@@ -270,7 +286,7 @@ def families():
         a.pose(contact + .08, torso=[12, -20, 3], rightArm=[-96, -8, 8])
         a.pose(length, **STAND, rightArm=[-12, 0, 12], leftArm=[-12, 0, -12])
         a.event(contact, "strike").sound(contact - .05, "holdfast_core:swing.light")
-        out["swing_unarmed" + ("_heavy" if heavy else "")] = (a, dict(impacts=[]))
+        out["swing_unarmed" + ("_heavy" if heavy else "")] = (a, dict(impacts=[], geodesic_items=True))
     return out, rep
 
 
@@ -381,7 +397,7 @@ if __name__ == "__main__":
         out, speeds = locomotion()
         for weapon in ("knife", "machete", "hatchet", "katana", "axe", "bat"):
             a, _ = relaxed_hold(weapon)
-            out["hold_" + weapon] = (a, dict(weapon=weapon, impacts=[]))
+            out["hold_" + weapon] = (a, dict(weapon=weapon, impacts=[], geodesic_items=True))
         pa.export(out, merge_keys=True)
         root = os.path.join(os.path.dirname(__file__), "..")
         target = os.path.join(root, "export", "assets", "holdfast")

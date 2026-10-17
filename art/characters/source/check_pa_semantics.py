@@ -95,6 +95,14 @@ if __name__ == "__main__":
             for ch, kk in chans.items():
                 for t, v in kk.items():
                     authored.key(float(t), bone, **({"rot": v["post"]} if ch == "rotation" else {"pos": v["post"]}))
+        meta = json.load(open(os.path.join(OUT, "player_animation_extras", name + ".extras.json"))).get("holdfast_meta") or {}
+        if meta.get("geodesic_items"):
+            # The exporter re-bakes these held items along the shortest weapon rotation between authored keys
+            # (player_anims.geodesic_item); model that reference, so this check still compares like with like.
+            reference = authored.baked()
+            for part, arm in (("rightItem", "rightArm"), ("leftItem", "leftArm")):
+                pa.geodesic_item(authored, reference, part, arm)
+            authored = reference
         err = 0.0
         for i in range(int(exported.length / 0.05) + 1):
             t = round(i * 0.05, 4)

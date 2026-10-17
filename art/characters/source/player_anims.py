@@ -300,7 +300,13 @@ def bat_charge():
     for t, d in ((0.0, 0.0), (0.5, 0.4), (1.0, 0.0)):
         b.pose(t, body_pos=[0, -0.6 - d, 0.6], torso=[-2, 35 + 2 * d, 0], head=[2, -14, 0], rightLeg=[10, 0, 0], leftLeg=[-8, 0, 0])
         b.solve_two(t, from_hands((1, 16 + d, -5.5), (0.45, 0.6, 0.65)), axis=U(0.45, 0.6, 0.65))
-    return b, dict(impacts=[], weapon="bat")
+    # The loop end must be the loop start: the warm-started solver lands on another arm/wrist solution for the
+    # same target at t=1.0, which snapped the bat ~35 degrees once a second while charging (2026-10-17 check).
+    for channels in b.a.tracks.values():
+        for k in channels.values():
+            if 0.0 in k:
+                k[b.a.length] = list(k[0.0])
+    return b, dict(impacts=[], weapon="bat", geodesic_items=True)
 
 
 def bat_charged():
@@ -557,7 +563,37 @@ def native_camera(a, info, step=0.05):
     return cam
 
 
-def to_player_animator(a, step=0.05, firearm_variant=False):
+def geodesic_item(a, out, part, arm):
+    """Re-bake a held item so the WEAPON (arm x wrist) turns along the shortest rotation between authored keys,
+    at a steady rate per key interval, instead of the composition of two per-channel Catmull-Rom curves.
+
+    Measured on the 2026-10-17 swings (scratch analysis, docs/testing.md): the per-channel bake made the visible
+    weapon travel up to 2.1x the direct rotation between keys and roll over about its handle during wind-ups and
+    recoveries, faster there than at the strike. Authored keys are unchanged; only the in-between wrist values are."""
+    import numpy as np
+    from scipy.spatial.transform import Rotation, Slerp
+    from lib import bb_matrix, bb_euler
+    keys = a.tracks.get(part, {}).get("rotation", {})
+    rot = out.tracks.get(part, {}).get("rotation", {})
+    kts = sorted(keys)
+    if len(kts) < 2 or not rot:
+        return
+
+    def arm_m(t):
+        return bb_matrix(a.value(arm, "rotation", t) or [0, 0, 0])
+
+    import pa_item
+    S = np.diag([-1.0, -1.0, 1.0])            # our Euler numbers are Rz Ry Rx in Minecraft model space (pa_item)
+    world = Rotation.from_matrix(np.array([arm_m(t) @ bb_matrix(keys[t]) for t in kts]))
+    slerp = Slerp(kts, world)
+    near = None
+    for t in sorted(rot):
+        w = slerp([min(max(t, kts[0]), kts[-1])]).as_matrix()[0]
+        near = pa_item.zyx_euler(S @ (arm_m(t).T @ w) @ S, near)      # continuous: no +-180 wrap between samples
+        rot[t] = [round(float(v), 2) for v in near]
+
+
+def to_player_animator(a, step=0.05, firearm_variant=False, geodesic_items=False):
     """Map our authoring rig onto Player Animator 1.0.2-rc1 parts, baked at 20 keys per second.
 
     In Player Animator the "torso" part only turns the chest box about the neck and does not carry
@@ -604,6 +640,9 @@ def to_player_animator(a, step=0.05, firearm_variant=False):
                 d += L.T @ np.array([-authored_leg[0], authored_leg[1], authored_leg[2]])
             if np.abs(d).max() > 0.005 or authored_leg is not None:
                 out.key(t, leg, pos=[round(-d[0], 3), round(d[1], 3), round(d[2], 3)])
+    if geodesic_items and not firearm_variant:
+        for part, arm in (("rightItem", "rightArm"), ("leftItem", "leftArm")):
+            geodesic_item(a, out, part, arm)
     # Held items: Player Animator turns them in the vanilla hand frame about the grip point, our rig turns
     # them in the arm frame about the fist (pa_item.py). Convert every key, and pin the pivot with a
     # constant position key so the same item model works whether or not a clip keys the wrist.
@@ -627,12 +666,14 @@ def export(out, merge_keys=False):
     keys = json.load(open(key_path))["animations"] if merge_keys and os.path.exists(key_path) else {}
     for k, (a, info) in out.items():
         native = info.get("pa_native", False)
-        pa_clip = native_player_animator(a) if native else to_player_animator(a, firearm_variant=info.get("firearm_variant", False))
+        pa_clip = native_player_animator(a) if native else to_player_animator(a, firearm_variant=info.get("firearm_variant", False),
+                                                                                geodesic_items=info.get("geodesic_items", False))
         write_json(os.path.join(pdir, f"{k}.json"),
                    {"format_version": "1.8.0", "animations": {k: pa_clip.to_json(smooth="linear")}})
         ex = native_camera(a, info) if native else camera_track(a, info)
         ex.sounds, ex.timeline = dict(a.sounds), dict(a.timeline)
-        meta = {"weapon": info.get("weapon"), "vanilla_pose": info.get("vanilla_pose"), "pa_native": native}
+        meta = {"weapon": info.get("weapon"), "vanilla_pose": info.get("vanilla_pose"), "pa_native": native,
+                "geodesic_items": bool(info.get("geodesic_items", False))}
         write_json(os.path.join(xdir, f"{k}.extras.json"),
                    {"format_version": "1.8.0", "holdfast_meta": meta, "animations": {k: ex.to_json(smooth="linear")}})
         if not native:      # player_keys feeds the authoring-rig checks and preview, which native clips don't fit

@@ -1,4 +1,5 @@
-"""Sample authored carries at 20 Hz: no arm inside chest, support hand on handle, one-hand blades down.
+"""Sample authored carries at 20 Hz: no arm inside chest, support hand on handle, one-hand blades down (or, for
+a weapon in player_weapons.CARRY_ORIENT, its authored ready orientation within 3 degrees).
 
 Uses the regenerated authoring keys, not a new solver run. This checks geometry; Andrew still judges appearance.
 """
@@ -8,6 +9,7 @@ import numpy as np
 from lib import Anim, OUT
 import fk
 import player_anims as pa
+from player_weapons import CARRY_ORIENT
 
 keys = json.load(open(os.path.join(OUT, "player_keys.animation.json")))["animations"]
 for weapon in ("knife", "machete", "hatchet", "katana", "axe", "bat"):
@@ -24,6 +26,12 @@ for weapon in ("knife", "machete", "hatchet", "katana", "axe", "bat"):
         if weapon in ("katana", "axe", "bat"):
             target = (W["rightItem"] @ np.array([0, 0, 3.5, 1]))[:3]
             grip = max(grip, np.linalg.norm(fk.point(W, "leftHand") - target))
+        elif weapon in CARRY_ORIENT:
+            want = np.array(CARRY_ORIENT[weapon][0], float)
+            want /= np.linalg.norm(want)
+            got = -W["rightItem"][:3, 2]
+            assert np.degrees(np.arccos(np.clip(got @ want, -1, 1))) < 3.0, (weapon, t, "carry not in its ready orientation", got)
+            assert -W["rightItem"][1, 1] < -.9, (weapon, t, "bit not facing down")
         else:
             assert -W["rightItem"][1, 2] < -.8, (weapon, t, "blade not pointing down")
     print(f"hold_{weapon}: chest depth {penetration:.4f} px; support-grip miss {grip:.3f} px")

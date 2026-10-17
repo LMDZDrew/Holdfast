@@ -265,7 +265,7 @@ def bat_free():
     b.solve_two(1.5, from_hands((0, 15, -5), (0.25, 0.85, 0.45)), axis=U(0.25, 0.85, 0.45))
     b.a.event(0.06, "commit").event(0.22, "strike").event(1.5, "recovered")
     b.a.sound(0.02, "holdfast:player.exert_heavy").sound(0.2, "holdfast:swing.whoosh_heavy").sound(0.75, "holdfast:player.stumble")
-    out["bat_charged_miss"] = (b.a, dict(impacts=[(0.45, 2.0)], weapon="bat"))
+    out["bat_charged_miss"] = (b.a, dict(impacts=[(0.45, 2.0)], weapon="bat", geodesic_items=True))
     return out
 
 

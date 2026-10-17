@@ -329,10 +329,15 @@ public final class ClientClips {
         String fam = gun ? null : family(p);
         String hold = fam == null || fam.equals("unarmed") || p.isUsingItem() || p.isSwimming() || p.isPassenger() ? null : "hold_" + fam;
         if (!Objects.equals(hold, a.hold)) {
+            boolean swap = a.hold != null && hold != null;
             a.hold = hold;
             ModifierLayer<IAnimation> layer = layer(p, HOLD);
             KeyframeAnimation data = hold == null ? null : PlayerAnimationRegistry.getAnimation(new ResourceLocation(HoldfastCore.ASSETS, hold));
-            blend(layer, data == null ? null : new CarryPlayer(data, a, fam.equals("axe") || fam.equals("bat") || fam.equals("katana")), 5);
+            CarryPlayer carry = data == null ? null : new CarryPlayer(data, a, fam.equals("axe") || fam.equals("bat") || fam.equals("katana"));
+            // Weapon to weapon: the item swaps at once, so the carry does too. A fade would turn the new weapon through
+            // the per-channel blend of two unrelated wrist poses (a visible twirl). Fade only to and from empty hands.
+            if (swap && layer != null) layer.setAnimation(carry);
+            else blend(layer, carry, 5);
         }
     }
 

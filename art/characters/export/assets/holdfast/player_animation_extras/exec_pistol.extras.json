@@ -3,7 +3,8 @@
  "holdfast_meta": {
   "weapon": "pistol",
   "vanilla_pose": null,
-  "pa_native": true
+  "pa_native": true,
+  "geodesic_items": false
  },
  "animations": {
   "exec_pistol": {

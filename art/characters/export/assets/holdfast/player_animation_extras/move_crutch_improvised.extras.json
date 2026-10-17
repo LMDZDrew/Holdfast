@@ -3,7 +3,8 @@
  "holdfast_meta": {
   "weapon": "crutch",
   "vanilla_pose": null,
-  "pa_native": false
+  "pa_native": false,
+  "geodesic_items": false
  },
  "animations": {
   "move_crutch_improvised": {

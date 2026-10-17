@@ -3,7 +3,8 @@
  "holdfast_meta": {
   "weapon": "bat",
   "vanilla_pose": null,
-  "pa_native": false
+  "pa_native": false,
+  "geodesic_items": true
  },
  "animations": {
   "swing_bat": {
