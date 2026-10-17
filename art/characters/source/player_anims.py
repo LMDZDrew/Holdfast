@@ -502,11 +502,49 @@ def build():
             gun_gait.tracks.pop(part, None)
         out[name + "_gun"] = (gun_gait, dict(info, firearm_variant=True))
     reports += rep2
+    import player_guns
+    guns, rep3 = player_guns.build()
+    out.update(guns)
+    reports += rep3
     write_json(os.path.join(OUT, "player_move_speeds.json"), speeds, indent=2)
     return out, reports
 
 
 PA_PARTS = set(PLAYER_BONES) | {"rightItem", "leftItem"}
+
+
+def native_player_animator(a, step=0.05):
+    """Clips authored directly in Player Animator part space (player_guns.py): parts and values are written as
+    authored, baked at 20 Hz. Only body position is scaled into real px (applied before the 15/16 model scale)."""
+    b = a.baked(step)
+    out = Anim(a.length, a.loop)
+    for bone, chans in b.tracks.items():
+        for ch, keys in chans.items():
+            for t, v in keys.items():
+                if bone == "body" and ch == "position":
+                    v = [round(x * PLAYER_SCALE, 3) for x in v]
+                out.key(t, bone, **({"rot": v} if ch == "rotation" else {"pos": v}))
+    return out
+
+
+def native_camera(a, info, step=0.05):
+    """First-person camera for native clips from their own head and body keys (the authoring rig would read the
+    chest-only torso part as an upper-body lean), plus the usual impact shake."""
+    cam = Anim(a.length, a.loop)
+    for i in range(int(round(a.length / step)) + 1):
+        t = round(min(i * step, a.length), 4)
+        h = a.value("head", "rotation", t) or [0, 0, 0]
+        bd = a.value("body", "rotation", t) or [0, 0, 0]
+        bp = a.value("body", "position", t) or [0, 0, 0]
+        pr = [0.55 * (h[0] + bd[0]), 0.55 * (h[1] + bd[1]), 0.5 * (h[2] + bd[2])]
+        for t0, amp in info.get("impacts", []):
+            if t >= t0:
+                d = t - t0
+                k = amp * math.exp(-d / 0.09)
+                pr[0] += k * math.cos(d * 55)
+                pr[2] += 0.7 * k * math.sin(d * 47)
+        cam.key(t, "camera", rot=pr, pos=[0.9 * bp[0], 0.9 * bp[1], 0.9 * bp[2]])
+    return cam
 
 
 def to_player_animator(a, step=0.05, firearm_variant=False):
@@ -569,14 +607,17 @@ def export(out):
     xdir = os.path.join(OUT, "player_animation_extras")
     keys = {}
     for k, (a, info) in out.items():
+        native = info.get("pa_native", False)
+        pa_clip = native_player_animator(a) if native else to_player_animator(a, firearm_variant=info.get("firearm_variant", False))
         write_json(os.path.join(pdir, f"{k}.json"),
-                   {"format_version": "1.8.0", "animations": {k: to_player_animator(a, firearm_variant=info.get("firearm_variant", False)).to_json(smooth="linear")}})
-        ex = camera_track(a, info)
+                   {"format_version": "1.8.0", "animations": {k: pa_clip.to_json(smooth="linear")}})
+        ex = native_camera(a, info) if native else camera_track(a, info)
         ex.sounds, ex.timeline = dict(a.sounds), dict(a.timeline)
-        meta = {"weapon": info.get("weapon"), "vanilla_pose": info.get("vanilla_pose")}
+        meta = {"weapon": info.get("weapon"), "vanilla_pose": info.get("vanilla_pose"), "pa_native": native}
         write_json(os.path.join(xdir, f"{k}.extras.json"),
                    {"format_version": "1.8.0", "holdfast_meta": meta, "animations": {k: ex.to_json(smooth="linear")}})
-        keys[f"animation.holdfast.player.{k}"] = a.to_json()
+        if not native:      # player_keys feeds the authoring-rig checks and preview, which native clips don't fit
+            keys[f"animation.holdfast.player.{k}"] = a.to_json()
     write_json(os.path.join(OUT, "player_keys.animation.json"), {"format_version": "1.8.0", "animations": keys})
 
 

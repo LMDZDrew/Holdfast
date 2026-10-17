@@ -1,0 +1,333 @@
+{
+ "textures": {
+  "t": "holdfast_core:item/weapons_atlas",
+  "particle": "holdfast_core:item/weapons_atlas"
+ },
+ "elements": [
+  {
+   "from": [
+    7.7,
+    5.5,
+    7.7
+   ],
+   "to": [
+    8.3,
+    9.25,
+    8.3
+   ],
+   "faces": {
+    "north": {
+     "uv": [
+      12,
+      4,
+      16,
+      8
+     ],
+     "texture": "#t"
+    },
+    "east": {
+     "uv": [
+      12,
+      4,
+      16,
+      8
+     ],
+     "texture": "#t"
+    },
+    "south": {
+     "uv": [
+      12,
+      4,
+      16,
+      8
+     ],
+     "texture": "#t"
+    },
+    "west": {
+     "uv": [
+      12,
+      4,
+      16,
+      8
+     ],
+     "texture": "#t"
+    },
+    "up": {
+     "uv": [
+      12,
+      4,
+      16,
+      8
+     ],
+     "texture": "#t"
+    },
+    "down": {
+     "uv": [
+      12,
+      4,
+      16,
+      8
+     ],
+     "texture": "#t"
+    }
+   }
+  },
+  {
+   "from": [
+    7.25,
+    9.25,
+    7.25
+   ],
+   "to": [
+    8.75,
+    9.6,
+    8.75
+   ],
+   "faces": {
+    "north": {
+     "uv": [
+      8,
+      4,
+      12,
+      8
+     ],
+     "texture": "#t"
+    },
+    "east": {
+     "uv": [
+      8,
+      4,
+      12,
+      8
+     ],
+     "texture": "#t"
+    },
+    "south": {
+     "uv": [
+      8,
+      4,
+      12,
+      8
+     ],
+     "texture": "#t"
+    },
+    "west": {
+     "uv": [
+      8,
+      4,
+      12,
+      8
+     ],
+     "texture": "#t"
+    },
+    "up": {
+     "uv": [
+      8,
+      4,
+      12,
+      8
+     ],
+     "texture": "#t"
+    },
+    "down": {
+     "uv": [
+      8,
+      4,
+      12,
+      8
+     ],
+     "texture": "#t"
+    }
+   }
+  },
+  {
+   "from": [
+    7.85,
+    9.6,
+    7.4
+   ],
+   "to": [
+    8.15,
+    21.0,
+    8.3
+   ],
+   "faces": {
+    "north": {
+     "uv": [
+      4,
+      0,
+      8,
+      4
+     ],
+     "texture": "#t"
+    },
+    "east": {
+     "uv": [
+      4,
+      0,
+      8,
+      4
+     ],
+     "texture": "#t"
+    },
+    "south": {
+     "uv": [
+      4,
+      0,
+      8,
+      4
+     ],
+     "texture": "#t"
+    },
+    "west": {
+     "uv": [
+      4,
+      0,
+      8,
+      4
+     ],
+     "texture": "#t"
+    },
+    "up": {
+     "uv": [
+      4,
+      0,
+      8,
+      4
+     ],
+     "texture": "#t"
+    },
+    "down": {
+     "uv": [
+      4,
+      0,
+      8,
+      4
+     ],
+     "texture": "#t"
+    }
+   }
+  }
+ ],
+ "display": {
+  "thirdperson_righthand": {
+   "rotation": [
+    0,
+    0,
+    0
+   ],
+   "translation": [
+    0,
+    0,
+    0
+   ],
+   "scale": [
+    2.0,
+    2.0,
+    2.0
+   ]
+  },
+  "thirdperson_lefthand": {
+   "rotation": [
+    0,
+    0,
+    0
+   ],
+   "translation": [
+    0,
+    0,
+    0
+   ],
+   "scale": [
+    2.0,
+    2.0,
+    2.0
+   ]
+  },
+  "firstperson_righthand": {
+   "rotation": [
+    0,
+    0,
+    0
+   ],
+   "translation": [
+    0,
+    0,
+    0
+   ],
+   "scale": [
+    2.0,
+    2.0,
+    2.0
+   ]
+  },
+  "firstperson_lefthand": {
+   "rotation": [
+    0,
+    0,
+    0
+   ],
+   "translation": [
+    0,
+    0,
+    0
+   ],
+   "scale": [
+    2.0,
+    2.0,
+    2.0
+   ]
+  },
+  "gui": {
+   "rotation": [
+    30,
+    45,
+    0
+   ],
+   "translation": [
+    0,
+    0,
+    0
+   ],
+   "scale": [
+    0.42,
+    0.42,
+    0.42
+   ]
+  },
+  "ground": {
+   "rotation": [
+    0,
+    0,
+    0
+   ],
+   "translation": [
+    0,
+    2,
+    0
+   ],
+   "scale": [
+    0.4,
+    0.4,
+    0.4
+   ]
+  },
+  "fixed": {
+   "rotation": [
+    0,
+    0,
+    0
+   ],
+   "translation": [
+    0,
+    0,
+    0
+   ],
+   "scale": [
+    0.5,
+    0.5,
+    0.5
+   ]
+  }
+ }
+}

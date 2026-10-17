@@ -2,7 +2,8 @@
  "format_version": "1.8.0",
  "holdfast_meta": {
   "weapon": null,
-  "vanilla_pose": "swimming"
+  "vanilla_pose": "swimming",
+  "pa_native": false
  },
  "animations": {
   "move_crawl_legless": {

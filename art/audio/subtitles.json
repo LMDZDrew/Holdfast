@@ -1,0 +1,19 @@
+{
+ "subtitles.holdfast_core.walker.groan": "Walker groans",
+ "subtitles.holdfast_core.walker.breath": "Walker rasps",
+ "subtitles.holdfast_core.walker.snarl": "Walker snarls",
+ "subtitles.holdfast_core.walker.lunge": "Walker lunges",
+ "subtitles.holdfast_core.walker.bite": "Walker bites",
+ "subtitles.holdfast_core.walker.death": "Walker goes still",
+ "subtitles.holdfast_core.impact.blunt": "Blunt impact",
+ "subtitles.holdfast_core.impact.slash": "Blade cuts",
+ "subtitles.holdfast_core.impact.stab": "Blade stabs",
+ "subtitles.holdfast_core.impact.gunshot": "Bullet hits flesh",
+ "subtitles.holdfast_core.impact.skull_blunt": "Skull caves in",
+ "subtitles.holdfast_core.impact.skull_blade": "Blade into skull",
+ "subtitles.holdfast_core.impact.skull_gunshot": "Headshot",
+ "subtitles.holdfast_core.swing.light": "Swing",
+ "subtitles.holdfast_core.swing.heavy": "Heavy swing",
+ "subtitles.holdfast_core.body.fall": "Body falls",
+ "subtitles.holdfast_core.bite.blocked": "Bite blocked"
+}

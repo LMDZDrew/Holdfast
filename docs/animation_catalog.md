@@ -55,10 +55,12 @@ Times are seconds from the start of the clip. Events and sounds are **presentati
 | `animation.holdfast.walker.react_bat_charged` | 1.42 | hold last frame | all (13) | `kill` 0.20 | 0.20 `hit.blunt_skull_heavy`, 1.18 `body.fall` |
 | `animation.holdfast.walker.react_axe` | 1.94 | hold last frame | all (13) | `kill` 0.46, `release` 0.86 | 0.46 `hit.axe_skull`, 1.70 `body.fall` |
 | `animation.holdfast.walker.react_machete` | 1.70 | hold last frame | all (13) | `kill` 0.30, `release` 0.62 | 0.30 `hit.blade_skull`, 1.46 `body.fall` |
+| `animation.holdfast.walker.react_pistol` | 1.42 | hold last frame | all (13) | `kill` 0.36 | 0.36 `hit.gunshot_skull`, 1.18 `body.fall` |
 | `animation.holdfast.walker.react_knife_ground_prone` | 1.76 | hold last frame | all (13) | `kill` 0.50, `release` 0.86, `corpse` 1.76 | 0.50 `hit.knife_skull` |
 | `animation.holdfast.walker.react_axe_ground_prone` | 1.86 | hold last frame | all (13) | `kill` 0.56, `release` 0.96, `corpse` 1.86 | 0.56 `hit.axe_skull` |
 | `animation.holdfast.walker.react_machete_ground_prone` | 1.62 | hold last frame | all (13) | `kill` 0.38, `release` 0.72, `corpse` 1.62 | 0.38 `hit.machete_skull` |
 | `animation.holdfast.walker.react_bat_ground_prone` | 1.64 | hold last frame | all (13) | `kill` 0.42, `release` 0.74, `corpse` 1.64 | 0.42 `hit.bat_skull` |
+| `animation.holdfast.walker.react_pistol_ground_prone` | 1.46 | hold last frame | all (13) | `kill` 0.46, `release` 0.56, `corpse` 1.46 | 0.46 `hit.gunshot_skull` |
 
 ## Lower-half crawler (GeckoLib, `animations/walker_crawler.animation.json`)
 
@@ -78,6 +80,7 @@ Times are seconds from the start of the clip. Events and sounds are **presentati
 | `animation.holdfast.crawler.react_axe_ground` | 1.86 | hold last frame | all (10) | `kill` 0.56, `release` 0.96, `corpse` 1.86 | 0.56 `hit.axe_skull` |
 | `animation.holdfast.crawler.react_machete_ground` | 1.62 | hold last frame | all (10) | `kill` 0.38, `release` 0.72, `corpse` 1.62 | 0.38 `hit.machete_skull` |
 | `animation.holdfast.crawler.react_bat_ground` | 1.64 | hold last frame | all (10) | `kill` 0.42, `release` 0.74, `corpse` 1.64 | 0.42 `hit.bat_skull` |
+| `animation.holdfast.crawler.react_pistol_ground` | 1.46 | hold last frame | all (10) | `kill` 0.46, `release` 0.56, `corpse` 1.46 | 0.46 `hit.gunshot_skull` |
 
 ## Player (Player Animator, `player_animation/<clip>.json`; extras in `player_animation_extras/<clip>.extras.json`)
 
@@ -98,6 +101,8 @@ Times are seconds from the start of the clip. Events and sounds are **presentati
 | `exec_knife_ground` | 1.20 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | knife | `commit` 0.32, `kill` 0.50, `release` 0.86 | 0.15 `player.exert_light`, 0.50 `player.exert_heavy`, 0.80 `knife.pull` |
 | `exec_machete` | 0.95 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | machete | `commit` 0.16, `kill` 0.30, `release` 0.62 | 0.08 `player.exert_light`, 0.30 `player.exert_heavy`, 0.56 `player.exert_strain` |
 | `exec_machete_ground` | 1.10 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | machete | `commit` 0.20, `kill` 0.38, `release` 0.72 | 0.08 `player.exert_light`, 0.38 `player.exert_heavy`, 0.64 `player.exert_strain` |
+| `exec_pistol` | 1.10 | once | body, head, leftArm, leftLeg, rightArm, rightLeg, torso | pistol | `commit` 0.18, `kill` 0.36 | 0.10 `player.exert_light`, 0.76 `player.breath_heavy` |
+| `exec_pistol_ground` | 1.20 | once | body, head, leftArm, leftLeg, rightArm, rightLeg, torso | pistol | `commit` 0.22, `kill` 0.46 | 0.12 `player.exert_light` |
 | `grabbed_ankle_bite_blocked` | 0.60 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | 0.36 `player.gasp` |
 | `grabbed_ankle_bitten` | 1.00 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | 0.38 `player.scream` |
 | `grabbed_ankle_kick` | 0.60 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | `kick` 0.14 | 0.14 `player.exert_heavy` |
@@ -111,12 +116,16 @@ Times are seconds from the start of the clip. Events and sounds are **presentati
 | `grabbed_shove` | 0.60 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | `shove` 0.14 | 0.14 `player.exert_heavy` |
 | `grabbed_struggle` | 0.80 | loop | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | 0.00 `player.strain` |
 | `move_arm_injured` | 0.50 | loop | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | — |
+| `move_arm_injured_gun` | 0.50 | loop | body, leftLeg, rightLeg | — | — | — |
 | `move_crawl_legless` | 2.20 | loop | head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — (inside vanilla `swimming` pose) | — | — |
 | `move_crutch_improvised` | 0.65 | loop | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | crutch | — | — |
 | `move_crutch_medical` | 0.45 | loop | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | crutch | — | — |
 | `move_limp` | 0.50 | loop | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | — |
+| `move_limp_gun` | 0.50 | loop | body, leftLeg, rightLeg | — | — | — |
 | `move_limp_severe` | 0.60 | loop | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | — |
+| `move_limp_severe_gun` | 0.60 | loop | body, leftLeg, rightLeg | — | — | — |
 | `move_prosthesis` | 0.60 | loop | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | — |
+| `move_prosthesis_gun` | 0.60 | loop | body, leftLeg, rightLeg | — | — | — |
 
 ## Reference speeds at 1× playback
 
@@ -158,6 +167,8 @@ Distance in pixels (1/16 block) from the survivor's feet to the attacker's origi
 | machete_ground_prone | 28.08 |
 | bat_ground_crawler | 29.08 |
 | bat_ground_prone | 33.08 |
+| pistol_ground_crawler | 27.08 |
+| pistol_ground_prone | 31.08 |
 | Execution `knife` | 18 |
 | Execution `bat_quick` | 28 |
 | Execution `bat_charged` | 28 |

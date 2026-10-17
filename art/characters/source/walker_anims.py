@@ -437,8 +437,11 @@ EXECS = {
     "axe_ground":     dict(length=1.4, commit=0.34, impact=0.56, release=0.96, kind="chop_ground"),
     "machete_ground": dict(length=1.1, commit=0.2, impact=0.38, release=0.72, kind="chop_ground"),
     "bat_ground":     dict(length=1.2, commit=0.2, impact=0.42, release=0.74, kind="blunt_ground"),
+    # TaCZ pistol class only (decisions.md); player clips in player_guns.py start from TaCZ's own hold
+    "pistol":         dict(length=1.1, dist=24, commit=0.18, impact=0.36, kind="shot", fall="back"),
+    "pistol_ground":  dict(length=1.2, commit=0.22, impact=0.46, release=0.56, kind="shot_ground"),
 }
-GROUND_EXECS = ("knife", "axe", "machete", "bat")
+GROUND_EXECS = ("knife", "axe", "machete", "bat", "pistol")
 
 
 def reactions():
@@ -465,14 +468,25 @@ def reactions():
         a = Anim(length, "hold_on_last_frame")
         full(a, 0, APPROACH)
         if kind == "stab":
+            # The knife hooks into the LEFT temple travelling across the head (player_anims.knife), so the
+            # head is knocked over toward the walker's right and turned away, not snapped back as for a
+            # frontal eye stab (Andrew, in game 2026-10-16). z < 0 tilts toward its right; y < 0 turns right.
             a.pose(0.12, torso=[14, 0, 0], root_pos=[0, 0, 0.5])            # palm on its chest
-            a.pose(I, head=[-22, 4, 10], jaw=[30, 0, 0], rightForearm=[-2, 0, 0], leftForearm=[-2, 0, 0])
-            a.pose(I + 0.08, head=[-14, 6, 8], rightArm=[-50, 0, 10], leftArm=[-46, 0, -10])
-            a.pose(R - 0.12, head=[-10, 0, 6], torso=[16, 0, 0], hips_pos=[0, -1, 0], rightArm=[-20, 0, 6],
+            a.pose(I, head=[-4, -16, -26], jaw=[30, 0, 0], rightForearm=[-2, 0, 0], leftForearm=[-2, 0, 0])
+            a.pose(I + 0.08, head=[-2, -18, -30], torso=[12, -4, -6], rightArm=[-50, 0, 10], leftArm=[-46, 0, -10])
+            a.pose(R - 0.12, head=[4, -14, -24], torso=[16, -4, -6], hips_pos=[0, -1, 0], rightArm=[-20, 0, 6],
                    leftArm=[-16, 0, -6], rightShin=[18, 0, 0], leftShin=[16, 0, 0])
-            a.pose(R - 0.06, head=[-2, -8, 2])                               # blade wrenched out
-            a.pose(R + 0.04, root_pos=[0, 0, 3], torso=[-6, 0, 0], head=[-18, 0, 0])   # shoved off
+            a.pose(R - 0.06, head=[0, -6, -10])                              # blade wrenched out, head swings back
+            a.pose(R + 0.04, root_pos=[0, 0, 3], torso=[-6, 0, 0], head=[-14, 10, 8])  # shoved off
             hit = collapse(a, R, "back")
+        elif kind == "shot":
+            # close-range shot to the forehead: head whips back, knees go, falls straight back
+            full(a, I - 0.02, APPROACH)
+            a.pose(I + 0.04, head=[-46, 4, 6], jaw=[34, 0, 0], torso=[-10, 0, 0], root_pos=[0, 0, 0.8],
+                   rightArm=[-30, 0, 20], leftArm=[-26, 0, -18], rightForearm=[-4, 0, 0], leftForearm=[-4, 0, 0])
+            a.pose(I + 0.14, head=[-30, 2, 4], torso=[-14, 0, 0], hips_pos=[0, -1.5, 0], rightShin=[20, 0, 0],
+                   leftShin=[18, 0, 0])
+            hit = collapse(a, I + 0.1, "back")
         elif kind == "blunt_kill":
             full(a, I - 0.02, APPROACH)
             a.pose(I + 0.06, head=[-10, -40, -55], jaw=[34, 0, 0], torso=[8, -26, -16], root_pos=[-2, 0, 0],
@@ -495,7 +509,8 @@ def reactions():
             a.pose(R, head=[6, -4, -14])
             hit = collapse(a, R, "side")
         a.sound(I, {"stab": "holdfast:hit.knife_skull", "blunt_kill": "holdfast:hit.blunt_skull_heavy",
-                    "chop_top": "holdfast:hit.axe_skull", "chop_side": "holdfast:hit.blade_skull"}[kind])
+                    "chop_top": "holdfast:hit.axe_skull", "chop_side": "holdfast:hit.blade_skull",
+                    "shot": "holdfast:hit.gunshot_skull"}[kind])
         a.sound(hit, "holdfast:body.fall")
         a.event(I, "kill")
         if "release" in e:
@@ -518,9 +533,9 @@ def ground_reactions():
 def _ground_reaction(w):
     e = EXECS[f"{w}_ground"]
     I, R = e["impact"], e["release"]
-    blunt = e["kind"].startswith("blunt")
+    blunt = e["kind"].startswith(("blunt", "shot"))          # no blade to pull out: the head bounces
     hit = {"knife": "holdfast:hit.knife_skull", "axe": "holdfast:hit.axe_skull", "machete": "holdfast:hit.machete_skull",
-           "bat": "holdfast:hit.bat_skull"}[w]
+           "bat": "holdfast:hit.bat_skull", "pistol": "holdfast:hit.gunshot_skull"}[w]
     out = {}
     # prone walker: lifts its head at the player, gets pinned
     PR = dict(NEUTRAL, root=[90, 0, 0], root_pos=[0, 2, 16], torso=[0, 0, 0], head=[-50, 0, 0], jaw=[20, 0, 0],

@@ -10,6 +10,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -207,11 +209,28 @@ public final class TestCommands {
      */
     private static String equip(ServerPlayer p, String playerClip) {
         String weapon = Clips.WEAPON.get(playerClip);
+        if ("pistol".equals(weapon)) return equipTaczPistol(p);
         if (weapon == null || !HoldfastAnimTest.TEST_WEAPONS.containsKey(weapon)) return "";
         Item item = HoldfastAnimTest.TEST_WEAPONS.get(weapon).get();
         hold(p, InteractionHand.MAIN_HAND, item);
         if (weapon.equals("crutch")) hold(p, InteractionHand.OFF_HAND, item);
         return " holding test " + weapon;
+    }
+
+    /**
+     * Handgun executions are judged with TaCZ's own pistol (model, third-person hold), never a stand-in. Looked up
+     * by registry name so the harness has no compile dependency on TaCZ; GunId is TaCZ 1.1.8's item NBT key.
+     */
+    private static String equipTaczPistol(ServerPlayer p) {
+        Item gun = ForgeRegistries.ITEMS.getValue(new ResourceLocation("tacz", "modern_kinetic_gun"));
+        if (gun == null || gun == net.minecraft.world.item.Items.AIR) return " (TaCZ not installed: hold a pistol yourself)";
+        ItemStack held = p.getMainHandItem();
+        if (held.is(gun)) return " holding your TaCZ gun";
+        ItemStack glock = new ItemStack(gun);
+        glock.getOrCreateTag().putString("GunId", "tacz:glock_17");
+        if (!held.isEmpty() && !p.getInventory().add(held.copy())) p.drop(held.copy(), false);
+        p.setItemInHand(InteractionHand.MAIN_HAND, glock);
+        return " holding TaCZ glock_17";
     }
 
     private static void hold(ServerPlayer p, InteractionHand hand, Item item) {

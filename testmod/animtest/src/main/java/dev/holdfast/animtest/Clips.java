@@ -56,10 +56,12 @@ public final class Clips {
         Map.entry("react_bat_charged", 1.42),
         Map.entry("react_axe", 1.94),
         Map.entry("react_machete", 1.7),
+        Map.entry("react_pistol", 1.42),
         Map.entry("react_knife_ground_prone", 1.76),
         Map.entry("react_axe_ground_prone", 1.86),
         Map.entry("react_machete_ground_prone", 1.62),
-        Map.entry("react_bat_ground_prone", 1.64)
+        Map.entry("react_bat_ground_prone", 1.64),
+        Map.entry("react_pistol_ground_prone", 1.46)
     );
 
     /** clip name -> animation_length in seconds */
@@ -77,7 +79,8 @@ public final class Clips {
         Map.entry("react_knife_ground", 1.76),
         Map.entry("react_axe_ground", 1.86),
         Map.entry("react_machete_ground", 1.62),
-        Map.entry("react_bat_ground", 1.64)
+        Map.entry("react_bat_ground", 1.64),
+        Map.entry("react_pistol_ground", 1.46)
     );
 
     /** clip name -> animation_length in seconds */
@@ -97,6 +100,8 @@ public final class Clips {
         Map.entry("exec_knife_ground", 1.2),
         Map.entry("exec_machete", 0.95),
         Map.entry("exec_machete_ground", 1.1),
+        Map.entry("exec_pistol", 1.1),
+        Map.entry("exec_pistol_ground", 1.2),
         Map.entry("grabbed_ankle_bite_blocked", 0.6),
         Map.entry("grabbed_ankle_bitten", 1.0),
         Map.entry("grabbed_ankle_kick", 0.6),
@@ -147,6 +152,8 @@ public final class Clips {
         Map.entry("exec_knife_ground", "knife"),
         Map.entry("exec_machete", "machete"),
         Map.entry("exec_machete_ground", "machete"),
+        Map.entry("exec_pistol", "pistol"),
+        Map.entry("exec_pistol_ground", "pistol"),
         Map.entry("move_crutch_improvised", "crutch"),
         Map.entry("move_crutch_medical", "crutch")
     );
@@ -174,6 +181,7 @@ public final class Clips {
         new Pair("exec_bat_charged", "exec_bat_charged", false, "react_bat_charged", 28.0),
         new Pair("exec_axe", "exec_axe", false, "react_axe", 26.0),
         new Pair("exec_machete", "exec_machete", false, "react_machete", 22.0),
+        new Pair("exec_pistol", "exec_pistol", false, "react_pistol", 24.0),
         new Pair("exec_knife_ground_crawler", "exec_knife_ground", true, "react_knife_ground", 19.08),
         new Pair("exec_knife_ground_prone", "exec_knife_ground", false, "react_knife_ground_prone", 23.08),
         new Pair("exec_axe_ground_crawler", "exec_axe_ground", true, "react_axe_ground", 31.08),
@@ -181,6 +189,8 @@ public final class Clips {
         new Pair("exec_machete_ground_crawler", "exec_machete_ground", true, "react_machete_ground", 24.08),
         new Pair("exec_machete_ground_prone", "exec_machete_ground", false, "react_machete_ground_prone", 28.08),
         new Pair("exec_bat_ground_crawler", "exec_bat_ground", true, "react_bat_ground", 29.08),
-        new Pair("exec_bat_ground_prone", "exec_bat_ground", false, "react_bat_ground_prone", 33.08)
+        new Pair("exec_bat_ground_prone", "exec_bat_ground", false, "react_bat_ground_prone", 33.08),
+        new Pair("exec_pistol_ground_crawler", "exec_pistol_ground", true, "react_pistol_ground", 27.08),
+        new Pair("exec_pistol_ground_prone", "exec_pistol_ground", false, "react_pistol_ground_prone", 31.08)
     );
 }

@@ -29,6 +29,8 @@ for name, (a, info) in out.items():
     w = name[5:]
     e = wa.EXECS[w]
     weapon = info["weapon"]
+    if weapon not in pa.WEAPON:      # pistol: no blade in the skull; the server's hitscan decides the shot
+        continue
     strike = pa.WEAPON[weapon][0]
     if w.endswith("_ground"):
         react, RIG, dist = pa.W["crawler"][f"react_{w}"], pa.CR, PAIR[f"{w}_crawler"]["dist"]

@@ -1,0 +1,303 @@
+{
+ "walker.groan": {
+  "subtitle": "subtitles.holdfast_core.walker.groan",
+  "sounds": [
+   {
+    "name": "holdfast_core:walker/groan_1"
+   },
+   {
+    "name": "holdfast_core:walker/groan_2"
+   },
+   {
+    "name": "holdfast_core:walker/groan_3"
+   },
+   {
+    "name": "holdfast_core:walker/groan_4"
+   },
+   {
+    "name": "holdfast_core:walker/groan_5"
+   }
+  ]
+ },
+ "walker.breath": {
+  "subtitle": "subtitles.holdfast_core.walker.breath",
+  "sounds": [
+   {
+    "name": "holdfast_core:walker/breath_1"
+   },
+   {
+    "name": "holdfast_core:walker/breath_2"
+   },
+   {
+    "name": "holdfast_core:walker/breath_3"
+   },
+   {
+    "name": "holdfast_core:walker/breath_4"
+   }
+  ]
+ },
+ "walker.snarl": {
+  "subtitle": "subtitles.holdfast_core.walker.snarl",
+  "sounds": [
+   {
+    "name": "holdfast_core:walker/snarl_1"
+   },
+   {
+    "name": "holdfast_core:walker/snarl_2"
+   },
+   {
+    "name": "holdfast_core:walker/snarl_3"
+   },
+   {
+    "name": "holdfast_core:walker/snarl_4"
+   },
+   {
+    "name": "holdfast_core:walker/snarl_5"
+   }
+  ]
+ },
+ "walker.lunge": {
+  "subtitle": "subtitles.holdfast_core.walker.lunge",
+  "sounds": [
+   {
+    "name": "holdfast_core:walker/lunge_1"
+   },
+   {
+    "name": "holdfast_core:walker/lunge_2"
+   },
+   {
+    "name": "holdfast_core:walker/lunge_3"
+   }
+  ]
+ },
+ "walker.bite": {
+  "subtitle": "subtitles.holdfast_core.walker.bite",
+  "sounds": [
+   {
+    "name": "holdfast_core:walker/bite_1"
+   },
+   {
+    "name": "holdfast_core:walker/bite_2"
+   },
+   {
+    "name": "holdfast_core:walker/bite_3"
+   },
+   {
+    "name": "holdfast_core:walker/bite_4"
+   }
+  ]
+ },
+ "walker.death": {
+  "subtitle": "subtitles.holdfast_core.walker.death",
+  "sounds": [
+   {
+    "name": "holdfast_core:walker/death_1"
+   },
+   {
+    "name": "holdfast_core:walker/death_2"
+   },
+   {
+    "name": "holdfast_core:walker/death_3"
+   }
+  ]
+ },
+ "impact.blunt": {
+  "subtitle": "subtitles.holdfast_core.impact.blunt",
+  "sounds": [
+   {
+    "name": "holdfast_core:impact/blunt_1"
+   },
+   {
+    "name": "holdfast_core:impact/blunt_2"
+   },
+   {
+    "name": "holdfast_core:impact/blunt_3"
+   },
+   {
+    "name": "holdfast_core:impact/blunt_4"
+   },
+   {
+    "name": "holdfast_core:impact/blunt_5"
+   }
+  ]
+ },
+ "impact.slash": {
+  "subtitle": "subtitles.holdfast_core.impact.slash",
+  "sounds": [
+   {
+    "name": "holdfast_core:impact/slash_1"
+   },
+   {
+    "name": "holdfast_core:impact/slash_2"
+   },
+   {
+    "name": "holdfast_core:impact/slash_3"
+   },
+   {
+    "name": "holdfast_core:impact/slash_4"
+   },
+   {
+    "name": "holdfast_core:impact/slash_5"
+   }
+  ]
+ },
+ "impact.stab": {
+  "subtitle": "subtitles.holdfast_core.impact.stab",
+  "sounds": [
+   {
+    "name": "holdfast_core:impact/stab_1"
+   },
+   {
+    "name": "holdfast_core:impact/stab_2"
+   },
+   {
+    "name": "holdfast_core:impact/stab_3"
+   },
+   {
+    "name": "holdfast_core:impact/stab_4"
+   },
+   {
+    "name": "holdfast_core:impact/stab_5"
+   }
+  ]
+ },
+ "impact.gunshot": {
+  "subtitle": "subtitles.holdfast_core.impact.gunshot",
+  "sounds": [
+   {
+    "name": "holdfast_core:impact/gunshot_1"
+   },
+   {
+    "name": "holdfast_core:impact/gunshot_2"
+   },
+   {
+    "name": "holdfast_core:impact/gunshot_3"
+   },
+   {
+    "name": "holdfast_core:impact/gunshot_4"
+   },
+   {
+    "name": "holdfast_core:impact/gunshot_5"
+   }
+  ]
+ },
+ "impact.skull_blunt": {
+  "subtitle": "subtitles.holdfast_core.impact.skull_blunt",
+  "sounds": [
+   {
+    "name": "holdfast_core:impact/skull_blunt_1"
+   },
+   {
+    "name": "holdfast_core:impact/skull_blunt_2"
+   },
+   {
+    "name": "holdfast_core:impact/skull_blunt_3"
+   },
+   {
+    "name": "holdfast_core:impact/skull_blunt_4"
+   }
+  ]
+ },
+ "impact.skull_blade": {
+  "subtitle": "subtitles.holdfast_core.impact.skull_blade",
+  "sounds": [
+   {
+    "name": "holdfast_core:impact/skull_blade_1"
+   },
+   {
+    "name": "holdfast_core:impact/skull_blade_2"
+   },
+   {
+    "name": "holdfast_core:impact/skull_blade_3"
+   },
+   {
+    "name": "holdfast_core:impact/skull_blade_4"
+   }
+  ]
+ },
+ "impact.skull_gunshot": {
+  "subtitle": "subtitles.holdfast_core.impact.skull_gunshot",
+  "sounds": [
+   {
+    "name": "holdfast_core:impact/skull_gunshot_1"
+   },
+   {
+    "name": "holdfast_core:impact/skull_gunshot_2"
+   },
+   {
+    "name": "holdfast_core:impact/skull_gunshot_3"
+   },
+   {
+    "name": "holdfast_core:impact/skull_gunshot_4"
+   }
+  ]
+ },
+ "swing.light": {
+  "subtitle": "subtitles.holdfast_core.swing.light",
+  "sounds": [
+   {
+    "name": "holdfast_core:swing/light_1"
+   },
+   {
+    "name": "holdfast_core:swing/light_2"
+   },
+   {
+    "name": "holdfast_core:swing/light_3"
+   },
+   {
+    "name": "holdfast_core:swing/light_4"
+   }
+  ]
+ },
+ "swing.heavy": {
+  "subtitle": "subtitles.holdfast_core.swing.heavy",
+  "sounds": [
+   {
+    "name": "holdfast_core:swing/heavy_1"
+   },
+   {
+    "name": "holdfast_core:swing/heavy_2"
+   },
+   {
+    "name": "holdfast_core:swing/heavy_3"
+   },
+   {
+    "name": "holdfast_core:swing/heavy_4"
+   }
+  ]
+ },
+ "body.fall": {
+  "subtitle": "subtitles.holdfast_core.body.fall",
+  "sounds": [
+   {
+    "name": "holdfast_core:body/fall_1"
+   },
+   {
+    "name": "holdfast_core:body/fall_2"
+   },
+   {
+    "name": "holdfast_core:body/fall_3"
+   },
+   {
+    "name": "holdfast_core:body/fall_4"
+   }
+  ]
+ },
+ "bite.blocked": {
+  "subtitle": "subtitles.holdfast_core.bite.blocked",
+  "sounds": [
+   {
+    "name": "holdfast_core:bite/blocked_1"
+   },
+   {
+    "name": "holdfast_core:bite/blocked_2"
+   },
+   {
+    "name": "holdfast_core:bite/blocked_3"
+   },
+   {
+    "name": "holdfast_core:bite/blocked_4"
+   }
+  ]
+ }
+}

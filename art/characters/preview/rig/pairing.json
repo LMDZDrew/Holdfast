@@ -46,5 +46,15 @@
   "dist": 33.08,
   "skull_height": 5.94,
   "skull_x": -0.0
+ },
+ "pistol_ground_crawler": {
+  "dist": 27.08,
+  "skull_height": 5.94,
+  "skull_x": -0.0
+ },
+ "pistol_ground_prone": {
+  "dist": 31.08,
+  "skull_height": 5.94,
+  "skull_x": -0.0
  }
 }

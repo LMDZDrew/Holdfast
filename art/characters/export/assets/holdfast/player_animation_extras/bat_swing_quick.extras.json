@@ -2,7 +2,8 @@
  "format_version": "1.8.0",
  "holdfast_meta": {
   "weapon": "bat",
-  "vanilla_pose": null
+  "vanilla_pose": null,
+  "pa_native": false
  },
  "animations": {
   "bat_swing_quick": {

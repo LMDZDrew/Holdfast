@@ -76,6 +76,19 @@ if __name__ == "__main__":
     worst = 0.0
     for f in sorted(glob.glob(os.path.join(OUT, "player_animation", "*.json"))):
         name, exported = load_pa(f)
+        if f"animation.holdfast.player.{name}" not in keys:
+            # native Player Animator clip (player_guns.py): must open and close on TaCZ's exact pistol hold
+            import player_guns as pg
+            a = json.load(open(f))["animations"][name]
+            err = 0.0
+            for t in ("0.0", f"{a['animation_length']}"):
+                for part, want in pg.HOLD.items():
+                    for ch, key in (("rotation", "rot"), ("position", "pos")):
+                        got = a["bones"][part][ch][t]["post"]
+                        err = max(err, max(abs(g - w) for g, w in zip(got, want[key])))
+            worst = max(worst, err * 100)       # count a 0.01 deg/px mismatch as 1 px
+            print(f"{name:28s} TaCZ hold match at both ends, worst {err:.4f}")
+            continue
         raw = keys[f"animation.holdfast.player.{name}"]
         authored = Anim(raw["animation_length"], raw["loop"])
         for bone, chans in raw["bones"].items():
