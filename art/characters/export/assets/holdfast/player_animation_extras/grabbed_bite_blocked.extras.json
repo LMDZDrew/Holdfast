@@ -1,0 +1,234 @@
+{
+ "format_version": "1.8.0",
+ "holdfast_meta": {
+  "weapon": null,
+  "vanilla_pose": null
+ },
+ "animations": {
+  "grabbed_bite_blocked": {
+   "loop": false,
+   "animation_length": 0.6,
+   "bones": {
+    "camera": {
+     "rotation": {
+      "0.0": {
+       "post": [
+        -7.48,
+        10.14,
+        0.95
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.05": {
+       "post": [
+        -7.67,
+        11.12,
+        0.8
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.1": {
+       "post": [
+        -7.93,
+        12.61,
+        0.59
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.15": {
+       "post": [
+        -8.18,
+        14.37,
+        0.37
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.2": {
+       "post": [
+        -8.38,
+        16.19,
+        0.17
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.25": {
+       "post": [
+        -8.51,
+        17.82,
+        0.02
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.3": {
+       "post": [
+        -8.58,
+        19.03,
+        -0.08
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.35": {
+       "post": [
+        -8.6,
+        19.61,
+        -0.13
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.4": {
+       "post": [
+        -9.71,
+        19.03,
+        1.2
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.45": {
+       "post": [
+        -8.2,
+        17.04,
+        -0.6
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.5": {
+       "post": [
+        -8.08,
+        14.37,
+        0.5
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.55": {
+       "post": [
+        -7.98,
+        11.81,
+        0.82
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.6": {
+       "post": [
+        -7.31,
+        10.14,
+        0.81
+       ],
+       "lerp_mode": "linear"
+      }
+     },
+     "position": {
+      "0.0": {
+       "post": [
+        0.0,
+        -0.65,
+        2.58
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.05": {
+       "post": [
+        0.02,
+        -0.66,
+        2.66
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.1": {
+       "post": [
+        0.05,
+        -0.67,
+        2.78
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.15": {
+       "post": [
+        0.09,
+        -0.7,
+        2.91
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.2": {
+       "post": [
+        0.13,
+        -0.72,
+        3.05
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.25": {
+       "post": [
+        0.18,
+        -0.75,
+        3.18
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.3": {
+       "post": [
+        0.22,
+        -0.77,
+        3.27
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.35": {
+       "post": [
+        0.23,
+        -0.78,
+        3.31
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.4": {
+       "post": [
+        0.22,
+        -0.77,
+        3.27
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.45": {
+       "post": [
+        0.16,
+        -0.74,
+        3.12
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.5": {
+       "post": [
+        0.09,
+        -0.7,
+        2.91
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.55": {
+       "post": [
+        0.03,
+        -0.66,
+        2.72
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.6": {
+       "post": [
+        0.0,
+        -0.65,
+        2.58
+       ],
+       "lerp_mode": "linear"
+      }
+     }
+    }
+   },
+   "sound_effects": {
+    "0.36": {
+     "effect": "holdfast:player.gasp"
+    }
+   }
+  }
+ }
+}

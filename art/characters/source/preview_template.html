@@ -1,0 +1,679 @@
+<title>Walker Animation Set</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a viewer bench. Stage and transport on the left, mode panel on the right; stacks on phones.
+   Single dark look by choice. HUD follows the pack's monochrome rules: off-white, charcoal, amber and red warnings,
+   and every warning also carries text or a symbol. */
+:root {
+  --bg: #191b17;
+  --panel: #21241e;
+  --line: #343a2e;
+  --fg: #ddd9c9;
+  --muted: #949480;
+  --amber: #d2a447;
+  --red: #b4483a;
+  --sound: #7f9c8c;
+  --hud: #ece8dc;
+  --hud-ink: #1d1e1b;
+  --display: "Special Elite", "Courier New", monospace;
+  --body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+html, body { background: var(--bg); color: var(--fg); }
+body { font-family: var(--body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 40px; }
+.wrap { max-width: 1260px; margin: 0 auto; display: grid; gap: 18px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 20px; }
+h1 { font-family: var(--display); font-weight: 400; font-size: clamp(26px, 4vw, 36px); margin: 0; text-wrap: balance; }
+.sub { color: var(--muted); font-size: 14px; margin: 0; }
+.bench { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 18px; align-items: start; }
+@media (max-width: 920px) { .bench { grid-template-columns: minmax(0, 1fr); } }
+
+.stage { position: relative; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #8e958a; aspect-ratio: 16 / 10; max-width: 100%; }
+@media (max-width: 600px) { .stage { aspect-ratio: 4 / 5; } }
+.stage canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.cams { position: absolute; left: 10px; top: 10px; display: flex; flex-wrap: wrap; gap: 6px; max-width: calc(100% - 20px); }
+.chip { font: 500 12px/1 var(--body); letter-spacing: .04em; text-transform: uppercase; color: var(--fg);
+  background: rgba(25,27,23,.8); border: 1px solid var(--line); border-radius: 999px; padding: 7px 10px; cursor: pointer; }
+.chip[aria-pressed="true"] { border-color: var(--amber); color: var(--amber); }
+.chip.fp[aria-pressed="true"] { background: var(--amber); color: var(--hud-ink); }
+.chip:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.nowplaying { position: absolute; right: 10px; bottom: 10px; font: 500 11px var(--mono); background: rgba(25,27,23,.8); border: 1px solid var(--line); border-radius: 4px; padding: 5px 8px; max-width: calc(100% - 20px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* in-game HUD mock: grab prompt and survivor marker */
+.prompt { position: absolute; left: 50%; bottom: 14%; transform: translateX(-50%); display: grid; justify-items: center; gap: 6px;
+  background: none; border: 0; color: var(--hud); cursor: pointer; padding: 6px; }
+.prompt svg { width: 86px; height: 86px; display: block; }
+.prompt .key { font: 600 13px var(--mono); letter-spacing: .08em; background: var(--hud); color: var(--hud-ink); padding: 3px 8px; border-radius: 3px; }
+.prompt .verb { font: 600 13px var(--body); letter-spacing: .14em; text-transform: uppercase; text-shadow: 0 1px 2px rgba(0,0,0,.7); }
+.prompt.late .ring { stroke: var(--amber); }
+.marker { position: absolute; left: 12px; bottom: 12px; display: flex; align-items: center; gap: 8px; background: rgba(20,20,18,.86);
+  border: 1px solid var(--red); color: var(--hud); border-radius: 4px; padding: 6px 10px; font: 500 12px var(--mono); }
+.marker b { color: var(--red); font-size: 14px; }
+.guard { position: absolute; right: 12px; top: 12px; background: rgba(20,20,18,.86); border: 1px solid var(--line); color: var(--hud);
+  border-radius: 4px; padding: 6px 10px; font: 500 12px var(--mono); display: grid; gap: 4px; min-width: 150px; }
+.pips { display: flex; gap: 4px; }
+.pip { width: 18px; height: 6px; border-radius: 2px; background: var(--hud); }
+.pip.off { background: transparent; border: 1px solid var(--muted); }
+
+.transport { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 12px; align-items: center; margin-top: 12px; }
+.play { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--amber); background: transparent; color: var(--amber); font-size: 15px; cursor: pointer; }
+.track { position: relative; padding-top: 22px; min-width: 0; }
+.track input[type=range] { width: 100%; accent-color: var(--amber); margin: 0; }
+.marks { position: absolute; left: 0; right: 0; top: 0; height: 20px; }
+.mark { position: absolute; top: 0; transform: translateX(-50%); font: 500 10px/1 var(--mono); white-space: nowrap; padding-bottom: 4px; }
+.mark::after { content: ""; position: absolute; left: 50%; top: 13px; width: 1px; height: 12px; background: currentColor; }
+.mark.commit { color: var(--amber); }
+.mark.kill { color: var(--red); }
+.mark.event { color: var(--fg); }
+.time { font: 500 13px var(--mono); font-variant-numeric: tabular-nums; color: var(--muted); min-width: 92px; text-align: right; }
+select { font: 500 13px var(--body); background: var(--panel); color: var(--fg); border: 1px solid var(--line); border-radius: 4px; padding: 6px; max-width: 100%; }
+@media (max-width: 600px) { .transport { grid-template-columns: auto minmax(0, 1fr); } .time { text-align: left; } }
+
+aside { display: grid; gap: 14px; min-width: 0; }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px; display: grid; gap: 10px; min-width: 0; }
+.label { font: 500 11px/1 var(--body); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.panel p { margin: 0; color: var(--muted); font-size: 14px; }
+.panel p strong { color: var(--fg); font-weight: 600; }
+.row { display: grid; grid-template-columns: 70px minmax(0, 1fr); gap: 8px; align-items: center; font-size: 13px; }
+.row span { color: var(--muted); }
+.list { display: grid; gap: 2px; }
+.item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; text-align: left; width: 100%; border: 0; border-left: 2px solid transparent;
+  background: transparent; color: var(--fg); padding: 7px 8px; cursor: pointer; border-radius: 0 4px 4px 0; font: inherit; }
+.item:hover { background: rgba(255,255,255,.035); }
+.item[aria-pressed="true"] { border-left-color: var(--amber); background: rgba(210,164,71,.08); }
+.item b { font-weight: 600; font-size: 14px; }
+.item .meta { font: 400 11px var(--mono); color: var(--muted); align-self: center; font-variant-numeric: tabular-nums; }
+.item .why { grid-column: 1 / -1; color: var(--muted); font-size: 13px; line-height: 1.35; }
+.btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn { font: 600 13px var(--body); color: var(--hud-ink); background: var(--amber); border: 0; border-radius: 4px; padding: 9px 12px; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.log { display: grid; gap: 6px; font-size: 13px; min-height: 60px; }
+.log div { border-left: 2px solid var(--line); padding-left: 8px; color: var(--muted); }
+.log div:first-child { color: var(--fg); border-left-color: var(--amber); }
+.recipes { max-height: 210px; overflow-y: auto; display: grid; gap: 2px; font: 400 12px var(--mono); color: var(--muted); }
+.recipes div { display: flex; gap: 8px; }
+.recipes i { font-style: normal; color: var(--fg); min-width: 22px; }
+
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+.notes section { min-width: 0; }
+.notes h2 { font: 600 13px var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--amber); margin: 0 0 6px; }
+.notes li { color: var(--muted); font-size: 14px; max-width: 65ch; }
+.notes ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.notes code { font-family: var(--mono); font-size: 12px; color: var(--fg); }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Walker Animation Set</h1>
+    <p class="sub">Holdfast · PREVIEW of exported files · placeholder textures · not tested in game</p>
+  </header>
+
+  <div class="bench">
+    <div>
+      <div class="stage" id="stage">
+        <div class="cams" id="cams" role="group" aria-label="Camera"></div>
+        <button class="prompt" id="prompt" hidden aria-label="Shove (Space)">
+          <svg viewBox="0 0 86 86" aria-hidden="true">
+            <circle cx="43" cy="43" r="36" fill="rgba(20,20,18,.55)" stroke="rgba(236,232,220,.25)" stroke-width="5"></circle>
+            <circle class="ring" id="ring" cx="43" cy="43" r="36" fill="none" stroke="#ece8dc" stroke-width="5" stroke-linecap="round"
+              stroke-dasharray="226.2" stroke-dashoffset="0" transform="rotate(-90 43 43)"></circle>
+            <text id="ringtxt" x="43" y="49" text-anchor="middle" fill="#ece8dc" font-family="IBM Plex Mono, monospace" font-size="16"></text>
+          </svg>
+          <span class="key">SPACE</span>
+          <span class="verb" id="promptverb">Shove</span>
+        </button>
+        <div class="marker" id="marker" hidden><b>✚</b><span id="markertxt"></span></div>
+        <div class="guard" id="guardhud" hidden><span id="guardname">Neck guard</span><div class="pips" id="pips"></div><span id="guardtxt"></span></div>
+        <div class="nowplaying" id="nowplaying"></div>
+      </div>
+      <div class="transport" id="transport">
+        <button class="play" id="play" aria-label="Pause">❚❚</button>
+        <div class="track">
+          <div class="marks" id="marks"></div>
+          <input type="range" id="scrub" min="0" max="1" step="0.001" value="0" aria-label="Timeline">
+        </div>
+        <span class="time" id="time">0.00 / 0.00 s</span>
+        <select id="speed" aria-label="Playback speed">
+          <option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option>
+        </select>
+      </div>
+    </div>
+
+    <aside>
+      <div class="tabs" id="tabs">
+        <button class="chip" data-mode="herd" aria-pressed="true">Herd</button>
+        <button class="chip" data-mode="library" aria-pressed="false">Library</button>
+        <button class="chip" data-mode="grab" aria-pressed="false">Grab</button>
+        <button class="chip" data-mode="exec" aria-pressed="false">Executions</button>
+      </div>
+
+      <div class="panel" id="p-herd">
+        <span class="label">No two walk alike</span>
+        <p>Each walker draws its own <strong>gait</strong>, <strong>arm set</strong>, <strong>head set</strong>, outfit, speed, height and start offset. The pieces repeat; the combinations rarely do.</p>
+        <p id="herdcount"></p>
+        <div class="recipes" id="recipes"></div>
+        <div class="btns"><button class="btn" id="reroll">Reroll herd</button></div>
+      </div>
+
+      <div class="panel" id="p-library" hidden>
+        <span class="label">Build a walker</span>
+        <div class="row"><span>Gait</span><select id="sel-body"></select></div>
+        <div class="row"><span>Arms</span><select id="sel-arms"></select></div>
+        <div class="row"><span>Head</span><select id="sel-head"></select></div>
+        <div class="row"><span>Outfit</span><select id="sel-outfit"></select></div>
+        <span class="label" style="margin-top:6px">Full-body walker and crawler clips</span>
+        <div class="list" id="fulllist"></div>
+        <span class="label" style="margin-top:6px">Player clips</span>
+        <div class="list" id="playerlist"></div>
+      </div>
+
+      <div class="panel" id="p-grab" hidden>
+        <span class="label">Grab and escape</span>
+        <p>Something grabs you. Press <strong>Space</strong> (or tap the prompt) before the ring empties to break free. One key, one press, no mashing. Escaping does not kill it.</p>
+        <div class="row"><span>Attacker</span><select id="sel-attacker"><option value="upright">Upright walker (neck)</option><option value="prone">Prone walker (ankle)</option><option value="crawler">Lower-half crawler (ankle)</option></select></div>
+        <div class="row"><span>Window</span><div class="seg" id="seg-diff">
+          <button class="chip" data-w="1.6" data-d="lower" aria-pressed="false">Lower 1.6 s</button>
+          <button class="chip" data-w="1.2" data-d="default" aria-pressed="true">Default 1.2 s</button>
+          <button class="chip" data-w="0.9" data-d="severe" aria-pressed="false">Severe 0.9 s</button></div></div>
+        <div class="row"><span>Guard</span><select id="sel-guard"><option value="0">Bitten region bare</option><option value="2" selected>Bite-rated guard, intact</option></select></div>
+        <div class="btns"><button class="btn" id="g-restart">Send another walker</button><button class="btn ghost" id="g-mate">Teammate kills it</button></div>
+        <div class="log" id="glog" aria-live="polite"></div>
+      </div>
+
+      <div class="panel" id="p-exec" hidden>
+        <span class="label">Head executions</span>
+        <div class="list" id="execlist"></div>
+        <p>Amber marker: after it, the swing can no longer be cancelled. Red marker: the brain is destroyed.</p>
+      </div>
+    </aside>
+  </div>
+
+  <div class="notes">
+    <section>
+      <h2>What this page is</h2>
+      <ul>
+        <li>A browser preview that plays the exported files. It is not Minecraft and nothing here is tested in game.</li>
+        <li>Textures are procedural placeholders. The player model is a stand-in for the vanilla player; weapons and crutches are preview props for item models.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>The server decides</h2>
+      <ul>
+        <li>Grab start, the escape window, whether the key press landed in it, the bite region, and whether protection blocked it.</li>
+        <li>Execution requests, the commit point, and the brain kill. Animation events (<code>bite</code>, <code>kill</code>, <code>shove</code>) only time sounds and effects.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Variety without variants</h2>
+      <ul>
+        <li>Ordinary walkers mix 8 gaits, 6 arm sets and 6 head sets on three controllers. None changes speed class, senses or damage; they are not special variants.</li>
+      </ul>
+    </section>
+  </div>
+</div>
+
+<script type="application/json" id="d">__DATA__</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function () {
+const D = JSON.parse(document.getElementById("d").textContent);
+const D2R = Math.PI / 180;
+
+// ------------------------------------------------------------- textures & rigs
+function tex(uri) { const t = new THREE.TextureLoader().load(uri); t.magFilter = t.minFilter = THREE.NearestFilter; t.generateMipmaps = false; return t; }
+const MAT = {};
+for (const k in D.textures) MAT[k] = new THREE.MeshLambertMaterial({ map: tex(D.textures[k]), side: THREE.DoubleSide });
+const SURV_MAT = new THREE.MeshLambertMaterial({ map: tex(D.survTex), side: THREE.DoubleSide });
+const OUTFITS = Object.keys(D.textures);
+
+function boxGeometry(from, to, uv, size, tw, th) {
+  const [x0, y0, z0] = from, [x1, y1, z1] = to, [u, v] = uv, [w, h, d] = size.map(Math.round);
+  const R = { east: [u, v + d, d, h], front: [u + d, v + d, w, h], west: [u + d + w, v + d, d, h], back: [u + 2 * d + w, v + d, w, h], top: [u + d, v, w, d], bottom: [u + d + w, v, w, d] };
+  const F = { front: [[x1,y1,z0],[x0,y1,z0],[x1,y0,z0],[x0,y0,z0]], back: [[x0,y1,z1],[x1,y1,z1],[x0,y0,z1],[x1,y0,z1]],
+    east: [[x1,y1,z1],[x1,y1,z0],[x1,y0,z1],[x1,y0,z0]], west: [[x0,y1,z0],[x0,y1,z1],[x0,y0,z0],[x0,y0,z1]],
+    top: [[x1,y1,z1],[x0,y1,z1],[x1,y1,z0],[x0,y1,z0]], bottom: [[x1,y0,z0],[x0,y0,z0],[x1,y0,z1],[x0,y0,z1]] };
+  const pos = [], uvs = [], idx = []; let n = 0;
+  for (const k in F) { const [tl, tr, bl, br] = F[k], [rx, ry, rw, rh] = R[k];
+    const U0 = rx / tw, U1 = (rx + rw) / tw, V0 = 1 - ry / th, V1 = 1 - (ry + rh) / th;
+    pos.push(...tl, ...tr, ...bl, ...br); uvs.push(U0, V0, U1, V0, U0, V1, U1, V1); idx.push(n, n + 2, n + 1, n + 1, n + 2, n + 3); n += 4; }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  g.setIndex(idx); g.computeVertexNormals(); return g;
+}
+function buildRig(geoJson, mat) {
+  const g = geoJson["minecraft:geometry"][0], tw = g.description.texture_width, th = g.description.texture_height;
+  const bones = {}, rest = {}, piv = {}, top = new THREE.Group();
+  for (const b of g.bones) {
+    const grp = new THREE.Group(); grp.rotation.order = "ZYX";
+    const p = [-b.pivot[0], b.pivot[1], b.pivot[2]]; piv[b.name] = p;
+    const pp = b.parent ? piv[b.parent] : [0, 0, 0];
+    grp.position.set(p[0] - pp[0], p[1] - pp[1], p[2] - pp[2]); rest[b.name] = grp.position.clone();
+    for (const c of b.cubes || []) {
+      const from = [-(c.origin[0] + c.size[0]), c.origin[1], c.origin[2]];
+      const to = [from[0] + c.size[0], from[1] + c.size[1], from[2] + c.size[2]];
+      const m = new THREE.Mesh(boxGeometry([from[0]-p[0], from[1]-p[1], from[2]-p[2]], [to[0]-p[0], to[1]-p[1], to[2]-p[2]], c.uv, c.size, tw, th), mat);
+      m.castShadow = true; m.receiveShadow = true; grp.add(m);
+    }
+    (b.parent ? bones[b.parent] : top).add(grp); bones[b.name] = grp;
+  }
+  return { group: top, bones, rest };
+}
+
+// ------------------------------------------------------------- animation sampling
+function prep(a) {
+  const out = { length: a.animation_length, loop: a.loop, bones: {}, sounds: [], events: [] };
+  for (const bn in a.bones) { out.bones[bn] = {};
+    for (const ch in a.bones[bn]) { const raw = a.bones[bn][ch];
+      out.bones[bn][ch] = Object.keys(raw).map(t => { const v = raw[t];
+        return Array.isArray(v) ? [parseFloat(t), v, false] : [parseFloat(t), v.post || v.pre, v.lerp_mode === "catmullrom"]; }).sort((p, q) => p[0] - q[0]); } }
+  for (const t in a.sound_effects || {}) out.sounds.push([parseFloat(t), a.sound_effects[t].effect]);
+  for (const t in a.timeline || {}) out.events.push([parseFloat(t), a.timeline[t]]);
+  return out;
+}
+function sampleKeys(keys, t) {
+  if (t <= keys[0][0]) return keys[0][1];
+  const last = keys[keys.length - 1]; if (t >= last[0]) return last[1];
+  let lo = 0, hi = keys.length - 1; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (keys[m][0] <= t) lo = m; else hi = m; }
+  const k1 = keys[lo], k2 = keys[lo + 1], u = (t - k1[0]) / (k2[0] - k1[0]), a = k1[1], b = k2[1];
+  if (k1[2] || k2[2]) { const p0 = (keys[lo - 1] || k1)[1], p3 = (keys[lo + 2] || k2)[1];
+    return a.map((_, j) => 0.5 * ((2 * a[j]) + (-p0[j] + b[j]) * u + (2 * p0[j] - 5 * a[j] + 4 * b[j] - p3[j]) * u * u + (-p0[j] + 3 * a[j] - 3 * b[j] + p3[j]) * u * u * u)); }
+  return a.map((x, j) => x + (b[j] - x) * u);
+}
+function localTime(a, t) { return a.loop === true ? ((t % a.length) + a.length) % a.length : Math.min(Math.max(t, 0), a.length); }
+function resetRig(r) { for (const n in r.bones) { r.bones[n].rotation.set(0, 0, 0); r.bones[n].position.copy(r.rest[n]); } }
+function apply(r, a, t) {
+  const lt = localTime(a, t);
+  for (const bn in a.bones) { const g = r.bones[bn]; if (!g) continue; const ch = a.bones[bn];
+    if (ch.rotation) { const v = sampleKeys(ch.rotation, lt); g.rotation.set(-v[0] * D2R, -v[1] * D2R, v[2] * D2R); }
+    if (ch.position) { const p = sampleKeys(ch.position, lt), rr = r.rest[bn]; g.position.set(rr.x - p[0], rr.y + p[1], rr.z + p[2]); } }
+}
+const A = { walker: {}, crawler: {}, player: {}, camera: {} };
+for (const k in D.walkerAnims) A.walker[k.replace("animation.holdfast.walker.", "")] = prep(D.walkerAnims[k]);
+for (const k in D.crawlerAnims) A.crawler[k.replace("animation.holdfast.crawler.", "")] = prep(D.crawlerAnims[k]);
+for (const k in D.playerAnims) A.player[k.replace("animation.holdfast.player.", "")] = prep(D.playerAnims[k]);
+for (const k in D.cameras) A.camera[k] = prep(D.cameras[k]);
+const W = A.walker;
+const GAITS = Object.keys(W).filter(k => k.startsWith("body.") && !["body.stand", "body.hungry"].includes(k)).map(k => k.slice(5));
+const ARMSETS = Object.keys(W).filter(k => k.startsWith("arms.") && k !== "arms.reach").map(k => k.slice(5));
+const HEADSETS = Object.keys(W).filter(k => k.startsWith("head.") && k !== "head.snap").map(k => k.slice(5));
+
+// ------------------------------------------------------------- scene
+const stage = document.getElementById("stage");
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+stage.prepend(renderer.domElement);
+const scene = new THREE.Scene();
+const SKY = new THREE.Color(0x8e958a); scene.background = SKY; scene.fog = new THREE.Fog(SKY, 180, 620);
+const camera = new THREE.PerspectiveCamera(38, 1.6, 0.5, 3000);
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.maxPolarAngle = Math.PI * 0.495; controls.minDistance = 16; controls.maxDistance = 600;
+scene.add(new THREE.HemisphereLight(0xc9cfc0, 0x3b3a2c, 0.75));
+const sun = new THREE.DirectionalLight(0xfff1d8, 0.75); sun.position.set(140, 240, 90); sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -260, right: 260, top: 260, bottom: -260, near: 10, far: 800 }); scene.add(sun);
+(function ground() {
+  const c = document.createElement("canvas"); c.width = c.height = 256; const x = c.getContext("2d");
+  let s = 11; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 16; i++) for (let j = 0; j < 16; j++) for (let a = 0; a < 16; a++) for (let b = 0; b < 16; b++) {
+    const dirt = ((i * 7 + j * 3) % 11 === 0), base = dirt ? [92, 80, 60] : [78, 92, 58], k = rnd() * 22 - 11;
+    x.fillStyle = `rgb(${base[0]+k},${base[1]+k},${base[2]+k*0.6})`; x.fillRect(i * 16 + a, j * 16 + b, 1, 1); }
+  const t = new THREE.CanvasTexture(c); t.magFilter = THREE.NearestFilter; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(10, 10);
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(2560, 2560), new THREE.MeshLambertMaterial({ map: t })); m.rotation.x = -Math.PI / 2; m.receiveShadow = true; scene.add(m);
+  const road = new THREE.Mesh(new THREE.PlaneGeometry(96, 2560), new THREE.MeshLambertMaterial({ color: 0x4a4b47 }));
+  road.rotation.x = -Math.PI / 2; road.position.y = 0.05; road.receiveShadow = true; scene.add(road);
+  for (let z = -1200; z < 1200; z += 64) { const l = new THREE.Mesh(new THREE.PlaneGeometry(2, 28), new THREE.MeshLambertMaterial({ color: 0xc9b46a }));
+    l.rotation.x = -Math.PI / 2; l.position.set(0, 0.1, z); scene.add(l); }
+})();
+function resize() { const w = stage.clientWidth, h = stage.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+new ResizeObserver(resize).observe(stage);
+
+// ------------------------------------------------------------- actors
+let actors = [];
+function seeded(seed) { let s = seed; return () => (s = (s * 48271) % 2147483647) / 2147483647; }
+function makeWalker(outfit, crawler) {
+  const rig = buildRig(crawler ? D.crawlerGeo : D.walkerGeo, MAT[outfit]); const ent = new THREE.Group(); ent.add(rig.group); scene.add(ent);
+  const a = { ent, rig, crawler, layers: [] }; actors.push(a); return a;
+}
+function makeSurvivor() {
+  const rig = buildRig(D.survGeo, SURV_MAT); const ent = new THREE.Group(); ent.add(rig.group); scene.add(ent);
+  ent.scale.setScalar(D.playerScale);   // vanilla draws the player model at 15/16; walkers at 1
+  const a = { ent, rig, survivor: true, layers: [] }; actors.push(a); return a;
+}
+function clearActors() { actors.forEach(a => scene.remove(a.ent)); actors = []; }
+const WEAPONS = ["knife", "bat", "axe", "machete", "crutchR", "crutchL"];
+function showWeapon(s, w) { WEAPONS.forEach(k => s.rig.bones[k].visible = k === w || (w === "crutch" && k.startsWith("crutch"))); }
+function setFirstPersonHidden(s, on) { ["head", "torso", "rightLeg", "leftLeg"].forEach(k => s.rig.bones[k].children.forEach(c => { if (c.isMesh) c.visible = !on; })); }
+
+// ------------------------------------------------------------- UI helpers
+const $ = id => document.getElementById(id);
+const scrub = $("scrub"), timeEl = $("time"), playBtn = $("play"), speedSel = $("speed");
+let mode = "herd", playing = true, clock = 0, last = performance.now(), fp = false, camKey = null;
+function syncPlay() { playBtn.textContent = playing ? "❚❚" : "▶"; playBtn.setAttribute("aria-label", playing ? "Pause" : "Play"); }
+playBtn.onclick = () => { playing = !playing; syncPlay(); };
+function marks(anim, offset, total) {
+  const box = $("marks"); box.innerHTML = ""; if (!anim) return;
+  for (const [t, e] of anim.events) { const m = document.createElement("span");
+    m.className = "mark " + (e === "commit" ? "commit" : (e === "kill" ? "kill" : "event"));
+    m.style.left = ((t + offset) / total * 100) + "%"; m.textContent = e; box.appendChild(m); }
+}
+const CAMS = {
+  herd: { "High": [[180, 150, 170], [0, 10, -60]], "Roadside": [[70, 18, 60], [0, 18, -40]] },
+  library: { "3/4": [[60, 36, -60], [0, 16, 0]], "Side": [[86, 22, 0], [0, 16, 0]], "Front": [[0, 26, -84], [0, 16, 0]] },
+  grab: { "Side": [[80, 28, -9], [0, 20, -9]], "Over shoulder": [[16, 34, 30], [-2, 24, -12]] },
+  exec: { "Side": [[92, 28, -12], [0, 20, -12]], "Over shoulder": [[16, 34, 30], [-2, 24, -14]] }
+};
+function renderCams() {
+  const box = $("cams"); box.innerHTML = "";
+  for (const k in CAMS[mode]) { const b = document.createElement("button"); b.className = "chip"; b.textContent = k; b.dataset.cam = k;
+    b.onclick = () => { fp = false; setCam(k); }; box.appendChild(b); }
+  if (mode === "grab" || mode === "exec") { const b = document.createElement("button"); b.className = "chip fp"; b.textContent = "First person"; b.id = "fpbtn";
+    b.onclick = () => { fp = !fp; syncCams(); }; box.appendChild(b); }
+  syncCams();
+}
+function setCam(k) { camKey = k; const [p, t] = CAMS[mode][k]; camera.position.set(...p); controls.target.set(...t); controls.update(); syncCams(); }
+function syncCams() {
+  document.querySelectorAll("#cams .chip").forEach(b => { if (b.dataset.cam) b.setAttribute("aria-pressed", String(!fp && b.dataset.cam === camKey)); });
+  const f = $("fpbtn"); if (f) f.setAttribute("aria-pressed", String(fp));
+  controls.enabled = !fp; camera.fov = fp ? 70 : 38; camera.near = fp ? 0.4 : 0.5; camera.updateProjectionMatrix();
+  if (survivor) setFirstPersonHidden(survivor, fp);
+  if (!fp && camKey && CAMS[mode][camKey]) { const [p, t] = CAMS[mode][camKey]; camera.position.set(...p); controls.target.set(...t); controls.update(); }
+}
+function fpCamera(camAnim, t) {
+  let rot = [0, 0, 0], pos = [0, 0, 0];
+  if (camAnim) { const ch = camAnim.bones.camera, lt = localTime(camAnim, t); rot = sampleKeys(ch.rotation, lt); pos = sampleKeys(ch.position, lt); }
+  camera.position.set(-pos[0], D.eye + pos[1], pos[2]);
+  camera.rotation.order = "YXZ"; camera.rotation.set(-rot[0] * D2R, -rot[1] * D2R, -rot[2] * D2R);
+}
+
+// ============================================================= HERD
+let herd = [], herdSeed = 5;
+const ROAD_FROM = -320, ROAD_TO = 90;
+function buildHerd() {
+  clearActors(); herd = [];
+  const rnd = seeded(herdSeed * 7919 + 17), pick = arr => arr[Math.floor(rnd() * arr.length)];
+  const lines = [];
+  for (let i = 0; i < 16; i++) {
+    const w = makeWalker(pick(OUTFITS), false);
+    w.gait = pick(GAITS); w.arms = pick(ARMSETS); w.head = pick(HEADSETS);
+    w.speed = 0.85 + rnd() * 0.3; w.offset = rnd() * 10; w.h = 0.94 + rnd() * 0.12; w.rig.group.scale.setScalar(w.h);
+    w.x = (rnd() - 0.5) * 84; w.z0 = ROAD_FROM + rnd() * (ROAD_TO - ROAD_FROM); w.ent.rotation.y = Math.PI;
+    w.kind = "walk"; herd.push(w);
+    lines.push(`<div><i>${i + 1}</i>${w.gait.replace("_", " ")} · ${w.arms.replace("_", " ")} · ${w.head.replace("_", " ")} · ${w.speed.toFixed(2)}×</div>`);
+  }
+  const statics = [["crawler", "crawl", true, 22, -40], ["crawler", "crawl_drag", true, -26, -120], ["full", "prone_still", false, 62, -70],
+                   ["full", "sit_slumped", false, -62, -30], ["full", "still", false, 58, -170]];
+  for (const [kind, clip, crawler, x, z] of statics) {
+    const w = makeWalker(pick(OUTFITS), crawler); w.kind = kind; w.clip = clip; w.x = x; w.z0 = z; w.offset = rnd() * 4;
+    w.ent.rotation.y = kind === "full" && clip === "sit_slumped" ? -Math.PI / 2 : (kind === "full" && clip === "prone_still" ? 0.6 : Math.PI);
+    w.speed = 1; herd.push(w);
+    lines.push(`<div><i>·</i>${crawler ? "legless crawler" : clip.replace("_", " ")}${crawler ? " · " + clip.replace("_", " ") : " (motionless start)"}</div>`);
+  }
+  $("recipes").innerHTML = lines.join("");
+  $("herdcount").textContent = `16 walking, 2 crawlers, 3 motionless. ${GAITS.length} gaits × ${ARMSETS.length} arm sets × ${HEADSETS.length} head sets = ${GAITS.length * ARMSETS.length * HEADSETS.length} combinations.`;
+}
+function tickHerd(tt) {
+  for (const w of herd) {
+    const t = tt * w.speed + w.offset; resetRig(w.rig);
+    if (w.kind === "walk") {
+      apply(w.rig, W["body." + w.gait], t); apply(w.rig, W["arms." + w.arms], t); apply(w.rig, W["head." + w.head], t);
+      const v = D.speeds[w.gait] * 16 * w.speed, span = ROAD_TO - ROAD_FROM;
+      w.ent.position.set(w.x, 0, ROAD_FROM + ((w.z0 - ROAD_FROM + tt * v) % span + span) % span);
+    } else if (w.kind === "crawler") {
+      apply(w.rig, A.crawler[w.clip], t);
+      const v = (w.clip === "crawl" ? 4.5 : 6.5) * w.speed, span = ROAD_TO - ROAD_FROM;
+      w.ent.position.set(w.x, 0, ROAD_FROM + ((w.z0 - ROAD_FROM + tt * v) % span + span) % span);
+    } else { apply(w.rig, W[w.clip], t); w.ent.position.set(w.x, 0, w.z0); }
+  }
+  $("nowplaying").textContent = "Herd · per-walker gait, arms, head, outfit, speed";
+}
+
+// ============================================================= LIBRARY
+let libWalker = null, libClip = null;            // null = layered walker; "walker:<n>" | "crawler:<n>" | "player:<n>"
+const FULL = [["walker", "still", "Motionless start. Barely drifts until it notices something."],
+  ["walker", "sit_slumped", "Slumped against a wall or car."], ["walker", "rise_from_sit", "Notices you and gets up."],
+  ["walker", "prone_still", "Face down. Looks dead; is not."], ["walker", "prone_rise", "Prone to active: pushes up and stands."],
+  ["walker", "prone_ankle_grab", "Prone to active: lunges for an ankle."], ["walker", "lunge", "Attack: wind up, throw forward, grab, bite."],
+  ["walker", "stagger", "Body hit. Knocked back, comes again."], ["walker", "death_headshot", "Drops where it stands."],
+  ["crawler", "crawler_still", "Lower-half crawler lying still, head up."], ["crawler", "crawl", "Alternating arm pulls."],
+  ["crawler", "crawl_drag", "Pursuit: both arms at once, faster."], ["crawler", "crawler_lunge", "Attack: surges and grabs the ankles."],
+  ["crawler", "crawler_reach", "Props itself up and claws upward."], ["crawler", "crawler_death", "Head drops."]];
+const PLAYER_LIB = [["move_limp", "Mild leg injury (85%): stiff steps on the bad leg."], ["move_limp_severe", "Severe leg injury (55%): barely loading the bad leg, big lurch."], ["move_arm_injured", "Arm injury: arm cradled, guarded steps."],
+  ["move_crawl_legless", "Leg lost, no crutch yet: drags along at 20% (vanilla crawl pose)."], ["move_crutch_improvised", "Improvised crutches, 45%."],
+  ["move_crutch_medical", "Medical crutches, 60%."], ["move_prosthesis", "Fitted prosthesis, 80%, no sprint."],
+  ["bite_confirm_neck", "Bite confirmed (neck): hand to the wound, sees the blood."], ["bite_confirm_forearm", "Bite confirmed (forearm)."],
+  ["bite_confirm_leg", "Bite confirmed (leg)."], ["bat_charge_hold", "Charging a blunt swing: posture shows readiness, movement slows."],
+  ["bat_swing_quick", "Quick blunt swing at nothing."], ["bat_charged_miss", "Full charge into empty air: overswing, stumble, long recovery."]];
+function fillSelect(id, items, val) { const s = $(id); s.innerHTML = items.map(x => `<option value="${x}">${x.replace(/_/g, " ")}</option>`).join(""); s.value = val; }
+fillSelect("sel-body", ["stand", ...GAITS, "hungry"], "shamble"); fillSelect("sel-arms", [...ARMSETS, "reach"], "dangle");
+fillSelect("sel-head", [...HEADSETS, "snap"], "loll_left"); fillSelect("sel-outfit", OUTFITS, "farmer");
+["sel-body", "sel-arms", "sel-head", "sel-outfit"].forEach(id => $(id).onchange = () => { libClip = null; clock = 0; playing = true; syncPlay(); buildLibrary(); });
+function libItem(box, key, name, a, why) {
+  const b = document.createElement("button"); b.className = "item"; b.setAttribute("aria-pressed", String(libClip === key));
+  b.innerHTML = `<b>${name.replace(/_/g, " ")}</b><span class="meta">${a.length.toFixed(1)} s · ${a.loop === true ? "loop" : a.loop === false ? "once" : "hold"}</span><span class="why">${why}</span>`;
+  b.onclick = () => { libClip = key; clock = 0; playing = true; syncPlay(); buildLibrary(); }; box.appendChild(b);
+}
+function renderFull() {
+  $("fulllist").innerHTML = ""; $("playerlist").innerHTML = "";
+  for (const [kind, name, why] of FULL) libItem($("fulllist"), kind + ":" + name, name, kind === "crawler" ? A.crawler[name] : W[name], why);
+  for (const [name, why] of PLAYER_LIB) libItem($("playerlist"), "player:" + name, name, A.player[name], why);
+}
+let libSurv = null;
+function buildLibrary() {
+  clearActors(); libSurv = null; libWalker = null;
+  if (libClip && libClip.startsWith("player:")) { libSurv = makeSurvivor(); showWeapon(libSurv, (D.meta[libClip.slice(7)] || {}).weapon); }
+  else libWalker = makeWalker($("sel-outfit").value, libClip && libClip.startsWith("crawler:"));
+  renderFull(); const a = currentLibAnim(); marks(libClip ? a : null, 0, a.length);
+}
+function currentLibAnim() {
+  if (!libClip) return W["body." + $("sel-body").value];
+  const [k, n] = libClip.split(":"); return k === "crawler" ? A.crawler[n] : k === "player" ? A.player[n] : W[n];
+}
+function vanillaCrawlPose(s) {      // preview stand-in for Minecraft's own crawling pose; not part of the exported clip
+  const b = s.rig.bones.body; b.rotation.set(-90 * D2R, 0, 0); b.position.set(0, 2, 15);
+}
+function tickLibrary(t) {
+  if (libSurv) { const n = libClip.slice(7); resetRig(libSurv.rig); apply(libSurv.rig, A.player[n], t);
+    if ((D.meta[n] || {}).vanilla_pose === "swimming") vanillaCrawlPose(libSurv);
+    $("nowplaying").textContent = "player · " + n + ((D.meta[n] || {}).vanilla_pose ? " (inside vanilla crawl pose)" : ""); return; }
+  resetRig(libWalker.rig);
+  if (libClip) { apply(libWalker.rig, currentLibAnim(), t); $("nowplaying").textContent = libClip.replace(":", " · "); }
+  else { apply(libWalker.rig, W["body." + $("sel-body").value], t); apply(libWalker.rig, W["arms." + $("sel-arms").value], t); apply(libWalker.rig, W["head." + $("sel-head").value], t);
+    $("nowplaying").textContent = `body.${$("sel-body").value} + arms.${$("sel-arms").value} + head.${$("sel-head").value}`; }
+}
+
+// ============================================================= GRAB (playable)
+let survivor = null, gw = null, G = null;
+const GDIFF = { lower: [1.6, 120, 10], default: [1.2, 60, 5], severe: [0.9, 30, 3] };   // window s, bite minutes, amputation window minutes
+let gdiff = "default", attacker = "upright";
+// per attacker: walker clips, player clips, pairing distance, bitten region
+const ATK = {
+  upright: { crawler: false, seize: "grab_seize", hold: "grab_hold", bite: "grab_bite", blocked: "grab_bite_blocked", freed: "grab_shoved",
+    p: { seize: "grabbed_seize", hold: "grabbed_struggle", bite: "grabbed_bitten", blocked: "grabbed_bite_blocked", free: "grabbed_shove", released: "grabbed_released" },
+    dist: () => D.grabDist, region: "neck", verb: "Shove", freeEvent: 0.14, death: "death_headshot" },
+  prone: { crawler: false, seize: "prone_ankle_grab", hold: "prone_ankle_hold", bite: "prone_ankle_bite", blocked: "prone_ankle_bite_blocked", freed: "prone_ankle_kicked",
+    p: { seize: "grabbed_ankle_seize", hold: "grabbed_ankle_struggle", bite: "grabbed_ankle_bitten", blocked: "grabbed_ankle_bite_blocked", free: "grabbed_ankle_kick", released: "grabbed_ankle_released" },
+    dist: () => D.pairing.ankle_prone.dist, region: "leg", verb: "Kick free", freeEvent: 0.14, death: "react_knife_ground_prone" },
+  crawler: { crawler: true, seize: "crawler_lunge", hold: "crawler_ankle_hold", bite: "crawler_ankle_bite", blocked: "crawler_ankle_bite_blocked", freed: "crawler_ankle_kicked",
+    p: { seize: "grabbed_ankle_seize", hold: "grabbed_ankle_struggle", bite: "grabbed_ankle_bitten", blocked: "grabbed_ankle_bite_blocked", free: "grabbed_ankle_kick", released: "grabbed_ankle_released" },
+    dist: () => D.pairing.ankle_crawler.dist, region: "leg", verb: "Kick free", freeEvent: 0.14, death: "crawler_death" }
+};
+function wclip(n) { return ATK[attacker].crawler ? A.crawler[n] : W[n]; }
+function glog(msg) { const box = $("glog"); const d = document.createElement("div"); d.textContent = msg; box.prepend(d); while (box.children.length > 4) box.lastChild.remove(); }
+function guardHud() {
+  const g = G.guard, max = parseInt($("sel-guard").value, 10);
+  $("guardhud").hidden = max === 0; $("pips").innerHTML = ""; $("guardname").textContent = ATK[attacker].region === "neck" ? "Neck guard" : "Shin guard";
+  for (let i = 0; i < 2; i++) { const p = document.createElement("span"); p.className = "pip" + (i < g ? "" : " off"); $("pips").appendChild(p); }
+  $("guardtxt").textContent = g === 2 ? "intact" : g === 1 ? "damaged" : "broken · exposed";
+}
+function buildGrab() {
+  clearActors(); survivor = makeSurvivor(); showWeapon(survivor, null); setFirstPersonHidden(survivor, fp);
+  const k = ATK[attacker];
+  gw = makeWalker(OUTFITS[Math.floor(Math.random() * OUTFITS.length)], k.crawler); gw.ent.rotation.y = Math.PI;
+  const start = attacker === "upright" ? -84 : attacker === "crawler" ? -58 : -k.dist();
+  G = { state: attacker === "prone" ? "dormant" : "approach", t: 0, z: start, guard: parseInt($("sel-guard").value, 10),
+        bitten: G && G.bitten, window: GDIFF[gdiff][0], knock: 0, pendingConfirm: false };
+  $("promptverb").textContent = k.verb; $("prompt").setAttribute("aria-label", k.verb + " (Space)");
+  guardHud(); $("prompt").hidden = true;
+}
+function gset(state) { G.state = state; G.t = 0; }
+function escapeInput() { if (mode === "grab" && G && G.state === "struggle") { gset("free"); $("prompt").hidden = true;
+  glog(attacker === "upright" ? "Shoved it off. It is still alive; attack separately to kill it." : "Kicked free. It is still alive."); } }
+window.addEventListener("keydown", e => { if (e.code === "Space" && mode === "grab") { e.preventDefault(); escapeInput(); } });
+$("prompt").onclick = escapeInput;
+$("g-restart").onclick = () => { buildGrab(); glog(attacker === "prone" ? "A body lies on the road ahead." : "Another one is coming."); };
+$("g-mate").onclick = () => { if (G && ["seize", "struggle", "bite"].includes(G.state)) { gset("mate"); $("prompt").hidden = true; glog("A teammate put it down. The grab ends."); } };
+$("sel-guard").onchange = () => { if (G) { G.guard = parseInt($("sel-guard").value, 10); guardHud(); } };
+$("sel-attacker").onchange = () => { attacker = $("sel-attacker").value; G = null; buildGrab(); $("marker").hidden = true; glog("Attacker: " + $("sel-attacker").selectedOptions[0].textContent + "."); };
+document.querySelectorAll("#seg-diff .chip").forEach(b => b.onclick = () => {
+  gdiff = b.dataset.d; document.querySelectorAll("#seg-diff .chip").forEach(x => x.setAttribute("aria-pressed", String(x === b))); if (G) G.window = GDIFF[gdiff][0]; });
+function tickGrab(dt) {
+  G.t += dt; const S = survivor.rig, Wr = gw.rig, k = ATK[attacker]; resetRig(S); resetRig(Wr);
+  let pClip = null, pt = 0;
+  const at = z => gw.ent.position.set(0, 0, z), D0 = -k.dist();
+  switch (G.state) {
+    case "dormant":                     // prone and motionless until the survivor is close
+      apply(Wr, W.prone_still, G.t); at(D0); if (G.t > 1.6) gset("seize"); break;
+    case "approach":
+      if (k.crawler) { G.z += 6.5 * dt; apply(Wr, A.crawler.crawl_drag, G.t); }
+      else { G.z += D.speeds.hungry * 16 * dt; apply(Wr, W["body.hungry"], G.t); apply(Wr, W["arms.reach"], G.t); apply(Wr, W["head.snap"], G.t); }
+      if (G.z >= D0) { G.z = D0; gset("seize"); }
+      at(G.z); break;
+    case "seize":
+      apply(Wr, wclip(k.seize), G.t); pClip = k.p.seize; pt = G.t; at(D0);
+      if (G.t >= Math.min(wclip(k.seize).length, 0.9)) { gset("struggle"); glog("Grabbed. The server has started the escape window."); } break;
+    case "struggle": {
+      apply(Wr, wclip(k.hold), G.t); pClip = k.p.hold; pt = G.t; at(D0);
+      const left = Math.max(0, G.window - G.t), frac = left / G.window;
+      $("prompt").hidden = false; $("ring").setAttribute("stroke-dashoffset", String(226.2 * (1 - frac)));
+      $("ringtxt").textContent = left.toFixed(1); $("prompt").classList.toggle("late", frac < 0.4);
+      if (G.t >= G.window) { $("prompt").hidden = true; gset("bite");
+        if (G.guard > 0) { G.blocked = true; G.guard -= 1; guardHud();
+          glog(G.guard === 0 ? "Guard broke. That bite was still blocked. The next one will not be." : "Bite blocked by the guard. It is damaged. Still grabbed."); }
+        else { G.blocked = false; G.bitten = true; G.pendingConfirm = true; const [, mins, amp] = GDIFF[gdiff];
+          $("marker").hidden = false;
+          $("markertxt").textContent = k.region === "neck" ? `Bitten · neck · fatal in ${mins}:00 · amputation impossible`
+                                                            : `Bitten · leg · fatal in ${mins}:00 · amputate within ${amp}:00`;
+          glog(`Server confirmed a penetrating bite (${k.region}). Infected. Still grabbed.`); } }
+      break; }
+    case "bite": {
+      const wa = wclip(G.blocked ? k.blocked : k.bite); apply(Wr, wa, G.t);
+      pClip = G.blocked ? k.p.blocked : k.p.bite; pt = G.t; at(D0);
+      if (G.t >= Math.max(wa.length, A.player[pClip].length)) gset("struggle"); break; }
+    case "free": {
+      apply(Wr, wclip(k.freed), G.t); pClip = k.p.free; pt = G.t;
+      const kk = Math.min(1, Math.max(0, (G.t - k.freeEvent) / 0.35)); G.knock = (attacker === "upright" ? 12 : 8) * (1 - Math.pow(1 - kk, 3)); at(D0 - G.knock);
+      if (G.t >= A.player[pClip].length && G.pendingConfirm) { G.pendingConfirm = false; gset("confirm"); glog("Checking the wound."); break; }
+      if (G.t >= 2.4) { buildGrab(); glog("Another one."); } break; }
+    case "confirm": {
+      apply(Wr, wclip(k.freed), 10); at(D0 - G.knock);
+      if (attacker === "upright") { resetRig(Wr); apply(Wr, W["body.stand"], G.t); apply(Wr, W["arms.reach"], G.t); apply(Wr, W["head.snap"], G.t); }
+      pClip = "bite_confirm_" + (k.region === "neck" ? "neck" : "leg"); pt = G.t;
+      if (G.t >= A.player[pClip].length + 0.6) { buildGrab(); glog("Another one."); } break; }
+    case "mate":
+      apply(Wr, wclip(k.death), G.t); pClip = k.p.released; pt = G.t; at(D0);
+      if (G.t >= 3.0) { buildGrab(); glog("Another one."); } break;
+  }
+  if (pClip) apply(S, A.player[pClip], pt);
+  if (fp) fpCamera(pClip ? A.camera[pClip] : null, pt);
+  $("nowplaying").textContent = pClip ? `${pClip}  ·  attacker ${G.state}` : `attacker ${G.state}`;
+}
+
+// ============================================================= EXECUTIONS
+// [key, label, why, target]   target: "walker" | "crawler" | "prone" | null (free swing)
+const EXEC_LIST = [["knife", "Knife", "Hand on its chest, blade hooked into the temple, wrench it out, shove the body off.", "walker"],
+  ["bat_quick", "Bat · quick swing", "Fast. Staggers but does not kill; it keeps coming.", "walker"],
+  ["bat_charged", "Bat · full charge", "Held charge, then a full-body swing. Kills in one accurate hit.", "walker"],
+  ["axe", "Axe · overhead", "Heave, chop into the skull, lever it back out.", "walker"],
+  ["machete", "Machete", "Brace on its shoulder, chop into the temple, wrench free.", "walker"],
+  ["knife_ground", "Knife · crawler", "Crouch over it and drive the blade down into the skull.", "crawler"],
+  ["knife_ground_prone", "Knife · prone walker", "Same clip; the prone walker is placed so its skull sits in the same spot.", "prone"],
+  ["bat_charged_miss", "Bat · full charge, miss", "Nothing there: overswing, stumble, long recovery.", null]];
+let ex = "knife", ew = null;
+const PRE = 0.8, CHARGE = 1.0, AFTER = 1.2;
+function exInfo() {
+  const row = EXEC_LIST.find(r => r[0] === ex), target = row[3];
+  const clip = ex === "knife_ground_prone" ? "exec_knife_ground" : ex === "bat_charged_miss" ? "bat_charged_miss" : "exec_" + ex;
+  const react = target === "crawler" ? A.crawler.react_knife_ground : target === "prone" ? W.react_knife_ground_prone : target ? W["react_" + ex] : null;
+  const dist = target === "crawler" ? D.pairing.knife_ground_crawler.dist : target === "prone" ? D.pairing.knife_ground_prone.dist : target ? D.execs[ex].dist : 0;
+  const pre = target === "crawler" ? A.crawler.crawler_still : target === "prone" ? W.prone_still : null;
+  return { target, clip, react, dist, pre, weapon: D.meta[clip].weapon };
+}
+function execTimes() { const i = exInfo(), a = A.player[i.clip]; const charge = (ex === "bat_charged" || ex === "bat_charged_miss") ? CHARGE : 0;
+  return { pre: PRE, charge, start: PRE + charge, total: PRE + charge + Math.max(a.length, i.react ? i.react.length : 0) + AFTER }; }
+function renderExecList() {
+  $("execlist").innerHTML = "";
+  for (const [k, name, why] of EXEC_LIST) { const a = A.player[k === "knife_ground_prone" ? "exec_knife_ground" : k === "bat_charged_miss" ? k : "exec_" + k];
+    const commit = (a.events.find(e => e[1] === "commit") || [0])[0];
+    const b = document.createElement("button"); b.className = "item"; b.setAttribute("aria-pressed", String(k === ex));
+    b.innerHTML = `<b>${name}</b><span class="meta">${a.length.toFixed(2)} s · commit ${commit.toFixed(2)}</span><span class="why">${why}</span>`;
+    b.onclick = () => { ex = k; clock = 0; playing = true; syncPlay(); buildExec(); }; $("execlist").appendChild(b); }
+}
+function buildExec() {
+  clearActors(); survivor = makeSurvivor(); setFirstPersonHidden(survivor, fp); const i = exInfo(); ew = null;
+  if (i.target) { ew = makeWalker(OUTFITS[EXEC_LIST.findIndex(r => r[0] === ex) % OUTFITS.length], i.target === "crawler"); ew.ent.rotation.y = Math.PI; ew.ent.position.set(0, 0, -i.dist); }
+  showWeapon(survivor, i.weapon); renderExecList();
+  const T = execTimes(); marks(A.player[i.clip], T.start, T.total);
+}
+function tickExec(t) {
+  const T = execTimes(), i = exInfo(), S = survivor.rig; resetRig(S); if (ew) resetRig(ew.rig);
+  let pClip = i.clip, pt = 0;
+  if (t < T.start) {
+    if (ew) { if (i.pre) apply(ew.rig, i.pre, t); else { apply(ew.rig, W["body.hungry"], t); apply(ew.rig, W["arms.reach"], t); apply(ew.rig, W["head.snap"], t); } }
+    if (T.charge && t >= T.pre) { pClip = "bat_charge_hold"; pt = t - T.pre; }
+  } else { const lt = t - T.start; if (ew) apply(ew.rig, i.react, lt); pt = lt; }
+  apply(S, A.player[pClip], pt);
+  if (fp) fpCamera(A.camera[pClip], pt);
+  $("nowplaying").textContent = `${pClip}${i.target ? "  ·  " + (i.target === "crawler" ? "crawler react_knife_ground" : i.target === "prone" ? "react_knife_ground_prone" : "react_" + ex) : ""}`;
+  return T;
+}
+
+// ============================================================= mode switching
+function setMode(m) {
+  mode = m; fp = fp && (m === "grab" || m === "exec");
+  document.querySelectorAll("#tabs .chip").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === m)));
+  ["herd", "library", "grab", "exec"].forEach(k => $("p-" + k).hidden = k !== m);
+  $("transport").style.visibility = (m === "library" || m === "exec") ? "visible" : "hidden";
+  $("prompt").hidden = true; $("marker").hidden = !(m === "grab" && G && G.bitten); $("guardhud").hidden = m !== "grab";
+  survivor = null; clock = 0; playing = true; syncPlay(); marks(null);
+  if (m === "herd") buildHerd(); else if (m === "library") buildLibrary(); else if (m === "grab") { buildGrab(); glog("A walker is coming. Wait for the prompt."); } else buildExec();
+  camKey = null; renderCams(); setCam(Object.keys(CAMS[m])[0]);
+}
+document.querySelectorAll("#tabs .chip").forEach(b => b.onclick = () => setMode(b.dataset.mode));
+$("reroll").onclick = () => { herdSeed++; buildHerd(); };
+scrub.oninput = () => { playing = false; syncPlay();
+  if (mode === "library") clock = parseFloat(scrub.value) * currentLibAnim().length;
+  else if (mode === "exec") clock = parseFloat(scrub.value) * execTimes().total; };
+
+// ============================================================= loop
+let herdClock = 0;
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now; const sp = parseFloat(speedSel.value);
+  if (mode === "herd") { herdClock += dt * sp; tickHerd(herdClock); }
+  else if (mode === "library") {
+    const a = currentLibAnim(); if (playing) clock += dt * sp;
+    if (a.loop !== true && clock > a.length + 1.0) clock = 0;
+    tickLibrary(clock); const lt = a.loop === true ? localTime(a, clock) : Math.min(clock, a.length);
+    scrub.value = (lt / a.length).toFixed(4); timeEl.textContent = `${lt.toFixed(2)} / ${a.length.toFixed(2)} s`;
+  } else if (mode === "grab") tickGrab(dt * sp);
+  else {
+    if (playing) clock += dt * sp; const T0 = execTimes(); if (clock > T0.total) clock = 0;
+    const T = tickExec(clock); scrub.value = (clock / T.total).toFixed(4);
+    const L = A.player[exInfo().clip].length, lt = Math.max(0, clock - T.start); timeEl.textContent = `${Math.min(lt, L).toFixed(2)} / ${L.toFixed(2)} s`;
+  }
+  if (!fp) controls.update();
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+resize(); setMode("herd"); requestAnimationFrame(frame);
+window.__holdfast = { setMode, A, D, get G() { return G; }, escapeInput, setAttacker: v => { $("sel-attacker").value = v; $("sel-attacker").onchange(); }, setExec: k => { ex = k; buildExec(); }, setLib: k => { libClip = k; buildLibrary(); }, setFp: v => { fp = v; syncCams(); } };
+})();
+</script>

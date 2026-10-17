@@ -1,0 +1,9 @@
+{
+  "move_limp": 3.67,
+  "move_limp_severe": 2.374,
+  "move_arm_injured": 4.101,
+  "move_prosthesis": 3.454,
+  "move_crutch_improvised": 1.943,
+  "move_crutch_medical": 2.59,
+  "move_crawl_legless": 0.863
+}

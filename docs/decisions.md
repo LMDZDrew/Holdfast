@@ -34,6 +34,17 @@ Status: accepted design unless labeled proposed. This file supersedes older word
 - The more accessible icons emphasize passive handling. Rarer examples receive triggered, powerful but physically plausible abilities. Whisperer masks are rare but repeatable, with slow-walk horde concealment and readable failure conditions.
 - Rick's Python and jacket are separate discoveries in a longer, dangerous investigation. Other rare pieces need not each receive a full quest. Recognizable show-linked locations matter.
 
+## Injury movement speed (accepted 2026-10-16, Andrew)
+
+- Walking speed scales with injury severity, as a fraction of normal (vanilla) walking: mild leg injury 85%, severe leg injury 55%, injured arm 95%. Leg loss stays as in `design.md`: crawling 20%, improvised crutches 45%, medical crutches 60%, fitted prosthesis 80%.
+- The server owns the multiplier (S13 in `animation.md`). Each injury walk cycle is authored so its footsteps match its speed at 1x playback.
+- Which wounds count as mild or severe is not decided yet; it belongs to the wound system.
+
+## Firearms and executions (accepted 2026-10-16, Andrew)
+
+- TaCZ is the base mod for guns. Holdfast's gun-related animations (handgun executions, anything shown while a gun is held) must match TaCZ's own hold, aim and reload poses so the two read as one system. Exact TaCZ build still needs its compatibility run (roadmap Gate 0 step 2) before it is pinned.
+- Executions: knife, axe, machete and bat as authored, each against upright, prone and crawling walkers where the pose allows. A handgun can execute; a rifle or shotgun cannot. The server's execution check (S7, weapon class) enforces it. "Handgun" means a TaCZ gun whose index `type` is `pistol` (14 in TaCZ 1.1.8's default pack, revolvers included); `rifle`, `shotgun`, `smg`, `sniper`, `mg` and `rpg` cannot execute (Claude's reading of Andrew's rule, 2026-10-16; revisit if SMGs should count).
+
 ## Explicitly deferred
 
 Character skill leveling, friendly/recruitable survivors, dynamic dismemberment, broad stealth disguises beyond Whisperer masks, advanced structural physics, and guaranteed shader FPS. They can be revisited after a representative playable prototype.
