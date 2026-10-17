@@ -113,6 +113,10 @@ Retest the new first-person limp cue and ADS, then author handgun executions aga
 
 **Next safe task:** install both jars and run `docs/stage1_bulk_test.md` with Andrew; fix what fails in source; then a scripted real-player reconnect check, and TaCZ Gate 0 step 2's separate pistol/rifle observations.
 
+## Andrew's first in-game review of the build-out — 2026-10-17 (Claude)
+
+Branch `claude/stage1-combat-and-animation`. Andrew ran bulk test sections 1-3; results, his exact words, causes, and an ordered task list for Codex are in **`docs/codex_stage1_animation_feedback.md`**. In short: pistol executions pass (need TaCZ's per-gun shot sound); axe/bat/machete executions pass; standing knife lands short again; every hold is stiff and unnatural (axe clips through the body); swings and locomotion work but are stiff and minimal; `_gun` locomotion passes. No new sounds heard because the new audio lives in `holdfast_core`, whose section 4 wasn't run. Nothing was fixed after the review, at Andrew's request.
+
 ## Handoff format for future work
 
 Branch/commit; files changed; behavior observed; exact tests and commands; unresolved issues; next safe task. Separate proposed behavior from verified behavior.
