@@ -114,28 +114,54 @@ public final class Clips {
         Map.entry("grabbed_seize", 0.5),
         Map.entry("grabbed_shove", 0.6),
         Map.entry("grabbed_struggle", 0.8),
+        Map.entry("hold_axe", 3.2),
+        Map.entry("hold_hatchet", 3.0),
+        Map.entry("hold_katana", 3.2),
+        Map.entry("hold_knife", 3.0),
+        Map.entry("hold_machete", 3.0),
         Map.entry("move_arm_injured", 0.5),
         Map.entry("move_arm_injured_gun", 0.5),
         Map.entry("move_crawl_legless", 2.2),
+        Map.entry("move_crouch_walk", 0.85),
+        Map.entry("move_crouch_walk_gun", 0.85),
         Map.entry("move_crutch_improvised", 0.65),
         Map.entry("move_crutch_medical", 0.45),
+        Map.entry("move_jump", 0.8),
+        Map.entry("move_jump_gun", 0.8),
         Map.entry("move_limp", 0.5),
         Map.entry("move_limp_gun", 0.5),
         Map.entry("move_limp_severe", 0.6),
         Map.entry("move_limp_severe_gun", 0.6),
         Map.entry("move_prosthesis", 0.6),
-        Map.entry("move_prosthesis_gun", 0.6)
+        Map.entry("move_prosthesis_gun", 0.6),
+        Map.entry("move_sprint", 0.4),
+        Map.entry("move_sprint_gun", 0.4),
+        Map.entry("move_walk", 0.35),
+        Map.entry("move_walk_gun", 0.35),
+        Map.entry("swing_axe", 0.75),
+        Map.entry("swing_axe_overhead", 1.0),
+        Map.entry("swing_hatchet", 0.5),
+        Map.entry("swing_hatchet_heavy", 0.75),
+        Map.entry("swing_katana", 0.65),
+        Map.entry("swing_katana_heavy", 0.85),
+        Map.entry("swing_knife", 0.45),
+        Map.entry("swing_knife_heavy", 0.7),
+        Map.entry("swing_machete", 0.6),
+        Map.entry("swing_machete_heavy", 0.8)
     );
 
     /** injury movement clip -> speed as a fraction of vanilla walking (4.317 blocks/s) its footsteps match */
     public static final Map<String, Double> MOVE_SPEED = Map.ofEntries(
         Map.entry("move_arm_injured", 0.95),
         Map.entry("move_crawl_legless", 0.2),
+        Map.entry("move_crouch_walk", 0.3),
         Map.entry("move_crutch_improvised", 0.45),
         Map.entry("move_crutch_medical", 0.6),
         Map.entry("move_limp", 0.85),
         Map.entry("move_limp_severe", 0.55),
-        Map.entry("move_prosthesis", 0.8)
+        Map.entry("move_prosthesis", 0.8),
+        Map.entry("move_sprint", 1.3),
+        Map.entry("move_walk", 1.0)
     );
 
     /** player clip -> held prop from its extras file (knife, bat, axe, machete, crutch) */
@@ -154,8 +180,23 @@ public final class Clips {
         Map.entry("exec_machete_ground", "machete"),
         Map.entry("exec_pistol", "pistol"),
         Map.entry("exec_pistol_ground", "pistol"),
+        Map.entry("hold_axe", "axe"),
+        Map.entry("hold_hatchet", "hatchet"),
+        Map.entry("hold_katana", "katana"),
+        Map.entry("hold_knife", "knife"),
+        Map.entry("hold_machete", "machete"),
         Map.entry("move_crutch_improvised", "crutch"),
-        Map.entry("move_crutch_medical", "crutch")
+        Map.entry("move_crutch_medical", "crutch"),
+        Map.entry("swing_axe", "axe"),
+        Map.entry("swing_axe_overhead", "axe"),
+        Map.entry("swing_hatchet", "hatchet"),
+        Map.entry("swing_hatchet_heavy", "hatchet"),
+        Map.entry("swing_katana", "katana"),
+        Map.entry("swing_katana_heavy", "katana"),
+        Map.entry("swing_knife", "knife"),
+        Map.entry("swing_knife_heavy", "knife"),
+        Map.entry("swing_machete", "machete"),
+        Map.entry("swing_machete_heavy", "machete")
     );
 
     public record Pair(String name, String playerClip, boolean crawler, String attackerClip, double distPx) {}

@@ -15,7 +15,7 @@ W = pa.W
 WR, CR, SR = pa.WR, pa.CR, pa.SR
 PAIR = placement.load()
 PLAYER, _ = pa.build()
-PROPS = {"knife", "bat", "axe", "machete", "crutchR", "crutchL"}
+PROPS = {"knife", "bat", "axe", "machete", "hatchet", "katana", "crutchR", "crutchL"}
 SPAL = {**PALETTE, **fk.SURV, "crutchR": (150, 120, 84), "crutchL": (150, 120, 84)}
 BANNER = "PREVIEW (software render of exported keyframes) - not Minecraft - flat colours, not textures"
 

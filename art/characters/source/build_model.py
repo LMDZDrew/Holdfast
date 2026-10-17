@@ -82,6 +82,17 @@ SURVIVOR = [
     bone("machete", "rightItem", FIST_R, [cube([-6.5, 11.9, -3], [1, 1.2, 3.5], [52, 64]),
                                          cube([-6.4, 10.6, -14], [0.8, 2.4, 11], [0, 100])]),
     bone("macheteEdge", "machete", [-6, 10.8, -10]),
+    # one-handed hatchet and two-handed katana (weapon families, decisions.md 2026-10-16); same convention:
+    # along -Z from the fist, edge -Y. Geometry matches gen_core_assets.NEW.
+    bone("hatchet", "rightItem", FIST_R, [cube([-6.6, 11.9, -9.0], [1.2, 1.2, 11.0], [0, 80]),
+                                         cube([-6.5, 8.5, -9.5], [1.0, 4.4, 2.8], [40, 80])]),
+    bone("hatchetEdge", "hatchet", [-6, 8.7, -8.1]),
+    bone("katana", "rightItem", FIST_R, [cube([-6.6, 11.9, -2.5], [1.2, 1.2, 7.5], [30, 64]),
+                                        cube([-7.5, 11.0, -3.2], [3.0, 3.0, 0.7], [30, 64]),
+                                        cube([-6.3, 11.3, -26.0], [0.6, 1.8, 22.8], [0, 100])]),
+    bone("katanaEdge", "katana", [-6, 11.4, -18.0]),
+    bone("katanaTip", "katana", [-6, 12.2, -25.8]),
+    bone("katanaGrip", "katana", [-6, 12.5, 3.6]),
     bone("crutchR", "rightItem", FIST_R, [cube([-6.5, 0, 1], [1, 21, 1], [24, 100]),
                                          cube([-7.5, 20.5, 0.5], [3, 1, 1], [30, 100])]),
     bone("leftArm", "torso", [5, 22, 0], [cube([4, 12, -2], [4, 12, 4], [32, 48])]),

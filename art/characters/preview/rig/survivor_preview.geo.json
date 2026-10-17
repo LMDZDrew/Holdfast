@@ -340,6 +340,144 @@
           "parent": "machete"
         },
         {
+          "name": "hatchet",
+          "pivot": [
+            -6,
+            12.5,
+            0
+          ],
+          "parent": "rightItem",
+          "cubes": [
+            {
+              "origin": [
+                -6.6,
+                11.9,
+                -9.0
+              ],
+              "size": [
+                1.2,
+                1.2,
+                11.0
+              ],
+              "uv": [
+                0,
+                80
+              ]
+            },
+            {
+              "origin": [
+                -6.5,
+                8.5,
+                -9.5
+              ],
+              "size": [
+                1.0,
+                4.4,
+                2.8
+              ],
+              "uv": [
+                40,
+                80
+              ]
+            }
+          ]
+        },
+        {
+          "name": "hatchetEdge",
+          "pivot": [
+            -6,
+            8.7,
+            -8.1
+          ],
+          "parent": "hatchet"
+        },
+        {
+          "name": "katana",
+          "pivot": [
+            -6,
+            12.5,
+            0
+          ],
+          "parent": "rightItem",
+          "cubes": [
+            {
+              "origin": [
+                -6.6,
+                11.9,
+                -2.5
+              ],
+              "size": [
+                1.2,
+                1.2,
+                7.5
+              ],
+              "uv": [
+                30,
+                64
+              ]
+            },
+            {
+              "origin": [
+                -7.5,
+                11.0,
+                -3.2
+              ],
+              "size": [
+                3.0,
+                3.0,
+                0.7
+              ],
+              "uv": [
+                30,
+                64
+              ]
+            },
+            {
+              "origin": [
+                -6.3,
+                11.3,
+                -26.0
+              ],
+              "size": [
+                0.6,
+                1.8,
+                22.8
+              ],
+              "uv": [
+                0,
+                100
+              ]
+            }
+          ]
+        },
+        {
+          "name": "katanaEdge",
+          "pivot": [
+            -6,
+            11.4,
+            -18.0
+          ],
+          "parent": "katana"
+        },
+        {
+          "name": "katanaTip",
+          "pivot": [
+            -6,
+            12.2,
+            -25.8
+          ],
+          "parent": "katana"
+        },
+        {
+          "name": "katanaGrip",
+          "pivot": [
+            -6,
+            12.5,
+            3.6
+          ],
+          "parent": "katana"
+        },
+        {
           "name": "crutchR",
           "pivot": [
             -6,

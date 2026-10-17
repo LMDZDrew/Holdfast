@@ -1,0 +1,166 @@
+{
+ "format_version": "1.8.0",
+ "holdfast_meta": {
+  "weapon": null,
+  "vanilla_pose": null,
+  "pa_native": false
+ },
+ "animations": {
+  "move_sprint": {
+   "loop": true,
+   "animation_length": 0.4,
+   "bones": {
+    "camera": {
+     "rotation": {
+      "0.0": {
+       "post": [
+        3.58,
+        0.0,
+        0.0
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.05": {
+       "post": [
+        3.57,
+        -0.39,
+        0.15
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.1": {
+       "post": [
+        3.57,
+        -0.54,
+        0.21
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.15": {
+       "post": [
+        3.57,
+        -0.39,
+        0.15
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.2": {
+       "post": [
+        3.58,
+        0.0,
+        0.0
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.25": {
+       "post": [
+        3.57,
+        0.39,
+        -0.15
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.3": {
+       "post": [
+        3.57,
+        0.54,
+        -0.21
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.35": {
+       "post": [
+        3.57,
+        0.39,
+        -0.15
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.4": {
+       "post": [
+        3.58,
+        0.0,
+        0.0
+       ],
+       "lerp_mode": "linear"
+      }
+     },
+     "position": {
+      "0.0": {
+       "post": [
+        0.0,
+        -0.94,
+        -1.69
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.05": {
+       "post": [
+        0.06,
+        -0.71,
+        -1.69
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.1": {
+       "post": [
+        0.09,
+        -0.13,
+        -1.69
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.15": {
+       "post": [
+        0.06,
+        -0.71,
+        -1.69
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.2": {
+       "post": [
+        0.0,
+        -0.94,
+        -1.69
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.25": {
+       "post": [
+        -0.06,
+        -0.71,
+        -1.69
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.3": {
+       "post": [
+        -0.09,
+        -0.13,
+        -1.69
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.35": {
+       "post": [
+        -0.06,
+        -0.71,
+        -1.69
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.4": {
+       "post": [
+        0.0,
+        -0.94,
+        -1.69
+       ],
+       "lerp_mode": "linear"
+      }
+     }
+    }
+   }
+  }
+ }
+}

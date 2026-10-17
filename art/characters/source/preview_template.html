@@ -349,7 +349,7 @@ function makeSurvivor() {
   const a = { ent, rig, survivor: true, layers: [] }; actors.push(a); return a;
 }
 function clearActors() { actors.forEach(a => scene.remove(a.ent)); actors = []; }
-const WEAPONS = ["knife", "bat", "axe", "machete", "crutchR", "crutchL"];
+const WEAPONS = ["knife", "bat", "axe", "machete", "hatchet", "katana", "crutchR", "crutchL"];
 function showWeapon(s, w) { WEAPONS.forEach(k => s.rig.bones[k].visible = k === w || (w === "crutch" && k.startsWith("crutch"))); }
 function setFirstPersonHidden(s, on) { ["head", "torso", "rightLeg", "leftLeg"].forEach(k => s.rig.bones[k].children.forEach(c => { if (c.isMesh) c.visible = !on; })); }
 

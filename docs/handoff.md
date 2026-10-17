@@ -96,6 +96,21 @@ Retest the new first-person limp cue and ADS, then author handgun executions aga
 
 **Accepted Stage 1 exit plan:** See `docs/roadmap.md` for the ordered pre-worldgen gate: (1) finish TaCZ/handgun/melee evidence, (2) build server-authoritative combat and persistence, (3) add general locomotion and melee-family clips, (4) add walker, weapon, blood and flesh sound plus cosmetic spatter, (5) pass solo dedicated-server, automated state/reconnect, and practical second-local-client checks. Andrew has no second human tester available; do not request a friend-based two-player test or hold world generation for one. Mark human multiplayer synchronization and 16-player load as explicit later risks until testers exist. Keep PR #1 and PR #2 as drafts and do not merge them.
 
+## Claude Stage 1 build-out (no in-game testing) — 2026-10-17
+
+**Branch** `claude/stage1-combat-and-animation` from `0a3e7d1` (`codex/stage1-handgun-executions`). Draft PR #1 and PR #2 untouched and unmerged. Andrew asked for changes without testing; he will test in bulk with **`docs/stage1_bulk_test.md`** (exact commands, expected results, numbered for reporting).
+
+**Built (static checks and unit tests only; see the 2026-10-17 rows in `testing.md`):**
+- Handgun executions `exec_pistol`, `exec_pistol_ground` (prone and crawler) in `player_guns.py`, authored in Player Animator part space from TaCZ 1.1.8's `pistol_default` `hold_upper` (match at both ends) with the barrel solved onto the skull; shot reactions; 3 pair presets; the harness equips a real TaCZ `glock_17`.
+- `react_knife` now takes the temple stab sideways. Hatchet and katana in the solver rig.
+- Weapon families (`player_weapons.py`): holds (arms/items/head only) and light/heavy swings for knife, machete, hatchet, katana, axe/hammer; locomotion `move_walk/sprint/crouch_walk/jump` with legs-only `_gun` variants.
+- New mod `holdfast_core` (`core/`, design per system in `docs/core_combat.md`): plain-Java rules (19 JUnit tests), generated `CombatTimings` from the clips (`gen_core_tables.py`), walker entity (GeckoLib, no damage pool, upright/prone/crawler, lunge → server grab), melee/projectile/TaCZ hit resolution (TaCZ bridge compile-only against the real jar), grabs with escape window and latency allowance, bites through bite-rated guards, infection with amputation window, executions with commit/cancel/kill ticks and the pistol-only rule, injury speed, saved condition, one context key (V), HUD, client clip selection (locomotion 95 / weapon hold 97 / action 1100), blood and contact sounds, `/holdfast` debug commands, 7 melee items and 6 bite guards.
+- Original procedural audio (`art/audio/gen_sounds.py`): walker groan/breath/snarl/lunge/bite/death and blunt/slash/stab/gunshot flesh and skull contacts, 72 variants.
+
+**Not done / risks:** nothing run in game; Forge glue only compiled. Remote players' injury walk isn't synced (only the owner's). Blunt charge uses hold-use; first-person views of swings untested. No GameTest/reconnect automation yet. The walker voice character is unjudged. Prone/crawler hit layout approximate. Two-handed weapons need an empty off hand.
+
+**Next safe task:** install both jars and run `docs/stage1_bulk_test.md` with Andrew; fix what fails in source; then GameTest automation for grab/bite/persistence, and TaCZ Gate 0 step 2's separate pistol/rifle observations.
+
 ## Handoff format for future work
 
 Branch/commit; files changed; behavior observed; exact tests and commands; unresolved issues; next safe task. Separate proposed behavior from verified behavior.

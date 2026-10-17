@@ -253,7 +253,7 @@ public final class TestCommands {
         if (speed == null) return "";
         speed.removeModifier(TEST_SPEED_ID);
         Double f = Clips.MOVE_SPEED.get(playerClip);
-        if (f == null || f >= 0.999 && f <= 1.001) return "";
+        if (f == null || f >= 0.999) return "";      // walk and sprint clips play at your own speed
         // Vanilla already moves a crawling (swimming-pose) player at 0.3 of walking speed.
         double attr = playerClip.equals("move_crawl_legless") ? f / 0.3 : f;
         speed.addTransientModifier(new AttributeModifier(TEST_SPEED_ID, "holdfast test injury speed", attr - 1.0,
@@ -263,11 +263,11 @@ public final class TestCommands {
 
     private static int weapons(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
         ServerPlayer p = c.getSource().getPlayerOrException();
-        for (String w : List.of("knife", "bat", "axe", "machete", "crutch")) {
+        for (String w : List.of("knife", "bat", "axe", "machete", "hatchet", "katana", "crutch")) {
             ItemStack s = new ItemStack(HoldfastAnimTest.TEST_WEAPONS.get(w).get());
             if (!p.getInventory().add(s)) p.drop(s, false);
         }
-        say(c, "gave test knife, bat, axe, machete and crutch (clips also equip them automatically)");
+        say(c, "gave test knife, bat, axe, machete, hatchet, katana and crutch (clips also equip them automatically)");
         return 1;
     }
 

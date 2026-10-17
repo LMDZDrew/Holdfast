@@ -115,17 +115,40 @@ Times are seconds from the start of the clip. Events and sounds are **presentati
 | `grabbed_seize` | 0.50 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | 0.10 `player.gasp` |
 | `grabbed_shove` | 0.60 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | `shove` 0.14 | 0.14 `player.exert_heavy` |
 | `grabbed_struggle` | 0.80 | loop | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | 0.00 `player.strain` |
+| `hold_axe` | 3.20 | loop | head, leftArm, leftItem, rightArm, rightItem | axe | — | — |
+| `hold_hatchet` | 3.00 | loop | head, leftArm, leftItem, rightArm, rightItem | hatchet | — | — |
+| `hold_katana` | 3.20 | loop | head, leftArm, leftItem, rightArm, rightItem | katana | — | — |
+| `hold_knife` | 3.00 | loop | head, leftArm, leftItem, rightArm, rightItem | knife | — | — |
+| `hold_machete` | 3.00 | loop | head, leftArm, leftItem, rightArm, rightItem | machete | — | — |
 | `move_arm_injured` | 0.50 | loop | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | — |
 | `move_arm_injured_gun` | 0.50 | loop | body, leftLeg, rightLeg | — | — | — |
 | `move_crawl_legless` | 2.20 | loop | head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — (inside vanilla `swimming` pose) | — | — |
+| `move_crouch_walk` | 0.85 | loop | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | — |
+| `move_crouch_walk_gun` | 0.85 | loop | body, leftLeg, rightLeg | — | — | — |
 | `move_crutch_improvised` | 0.65 | loop | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | crutch | — | — |
 | `move_crutch_medical` | 0.45 | loop | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | crutch | — | — |
+| `move_jump` | 0.80 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | — |
+| `move_jump_gun` | 0.80 | once | body, leftLeg, rightLeg | — | — | — |
 | `move_limp` | 0.50 | loop | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | — |
 | `move_limp_gun` | 0.50 | loop | body, leftLeg, rightLeg | — | — | — |
 | `move_limp_severe` | 0.60 | loop | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | — |
 | `move_limp_severe_gun` | 0.60 | loop | body, leftLeg, rightLeg | — | — | — |
 | `move_prosthesis` | 0.60 | loop | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | — |
 | `move_prosthesis_gun` | 0.60 | loop | body, leftLeg, rightLeg | — | — | — |
+| `move_sprint` | 0.40 | loop | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | — |
+| `move_sprint_gun` | 0.40 | loop | body, leftLeg, rightLeg | — | — | — |
+| `move_walk` | 0.35 | loop | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | — |
+| `move_walk_gun` | 0.35 | loop | body, leftLeg, rightLeg | — | — | — |
+| `swing_axe` | 0.75 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | axe | `commit` 0.12, `strike` 0.30 | 0.20 `swing.heavy` |
+| `swing_axe_overhead` | 1.00 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | axe | `commit` 0.30, `strike` 0.46 | 0.36 `swing.heavy` |
+| `swing_hatchet` | 0.50 | once | body, head, leftItem, leftLeg, rightArm, rightItem, rightLeg | hatchet | `commit` 0.10, `strike` 0.22 | 0.14 `swing.light` |
+| `swing_hatchet_heavy` | 0.75 | once | body, head, leftItem, leftLeg, rightArm, rightItem, rightLeg | hatchet | `commit` 0.20, `strike` 0.35 | 0.26 `swing.heavy` |
+| `swing_katana` | 0.65 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | katana | `commit` 0.14, `strike` 0.28 | 0.18 `swing.heavy` |
+| `swing_katana_heavy` | 0.85 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | katana | `commit` 0.24, `strike` 0.40 | 0.32 `swing.heavy` |
+| `swing_knife` | 0.45 | once | body, head, leftItem, leftLeg, rightArm, rightItem, rightLeg | knife | `commit` 0.08, `strike` 0.18 | 0.10 `swing.light` |
+| `swing_knife_heavy` | 0.70 | once | body, head, leftItem, leftLeg, rightArm, rightItem, rightLeg | knife | `commit` 0.16, `strike` 0.30 | 0.20 `swing.light` |
+| `swing_machete` | 0.60 | once | body, head, leftItem, leftLeg, rightArm, rightItem, rightLeg | machete | `commit` 0.12, `strike` 0.25 | 0.16 `swing.light` |
+| `swing_machete_heavy` | 0.80 | once | body, head, leftItem, leftLeg, rightArm, rightItem, rightLeg | machete | `commit` 0.22, `strike` 0.38 | 0.30 `swing.heavy` |
 
 ## Reference speeds at 1× playback
 
@@ -149,6 +172,9 @@ Scale playback by actual horizontal speed ÷ this value so feet don't slide.
 | player `move_crutch_improvised` | 1.94 |
 | player `move_crutch_medical` | 2.59 |
 | player `move_crawl_legless` | 0.86 |
+| player `move_walk` | 4.32 |
+| player `move_sprint` | 5.61 |
+| player `move_crouch_walk` | 1.29 |
 
 ## Pairing distances
 

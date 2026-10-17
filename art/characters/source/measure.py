@@ -21,7 +21,8 @@ def depth_inside(Hinv, p):
 
 
 # weapon extent along the item's local -z from the fist, and sample heights (local y)
-EXTENT = {"knife": (0.5, -8.5, (0,)), "bat": (4, -17, (0,)), "axe": (3, -14.5, (0, -4.6)), "machete": (0.5, -14, (0, -1.6))}
+EXTENT = {"knife": (0.5, -8.5, (0,)), "bat": (4, -17, (0,)), "axe": (3, -14.5, (0, -4.6)), "machete": (0.5, -14, (0, -1.6)),
+          "hatchet": (2, -9.5, (0, -3.6)), "katana": (5, -26, (0, -1.0))}
 rows = {}
 for name, (a, info) in out.items():
     if not name.startswith("exec_"):

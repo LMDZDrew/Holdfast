@@ -50,7 +50,7 @@ public final class ClientCore {
         if (event.phase != TickEvent.Phase.END) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
-        ClientClips.refreshLocomotion();
+        ClientClips.tick();
         while (ACTION.consumeClick()) {
             Entity looked = mc.hitResult instanceof EntityHitResult eh ? eh.getEntity() : null;
             CoreNet.CHANNEL.sendToServer(new ActionPacket(looked == null ? -1 : looked.getId()));

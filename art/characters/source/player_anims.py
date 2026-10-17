@@ -21,6 +21,7 @@ PLAYER_BONES = ["body", "torso", "head", "rightArm", "leftArm", "rightLeg", "lef
 WEAPON = {  # strike marker, grip marker for the left hand (None = one-handed)
     "knife": ("knifeTip", None), "bat": ("batSweet", "batGrip"),
     "axe": ("axeEdge", "axeGrip"), "machete": ("macheteEdge", None),
+    "hatchet": ("hatchetEdge", None), "katana": ("katanaEdge", "katanaGrip"),
 }
 
 
@@ -506,6 +507,11 @@ def build():
     guns, rep3 = player_guns.build()
     out.update(guns)
     reports += rep3
+    import player_weapons
+    fams, rep4, loco_speeds = player_weapons.build()
+    out.update(fams)
+    reports += rep4
+    speeds.update(loco_speeds)
     write_json(os.path.join(OUT, "player_move_speeds.json"), speeds, indent=2)
     return out, reports
 

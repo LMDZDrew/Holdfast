@@ -5,5 +5,8 @@
   "move_prosthesis": 3.454,
   "move_crutch_improvised": 1.943,
   "move_crutch_medical": 2.59,
-  "move_crawl_legless": 0.863
+  "move_crawl_legless": 0.863,
+  "move_walk": 4.317,
+  "move_sprint": 5.612,
+  "move_crouch_walk": 1.295
 }

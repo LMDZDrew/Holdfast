@@ -100,8 +100,8 @@ Full-body clips (postures, attacks, grabs, deaths, reactions) need the arms and 
 
 | Requested | Walker | Crawler | Player |
 |---|---|---|---|
-| Idle | `body.stand` + arm/head sets, `still`, `sit_slumped`, `prone_still` | `crawler_still` | (vanilla) |
-| Walking | 8 gaits | `crawl` | (vanilla) |
+| Idle | `body.stand` + arm/head sets, `still`, `sit_slumped`, `prone_still` | `crawler_still` | (vanilla); weapon holds `hold_{knife,machete,hatchet,katana,axe}` (arms/items/head only) |
+| Walking | 8 gaits | `crawl` | `move_walk` (4.317 b/s), `move_sprint` (5.612), `move_crouch_walk` (1.295), `move_jump`; each with a legs-only `_gun` variant for TaCZ |
 | Pursuit | `body.hungry` + `arms.reach` + `head.snap` | `crawl_drag` | — |
 | Attacks | `lunge` | `crawler_lunge` | — |
 | Grabs | `grab_seize`, `grab_hold` | `crawler_lunge` → `crawler_ankle_hold` | `grabbed_seize`, `grabbed_struggle`, `grabbed_ankle_seize`, `grabbed_ankle_struggle` |
@@ -110,6 +110,8 @@ Full-body clips (postures, attacks, grabs, deaths, reactions) need the arms and 
 | Prone to active | `prone_rise`, `prone_ankle_grab`, `rise_from_sit` | `crawler_still` → `crawl`/`crawler_lunge` | — |
 | Head-kill executions | `react_knife`, `react_axe`, `react_machete`, `react_bat_charged`; on the ground `react_{knife,axe,machete,bat}_ground_prone` | `react_{knife,axe,machete,bat}_ground` | `exec_knife`, `exec_axe`, `exec_machete`, `exec_bat_charged`; on the ground `exec_knife_ground` (stab) and `exec_axe_ground`, `exec_machete_ground`, `exec_bat_ground` from one overhead-strike template (`player_more.OVERHEAD`). Handgun: pending TaCZ |
 | Charged blunt swings | `react_bat_quick` (stagger, not a kill) | — | `bat_charge_hold`, `exec_bat_quick`, `exec_bat_charged`, `bat_swing_quick`, `bat_charged_miss` |
+| Free melee swings (weapon families) | — | — | `swing_knife(_heavy)`, `swing_machete(_heavy)`, `swing_hatchet(_heavy)`, `swing_katana(_heavy)`, `swing_axe`, `swing_axe_overhead` (`player_weapons.py`) |
+| Handgun executions (TaCZ pistol class) | `react_pistol`; `react_pistol_ground_prone` | `react_pistol_ground` | `exec_pistol`, `exec_pistol_ground`: authored in Player Animator part space from TaCZ's `pistol_default` hold (`player_guns.py`) |
 | Injury-limited movement | — | — | `move_limp` (mild, 85%), `move_limp_severe` (55%), `move_arm_injured` (95%), `move_crawl_legless` (20%), `move_crutch_improvised` (45%), `move_crutch_medical` (60%), `move_prosthesis` (80%); each cycle is authored so its feet match that speed at 1x |
 | Death | `death_headshot` | `crawler_death` | — |
 
@@ -127,7 +129,7 @@ Every `timeline` event in the clips is a **presentation cue** for sounds, partic
 | S6 | **Teammate intervention** | The teammate's own hit or shove, validated like any other attack. A brain kill or accepted shove ends the grab on all clients. | `grabbed_released` / `grabbed_ankle_released` on the victim; the attacker's death or shoved clip | — |
 | S7 | **Execution request** | Target type, distance within pairing tolerance (proposed ±4 px), facing (proposed ±25°), head exposed, weapon class, stamina, target not already executed or grabbing someone else. Then snaps both. | Plays the pair from the server's start packet | — |
 | S8 | **Execution cancel or commit** | Cancel accepted if it arrives before the server's commit tick for that clip. After commit, the swing proceeds; nearby walkers still act (no invulnerability). | Plays cancel-out (blend to idle) or continues | `commit` (see catalog) |
-| S9 | **Brain kill (execution)** | Applies the kill at its own tick for that clip: knife 0.28 s (temple), bat charged 0.19 s, axe 0.45 s, machete 0.29 s, knife ground 0.46 s, axe ground 0.55 s, machete ground 0.37 s, bat ground 0.42 s after start (measured weapon entry; see testing). Aborts with no kill if the target moved or died first. | Reaction clip shows the fall | `kill` (cosmetic) |
+| S9 | **Brain kill (execution)** | Applies the kill at its own tick for that clip (generated into `core/.../rules/CombatTimings.java`): knife 0.27 s (temple), pistol 0.36 s (shot), pistol ground 0.46 s, bat charged 0.19 s, axe 0.45 s, machete 0.29 s, knife ground 0.46 s, axe ground 0.55 s, machete ground 0.37 s, bat ground 0.42 s after start (measured weapon entry; see testing). Aborts with no kill if the target moved or died first. | Reaction clip shows the fall | `kill` (cosmetic) |
 | S10 | **Charged swing (not paired)** | Charge start and release ticks, charge level capped at the maximum. At strike time (0.20–0.22 s after release) runs its own head-region hit test. Full charge, suitable weapon and head → brain kill; head below full → stagger or threshold; body → stagger only; nothing hit → recovery lock until 1.5 s. | Plays charge hold, release, `react_bat_quick` (stagger) or `bat_charged_miss` | `strike`, `recovered` |
 | S11 | **Ordinary head and body hits** | Hit regions and brain destruction from server hitboxes. Body hits never kill walkers. | `stagger`, `death_headshot` | `stagger`, `corpse` |
 | S12 | **Dormant / prone to active** | AI wake decision from sight and sound | `prone_rise`, `rise_from_sit`, `prone_ankle_grab` | `grab_locked` |

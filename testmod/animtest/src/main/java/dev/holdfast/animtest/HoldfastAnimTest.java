@@ -46,7 +46,8 @@ public final class HoldfastAnimTest {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
     public static final Map<String, RegistryObject<Item>> TEST_WEAPONS = Map.of(
             "knife", testItem("test_knife"), "bat", testItem("test_bat"), "axe", testItem("test_axe"),
-            "machete", testItem("test_machete"), "crutch", testItem("test_crutch"));
+            "machete", testItem("test_machete"), "crutch", testItem("test_crutch"),
+            "hatchet", testItem("test_hatchet"), "katana", testItem("test_katana"));
 
     private static RegistryObject<Item> testItem(String name) {
         return ITEMS.register(name, () -> new Item(new Item.Properties().stacksTo(1)));
