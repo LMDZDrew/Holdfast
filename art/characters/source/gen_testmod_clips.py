@@ -21,6 +21,11 @@ for f in sorted(glob.glob(os.path.join(A, "player_animation", "*.json"))):
     name, a = next(iter(json.load(open(f))["animations"].items()))
     player[name] = a
 pair = json.load(open(os.path.join(RIG, "pairing.json")))
+weapon = {}
+for name in player:
+    meta = json.load(open(os.path.join(A, "player_animation_extras", f"{name}.extras.json")))["holdfast_meta"]
+    if meta.get("weapon"):
+        weapon[name] = meta["weapon"]
 
 # (preset, player clip, attacker rig, attacker clip, distance px). Distances: docs/animation_catalog.md.
 P = []
@@ -34,8 +39,9 @@ for p, w in [("seize", "crawler_reach"), ("struggle", "crawler_ankle_hold"), ("b
     P.append((f"ankle_crawler_{p}", f"grabbed_ankle_{p}", "crawler", w, pair["ankle_crawler"]["dist"]))
 for w, d in [("knife", 18), ("bat_quick", 28), ("bat_charged", 28), ("axe", 26), ("machete", 22)]:
     P.append((f"exec_{w}", f"exec_{w}", "walker", f"react_{w}", float(d)))
-P.append(("exec_knife_ground_crawler", "exec_knife_ground", "crawler", "react_knife_ground", pair["knife_ground_crawler"]["dist"]))
-P.append(("exec_knife_ground_prone", "exec_knife_ground", "walker", "react_knife_ground_prone", pair["knife_ground_prone"]["dist"]))
+for w in ("knife", "axe", "machete", "bat"):
+    P.append((f"exec_{w}_ground_crawler", f"exec_{w}_ground", "crawler", f"react_{w}_ground", pair[f"{w}_ground_crawler"]["dist"]))
+    P.append((f"exec_{w}_ground_prone", f"exec_{w}_ground", "walker", f"react_{w}_ground_prone", pair[f"{w}_ground_prone"]["dist"]))
 for _, pc, rig, wc, _ in P:
     assert pc in player, pc
     assert wc in (ck if rig == "crawler" else wk), (rig, wc)
@@ -56,6 +62,17 @@ def mp(name, d):
 mp("WALKER", wk)
 mp("CRAWLER", ck)
 mp("PLAYER", player)
+speed = json.load(open(os.path.join(RIG, "player_move_speeds.json")))
+L.append("    /** injury movement clip -> speed as a fraction of vanilla walking (4.317 blocks/s) its footsteps match */")
+L.append("    public static final Map<String, Double> MOVE_SPEED = Map.ofEntries(")
+L.append(",\n".join(f"        Map.entry({q(k)}, {round(v / 4.317, 3)!r})" for k, v in sorted(speed.items())))
+L.append("    );")
+L.append("")
+L.append("    /** player clip -> held prop from its extras file (knife, bat, axe, machete, crutch) */")
+L.append("    public static final Map<String, String> WEAPON = Map.ofEntries(")
+L.append(",\n".join(f"        Map.entry({q(k)}, {q(v)})" for k, v in sorted(weapon.items())))
+L.append("    );")
+L.append("")
 L.append("    public record Pair(String name, String playerClip, boolean crawler, String attackerClip, double distPx) {}")
 L.append("")
 L.append("    public static final List<Pair> PAIRS = List.of(")

@@ -16,5 +16,35 @@
   "dist": 23.08,
   "skull_height": 5.94,
   "skull_x": -0.0
+ },
+ "axe_ground_crawler": {
+  "dist": 31.08,
+  "skull_height": 5.94,
+  "skull_x": -0.0
+ },
+ "axe_ground_prone": {
+  "dist": 35.08,
+  "skull_height": 5.94,
+  "skull_x": -0.0
+ },
+ "machete_ground_crawler": {
+  "dist": 24.08,
+  "skull_height": 5.94,
+  "skull_x": -0.0
+ },
+ "machete_ground_prone": {
+  "dist": 28.08,
+  "skull_height": 5.94,
+  "skull_x": -0.0
+ },
+ "bat_ground_crawler": {
+  "dist": 29.08,
+  "skull_height": 5.94,
+  "skull_x": -0.0
+ },
+ "bat_ground_prone": {
+  "dist": 33.08,
+  "skull_height": 5.94,
+  "skull_x": -0.0
  }
 }

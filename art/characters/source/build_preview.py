@@ -2,6 +2,7 @@
 import base64, json, os, glob
 from lib import OUT
 import walker_anims as wa
+from player_anims import PLAYER_SCALE
 
 HERE = os.path.dirname(__file__)
 
@@ -29,6 +30,7 @@ data = {
     "playerAnims": j("player_keys.animation.json")["animations"], "cameras": cams,
     "speeds": j("gait_speeds.json"), "execs": wa.EXECS, "grabDist": wa.GRAB_DIST, "eye": 25.92,
     "pairing": j("pairing.json"), "meta": meta, "moveSpeeds": j("player_move_speeds.json"),
+    "playerScale": PLAYER_SCALE,
     "textures": {n: img(f"walker_{n}.png") for n in ["farmer", "tshirt", "scrubs", "office"]},
     "survTex": img("survivor_preview.png"),
 }

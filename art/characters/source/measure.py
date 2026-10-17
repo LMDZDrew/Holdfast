@@ -30,8 +30,8 @@ for name, (a, info) in out.items():
     e = wa.EXECS[w]
     weapon = info["weapon"]
     strike = pa.WEAPON[weapon][0]
-    if w == "knife_ground":
-        react, RIG, dist = pa.W["crawler"]["react_knife_ground"], pa.CR, PAIR["knife_ground_crawler"]["dist"]
+    if w.endswith("_ground"):
+        react, RIG, dist = pa.W["crawler"][f"react_{w}"], pa.CR, PAIR[f"{w}_crawler"]["dist"]
     else:
         react, RIG, dist = pa.W["react"][f"react_{w}"], pa.WR, e["dist"]
     first_in, last_in, max_d, early = None, None, 0.0, []

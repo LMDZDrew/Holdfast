@@ -24,11 +24,44 @@ WEAPON = {  # strike marker, grip marker for the left hand (None = one-handed)
 }
 
 
+# Vanilla PlayerRenderer.scale draws the player model at 15/16; walkers render at 1. The solver works in player
+# model pixels, so a walker (and its distance) is 16/15 larger there. Before this, knife strikes landed ~1 px
+# short and ~1.7 px low in game, below the skull (Andrew, 2026-10-16).
+PLAYER_SCALE = 0.9375
+
+
 def walker_world(dist):
-    return fk.entity(0, -dist, 180)
+    M = fk.entity(0, -dist / PLAYER_SCALE, 180)
+    M[:3, :3] /= PLAYER_SCALE
+    return M
 
 
 CR = fk.rig("walker_crawler.geo.json")
+
+
+def _arm_line(arm):
+    fr, to = SR["bones"][arm]["cubes"][0]
+    c = (fr + to) / 2
+    return [np.array([c[0], y, c[2]]) for y in np.linspace(to[1] - 1, fr[1], 7)]
+
+
+ARM_LINE = {arm: _arm_line(arm) for arm in ("rightArm", "leftArm")}
+TORSO_BOX = SR["bones"]["torso"]["cubes"][0]
+ARM_HALF = 1.6                   # arm half-thickness less a little slack, px
+W_BODY = 6.0                     # solver weight on arm-through-torso depth (px^2); Andrew saw it in game 2026-10-16
+
+
+def body_penetration(Wm, arms=("rightArm", "leftArm")):
+    """Deepest point (px) at which an arm's centre line, thickened by ARM_HALF, is inside the torso box.
+    Vanilla arms are rigid, so a hand reaching across the body can drive the arm through the chest."""
+    inv = np.linalg.inv(Wm["torso"])
+    lo, hi = TORSO_BOX[0] - ARM_HALF, TORSO_BOX[1] + ARM_HALF
+    worst = 0.0
+    for arm in arms:
+        for p in ARM_LINE[arm]:
+            q = (inv @ Wm[arm] @ np.array([*p, 1.0]))[:3]
+            worst = max(worst, float(np.min(np.minimum(q - lo, hi - q))))
+    return worst
 
 
 def head_frame(react, t, dist, R=None):
@@ -66,7 +99,7 @@ class Builder:
     def _W(self, t, over):
         return fk.worlds(SR, [self.a], t, override=over)
 
-    def solve_weapon(self, t, target, axis=None, edge=None, w_axis=8.0, w_edge=6.0, reg=0.002):
+    def solve_weapon(self, t, target, axis=None, edge=None, w_axis=8.0, w_edge=6.0, reg=0.002, upright=0.0):
         strike = WEAPON[self.weapon][0]
         g0 = np.concatenate([self.prev["rightArm"], self.prev["rightItem"]])
 
@@ -79,6 +112,10 @@ class Builder:
                 c += w_axis * np.sum((-R[:, 2] - axis) ** 2)
             if edge is not None:
                 c += w_edge * np.sum((-R[:, 1] - edge) ** 2)
+            if upright:
+                n = np.cross(R[:, 2], R[:, 1])
+                c += upright * (n[1] / np.linalg.norm(n)) ** 2
+            c += W_BODY * body_penetration(Wm, ("rightArm",)) ** 2
             c += reg * np.sum((x[:3] - g0[:3]) ** 2) + 3 * reg * np.sum(x[3:] ** 2)
             return c
 
@@ -96,9 +133,10 @@ class Builder:
         self.report.append(f"{self.name} t={t:.2f} weapon miss {err:.2f}px")
         return Wm
 
-    def solve_two(self, t, target, axis=None, edge=None, w_axis=8.0, w_edge=6.0, w_grip=1.5, reg=0.002):
+    def solve_two(self, t, target, axis=None, edge=None, w_axis=8.0, w_edge=6.0, w_grip=1.5, reg=0.002, upright=0.0):
         """Two-handed: solve right arm, wrist, left arm and where the left hand sits on the handle together.
-        Vanilla player arms are rigid (no elbow), so the grip may slide along the handle (local z +4..-4)."""
+        Vanilla player arms are rigid (no elbow), so the grip may slide along the handle (local z +4..-4).
+        upright > 0 keeps the blade plane (handle and edge) vertical, so a chop doesn't read as tilted."""
         strike = WEAPON[self.weapon][0]
         g0 = np.concatenate([self.prev["rightArm"], self.prev["rightItem"], self.prev["leftArm"], [2.0]])
 
@@ -116,7 +154,11 @@ class Builder:
                 c += w_axis * np.sum((-R[:, 2] - axis) ** 2)
             if edge is not None:
                 c += w_edge * np.sum((-R[:, 1] - edge) ** 2)
+            if upright:
+                n = np.cross(R[:, 2], R[:, 1])
+                c += upright * (n[1] / np.linalg.norm(n)) ** 2
             c += w_grip * np.sum((fk.point(Wm, "leftHand") - grip) ** 2)
+            c += W_BODY * body_penetration(Wm) ** 2
             c += reg * (np.sum((x[:3] - g0[:3]) ** 2) + np.sum((x[6:9] - g0[6:9]) ** 2)) + 3 * reg * np.sum(x[3:6] ** 2)
             c += 0.5 * max(0, abs(x[9]) - 4) ** 2
             return c
@@ -141,7 +183,8 @@ class Builder:
 
         def f(x):
             Wm = self._W(t, {"leftArm": x})
-            return np.sum((fk.point(Wm, "leftHand") - target) ** 2) + reg * np.sum((x - g0) ** 2)
+            return (np.sum((fk.point(Wm, "leftHand") - target) ** 2) + reg * np.sum((x - g0) ** 2)
+                    + W_BODY * body_penetration(Wm, ("leftArm",)) ** 2)
 
         best = None
         for g in (g0, g0 + [0, 30, 0], g0 + [0, -30, 0], np.array([-80, 0, 0.0])):
@@ -191,25 +234,29 @@ def knife():
     b.pose(0.12, body_pos=[0, 0, 1], torso=[-4, 14, 0], head=[2, -6, 0], rightArm=[10, 30, 30], rightItem=[-30, 0, 0])
     Hm, Wm = b.walker(0.12)
     b.solve_left(0.12, fk.point(Wm, "torso", (0, 9, -2.5)))
-    # commit: step in hard, blade comes up to the face
+    # Into the temple on the walker's left (the player's right), blade travelling right to left across the head.
+    # Andrew, in game 2026-10-16: the frontal eye-socket stab read as passing through the face; the rigid
+    # vanilla arm could only bring the blade ~50 deg off a head-on line anyway, and a hook suits it.
+    temple, deep = (-4, 4.5, -0.5), (-0.5, 4.5, -0.5)
+    # commit: step in hard, blade comes round beside the head
     b.pose(0.22, body_pos=[0, -0.8, -2.5], torso=[8, 6, 0], head=[6, -2, 0], leftLeg=[-22, 0, 0], rightLeg=[14, 0, 0])
     Hm, Wm = b.walker(0.22)
     b.solve_left(0.22, fk.point(Wm, "torso", (0, 9, -2.5)))
-    front = hd(Hm, (0, 0, -1))
-    b.solve_weapon(0.22, hp(Hm, (-1.5, 4.5, -4)) + front * 6, axis=-front)
-    # impact: through the eye socket, whole body behind it
+    side = hd(Hm, (-1, 0, 0))                    # out of the walker's left temple
+    b.solve_weapon(0.22, hp(Hm, temple) + side * 6, axis=-side)
+    # impact: into the temple, whole body behind it
     b.pose(I, body_pos=[0, -1.1, -3], torso=[14, -10, 0], head=[8, -4, 0])
     Hm, Wm = b.walker(I)
-    b.solve_weapon(I, hp(Hm, (-1.5, 4.5, 0.5)), axis=hd(Hm, (0, 0, 1)))
+    b.solve_weapon(I, hp(Hm, deep), axis=hd(Hm, (1, 0, 0)))
     b.solve_left(I, fk.point(Wm, "torso", (0, 9, -2.5)))
     # drive it home
     b.pose(0.45, body_pos=[0, -1.3, -3.4], torso=[17, -12, 0], head=[10, -4, 0])
     Hm, Wm = b.walker(0.45)
-    b.solve_weapon(0.45, hp(Hm, (-1.5, 4.5, 1.8)), axis=hd(Hm, (0, 0, 1)))
-    # wrench it out with a twist
+    b.solve_weapon(0.45, hp(Hm, (0.8, 4.5, -0.5)), axis=hd(Hm, (1, 0, 0)))
+    # wrench it out with a twist, back the way it came
     b.pose(0.6, body_pos=[0, -0.8, -2], torso=[6, 8, 0], head=[4, 4, 0])
     Hm, Wm = b.walker(0.6)
-    b.solve_weapon(0.6, hp(Hm, (-1.5, 4.5, -4)) + hd(Hm, (0, 0, -1)) * 6 + P(3, -2, 0), axis=U(-0.3, 0.4, -0.8))
+    b.solve_weapon(0.6, hp(Hm, temple) + hd(Hm, (-1, 0, 0)) * 6 + P(1, -2, 2), axis=U(-0.8, 0.3, -0.5))
     # shove the body off the free hand
     b.pose(R, body_pos=[0, -0.5, -1.5], torso=[4, -4, 0], leftArm=[-98, 0, 10], rightArm=[-30, 20, 20], rightItem=[-10, 0, 0])
     b.pose(1.0, **STAND, rightArm=[-18, 10, 10], rightItem=[0, 0, 0], leftArm=[-10, 0, -4])
@@ -284,18 +331,19 @@ def axe():
     b.solve_two(0.0, P(-3, 18, -12), axis=U(-0.3, 0.5, -0.8), edge=U(0, -0.6, -0.8))
     # heave it overhead, rising onto the toes, leaning back
     b.pose(e["commit"], body_pos=[0, 0.4, 0.8], torso=[-12, 0, 0], head=[-10, 0, 0], leftLeg=[-10, 0, 0], rightLeg=[6, 0, 0])
-    b.solve_two(e["commit"], P(0, 46, 10), axis=U(0, 0.6, 0.8), edge=U(0, 0.8, -0.6))
+    # The chop keys hold the blade plane vertical (Andrew, in game 2026-10-16: tilted read wrong).
+    b.solve_two(e["commit"], P(0, 46, 10), axis=U(0, 0.6, 0.8), edge=U(0, 0.8, -0.6), upright=300.0)
     # drop everything into the chop
     b.pose(I, body_pos=[0, -1.6, -2.5], torso=[20, 0, 0], head=[12, 0, 0], leftLeg=[-18, 0, 0], rightLeg=[14, 0, 0])
     Hm, _ = b.walker(I)
-    b.solve_two(I, hp(Hm, (0, 6.5, 0)), axis=U(0, -0.3, -1), edge=hd(Hm, (0, -1, 0)))
+    b.solve_two(I, hp(Hm, (0, 6.5, 0)), axis=U(0, -0.3, -1), edge=hd(Hm, (0, -1, 0)), upright=300.0)
     b.pose(0.62, body_pos=[0, -1.6, -2.4], torso=[19, 0, 0])
     Hm, _ = b.walker(0.62)
-    b.solve_two(0.62, hp(Hm, (0, 6.5, 0)), axis=U(0, -0.3, -1), edge=hd(Hm, (0, -1, 0)))
+    b.solve_two(0.62, hp(Hm, (0, 6.5, 0)), axis=U(0, -0.3, -1), edge=hd(Hm, (0, -1, 0)), upright=300.0)
     # wrench: lean back and lever it out
     b.pose(0.76, body_pos=[0, -1.2, -1.2], torso=[8, 8, 0], head=[6, 6, 0])
     Hm, _ = b.walker(0.76)
-    b.solve_two(0.76, hp(Hm, (0, 6.5, 0)), axis=U(0, 0.2, -1), edge=hd(Hm, (0, -1, 0)))
+    b.solve_two(0.76, hp(Hm, (0, 6.5, 0)), axis=U(0, 0.2, -1), edge=hd(Hm, (0, -1, 0)), upright=300.0)
     b.pose(R, body_pos=[0, -0.4, 0], torso=[0, -6, 0], head=[2, 0, 0])
     b.solve_two(R, P(0, 36, -12), axis=U(0, 0.8, -0.6), edge=U(0, 0.3, -1))
     # spent
@@ -319,11 +367,13 @@ def machete():
     b.solve_left(e["commit"], fk.point(Wm, "torso", (-3, 11, -2.5)))
     b.pose(I, torso=[16, -14, 0], body_pos=[0, -1.1, -2.5], head=[8, -4, 0], leftLeg=[-20, 0, 0], rightLeg=[10, 0, 0])
     Hm, Wm = b.walker(I)
-    b.solve_weapon(I, hp(Hm, (-3, 7, -1)), axis=U(-0.4, -0.2, -1), edge=hd(Hm, (0.7, -0.7, 0)))
+    # Into the side of the skull, not its top corner: the old target (-3, 7, -1) glanced 1.6 px deep
+    # (Andrew, in game 2026-10-16: "a bit more accurate").
+    b.solve_weapon(I, hp(Hm, (-2, 5.5, -1)), axis=U(-0.4, -0.2, -1), edge=hd(Hm, (0.7, -0.7, 0)))
     b.solve_left(I, fk.point(Wm, "torso", (-3, 11, -2.5)))
     b.pose(0.45, torso=[18, -10, 0], body_pos=[0, -1.2, -2.6])
     Hm, Wm = b.walker(0.45)
-    b.solve_weapon(0.45, hp(Hm, (-3, 7, -1)), axis=U(-0.4, -0.2, -1), edge=hd(Hm, (0.7, -0.7, 0)))
+    b.solve_weapon(0.45, hp(Hm, (-1, 4.8, -1)), axis=U(-0.4, -0.2, -1), edge=hd(Hm, (0.7, -0.7, 0)))
     b.solve_left(0.45, fk.point(Wm, "torso", (-3, 11, -2.5)))
     b.pose(R, torso=[6, 10, 0], body_pos=[0, -0.6, -1], head=[4, 4, 0], leftArm=[-60, 0, -4])
     b.solve_weapon(R, P(8, 30, -10), axis=U(0.2, 0.8, -0.5), edge=U(-0.3, 0.4, -0.8))
@@ -456,6 +506,9 @@ def to_player_animator(a, step=0.05):
             if bone == "body" and ch == "rotation":
                 continue                       # body rotation is reserved for the lean
             for t, v in keys.items():
+                if bone == "body" and ch == "position":
+                    # applied in setupRotations, before the 15/16 model scale: model px -> real px
+                    v = [round(x * PLAYER_SCALE, 3) for x in v]
                 if bone in ("rightLeg", "leftLeg") and ch == "rotation" and lean:
                     L = bb_matrix(lean.get(t, [0, 0, 0]))
                     v = [round(x, 2) for x in bb_euler(L.T @ bb_matrix(v))]
@@ -473,6 +526,17 @@ def to_player_animator(a, step=0.05):
             d = L.T @ (hip - (pivot + L @ (hip - pivot)))
             if np.abs(d).max() > 0.005:
                 out.key(t, leg, pos=[round(-d[0], 3), round(d[1], 3), round(d[2], 3)])
+    # Held items: Player Animator turns them in the vanilla hand frame about the grip point, our rig turns
+    # them in the arm frame about the fist (pa_item.py). Convert every key, and pin the pivot with a
+    # constant position key so the same item model works whether or not a clip keys the wrist.
+    import pa_item
+    for part in ("rightItem", "leftItem"):
+        rot = out.tracks.get(part, {}).get("rotation", {})
+        near = None
+        for t in sorted(rot):
+            near = pa_item.to_pa_rotation(rot[t], near)
+            rot[t] = [round(float(v), 2) for v in near]
+        out.tracks.setdefault(part, {})["position"] = {0.0: pa_item.pa_position(part)}
     return out
 
 

@@ -24,5 +24,7 @@ mkdir -p "$ART/preview/rig"
 cp "$ART/build/survivor_preview.geo.json" "$ART/build/survivor_preview.png" "$ART/build/player_keys.animation.json" \
    "$ART/build/pairing.json" "$ART/build/gait_speeds.json" "$ART/build/player_move_speeds.json" "$ART/preview/rig/"
 python3 validate_exports.py "$A"
+python3 pa_item.py | tail -1
 python3 gen_testmod_clips.py
+python3 gen_test_items.py
 python3 build_preview.py

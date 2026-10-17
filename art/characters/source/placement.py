@@ -2,7 +2,7 @@
 
 All distances are in px (1/16 block) along the survivor's facing, walker turned to face them.
 - prone/crawler ankle grab: the attacker's hands land just in front of the survivor's shins.
-- knife_ground: the crawler's skull centre sits KNIFE_GROUND_TARGET_Z in front of the survivor's feet;
+- <weapon>_ground: the crawler's skull centre sits GROUND_TARGET_Z[weapon] in front of the survivor's feet;
   the prone walker is placed so its skull is at the same spot."""
 import json, os
 import numpy as np
@@ -12,6 +12,8 @@ from lib import OUT
 
 SHIN_FRONT_Z = -2.5          # survivor shins span z -2..2; grab just in front
 KNIFE_GROUND_TARGET_Z = -12.0
+# skull centre in front of the survivor's feet for each ground execution: longer weapons stand further back
+GROUND_TARGET_Z = {"knife": KNIFE_GROUND_TARGET_Z, "machete": -17.0, "bat": -22.0, "axe": -24.0}
 
 
 def local_point(R, anim, t, bone, pt):
@@ -36,13 +38,14 @@ def compute():
     for key, R, anim in (("ankle_prone", WR, W["full"]["prone_ankle_hold"]), ("ankle_crawler", CR, W["crawler"]["crawler_ankle_hold"])):
         h = hands(R, anim)
         out[key] = dict(dist=round(float(-SHIN_FRONT_Z - h[2]), 2), hands_height=round(float(h[1]), 2))
-    I = wa.EXECS["knife_ground"]["impact"]
-    for key, R, anim in (("knife_ground_crawler", CR, W["crawler"]["react_knife_ground"]),
-                         ("knife_ground_prone", WR, W["react"]["react_knife_ground_prone"])):
-        Wm = fk.worlds(R, [anim], I - 0.02)
-        c = fk.point(Wm, "head", (0, 5, 0))
-        out[key] = dict(dist=round(float(-KNIFE_GROUND_TARGET_Z - c[2]), 2), skull_height=round(float(c[1]), 2),
-                        skull_x=round(float(-c[0]), 2))
+    for w in wa.GROUND_EXECS:
+        I = wa.EXECS[f"{w}_ground"]["impact"]
+        for key, R, anim in ((f"{w}_ground_crawler", CR, W["crawler"][f"react_{w}_ground"]),
+                             (f"{w}_ground_prone", WR, W["react"][f"react_{w}_ground_prone"])):
+            Wm = fk.worlds(R, [anim], I - 0.02)
+            c = fk.point(Wm, "head", (0, 5, 0))
+            out[key] = dict(dist=round(float(-GROUND_TARGET_Z[w] - c[2]), 2), skull_height=round(float(c[1]), 2),
+                            skull_x=round(float(-c[0]), 2))
     return out
 
 

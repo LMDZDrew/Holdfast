@@ -130,7 +130,7 @@ for clip, ts in [("bite_confirm_neck", [1.0]), ("bite_confirm_forearm", [0.9]), 
     imgs += i; labels += l
 save("07_bite_confirm_and_swings.png", imgs, labels, 4)
 imgs, labels = [], []
-for clip in ["move_limp", "move_arm_injured", "move_prosthesis", "move_crutch_improvised", "move_crutch_medical", "move_crawl_legless"]:
+for clip in ["move_limp", "move_limp_severe", "move_arm_injured", "move_prosthesis", "move_crutch_improvised", "move_crutch_medical", "move_crawl_legless"]:
     a, info = PLAYER[clip]
     for t in (0.0, a.length * 0.5):
         q = surv(a, t, info.get("weapon"), crawl_pose=info.get("vanilla_pose") == "swimming")

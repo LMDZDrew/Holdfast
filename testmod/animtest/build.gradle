@@ -45,14 +45,12 @@ minecraft {
 sourceSets.main.resources { srcDir '../../art/characters/export' }
 
 repositories {
-    exclusiveContent {
-        forRepository {
-            maven {
-                name = 'Modrinth'
-                url = 'https://api.modrinth.com/maven'
-            }
-        }
-        filter {
+    // Not exclusiveContent: ForgeGradle serves the remapped copies (<version>_mapped_official_1.20.1) of these
+    // same coordinates from its own local repo, which exclusiveContent would hide.
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+        content {
             includeGroup 'maven.modrinth'
         }
     }

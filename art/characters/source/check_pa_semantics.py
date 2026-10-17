@@ -9,6 +9,7 @@ import numpy as np
 import fk
 from lib import Anim, OUT
 import player_anims as pa
+import pa_item
 
 
 def pa_rig():
@@ -49,8 +50,18 @@ def load_pa(path):
     an = Anim(a["animation_length"], a["loop"])
     for bone, chans in a["bones"].items():
         for ch, keys in chans.items():
+            near = None
             for t, v in keys.items():
                 vec = v["post"] if isinstance(v, dict) else v
+                if bone in ("rightItem", "leftItem"):
+                    # Held items are exported in Player Animator's hand frame (pa_item.py, whose self test
+                    # covers that chain); map them back to the fist pivot this rig turns them about.
+                    if ch == "position":
+                        continue
+                    near = pa_item.from_pa_rotation(vec, near)
+                    vec = [float(x) for x in near]
+                if bone == "body" and ch == "position":
+                    vec = [x / pa.PLAYER_SCALE for x in vec]   # exported in real px (before the model scale)
                 an.key(float(t), bone, **({"rot": vec} if ch == "rotation" else {"pos": vec}))
     return name, an
 

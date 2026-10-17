@@ -56,7 +56,10 @@ public final class Clips {
         Map.entry("react_bat_charged", 1.42),
         Map.entry("react_axe", 1.94),
         Map.entry("react_machete", 1.7),
-        Map.entry("react_knife_ground_prone", 1.76)
+        Map.entry("react_knife_ground_prone", 1.76),
+        Map.entry("react_axe_ground_prone", 1.86),
+        Map.entry("react_machete_ground_prone", 1.62),
+        Map.entry("react_bat_ground_prone", 1.64)
     );
 
     /** clip name -> animation_length in seconds */
@@ -71,7 +74,10 @@ public final class Clips {
         Map.entry("crawler_ankle_bite", 0.8),
         Map.entry("crawler_ankle_bite_blocked", 0.6),
         Map.entry("crawler_ankle_kicked", 0.9),
-        Map.entry("react_knife_ground", 1.76)
+        Map.entry("react_knife_ground", 1.76),
+        Map.entry("react_axe_ground", 1.86),
+        Map.entry("react_machete_ground", 1.62),
+        Map.entry("react_bat_ground", 1.64)
     );
 
     /** clip name -> animation_length in seconds */
@@ -83,11 +89,14 @@ public final class Clips {
         Map.entry("bite_confirm_leg", 1.6),
         Map.entry("bite_confirm_neck", 1.6),
         Map.entry("exec_axe", 1.3),
+        Map.entry("exec_axe_ground", 1.4),
         Map.entry("exec_bat_charged", 1.1),
+        Map.entry("exec_bat_ground", 1.2),
         Map.entry("exec_bat_quick", 0.65),
         Map.entry("exec_knife", 1.0),
         Map.entry("exec_knife_ground", 1.2),
         Map.entry("exec_machete", 0.95),
+        Map.entry("exec_machete_ground", 1.1),
         Map.entry("grabbed_ankle_bite_blocked", 0.6),
         Map.entry("grabbed_ankle_bitten", 1.0),
         Map.entry("grabbed_ankle_kick", 0.6),
@@ -100,12 +109,42 @@ public final class Clips {
         Map.entry("grabbed_seize", 0.5),
         Map.entry("grabbed_shove", 0.6),
         Map.entry("grabbed_struggle", 0.8),
-        Map.entry("move_arm_injured", 1.1),
+        Map.entry("move_arm_injured", 0.5),
         Map.entry("move_crawl_legless", 2.2),
-        Map.entry("move_crutch_improvised", 1.5),
-        Map.entry("move_crutch_medical", 1.15),
-        Map.entry("move_limp", 1.3),
-        Map.entry("move_prosthesis", 1.0)
+        Map.entry("move_crutch_improvised", 0.65),
+        Map.entry("move_crutch_medical", 0.45),
+        Map.entry("move_limp", 0.5),
+        Map.entry("move_limp_severe", 0.6),
+        Map.entry("move_prosthesis", 0.6)
+    );
+
+    /** injury movement clip -> speed as a fraction of vanilla walking (4.317 blocks/s) its footsteps match */
+    public static final Map<String, Double> MOVE_SPEED = Map.ofEntries(
+        Map.entry("move_arm_injured", 0.95),
+        Map.entry("move_crawl_legless", 0.2),
+        Map.entry("move_crutch_improvised", 0.45),
+        Map.entry("move_crutch_medical", 0.6),
+        Map.entry("move_limp", 0.85),
+        Map.entry("move_limp_severe", 0.55),
+        Map.entry("move_prosthesis", 0.8)
+    );
+
+    /** player clip -> held prop from its extras file (knife, bat, axe, machete, crutch) */
+    public static final Map<String, String> WEAPON = Map.ofEntries(
+        Map.entry("bat_charge_hold", "bat"),
+        Map.entry("bat_charged_miss", "bat"),
+        Map.entry("bat_swing_quick", "bat"),
+        Map.entry("exec_axe", "axe"),
+        Map.entry("exec_axe_ground", "axe"),
+        Map.entry("exec_bat_charged", "bat"),
+        Map.entry("exec_bat_ground", "bat"),
+        Map.entry("exec_bat_quick", "bat"),
+        Map.entry("exec_knife", "knife"),
+        Map.entry("exec_knife_ground", "knife"),
+        Map.entry("exec_machete", "machete"),
+        Map.entry("exec_machete_ground", "machete"),
+        Map.entry("move_crutch_improvised", "crutch"),
+        Map.entry("move_crutch_medical", "crutch")
     );
 
     public record Pair(String name, String playerClip, boolean crawler, String attackerClip, double distPx) {}
@@ -132,6 +171,12 @@ public final class Clips {
         new Pair("exec_axe", "exec_axe", false, "react_axe", 26.0),
         new Pair("exec_machete", "exec_machete", false, "react_machete", 22.0),
         new Pair("exec_knife_ground_crawler", "exec_knife_ground", true, "react_knife_ground", 19.08),
-        new Pair("exec_knife_ground_prone", "exec_knife_ground", false, "react_knife_ground_prone", 23.08)
+        new Pair("exec_knife_ground_prone", "exec_knife_ground", false, "react_knife_ground_prone", 23.08),
+        new Pair("exec_axe_ground_crawler", "exec_axe_ground", true, "react_axe_ground", 31.08),
+        new Pair("exec_axe_ground_prone", "exec_axe_ground", false, "react_axe_ground_prone", 35.08),
+        new Pair("exec_machete_ground_crawler", "exec_machete_ground", true, "react_machete_ground", 24.08),
+        new Pair("exec_machete_ground_prone", "exec_machete_ground", false, "react_machete_ground_prone", 28.08),
+        new Pair("exec_bat_ground_crawler", "exec_bat_ground", true, "react_bat_ground", 29.08),
+        new Pair("exec_bat_ground_prone", "exec_bat_ground", false, "react_bat_ground_prone", 33.08)
     );
 }

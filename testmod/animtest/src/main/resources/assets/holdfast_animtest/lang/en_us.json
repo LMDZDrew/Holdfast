@@ -1,0 +1,8 @@
+{
+  "item.holdfast_animtest.test_knife": "Test Knife (animation harness)",
+  "item.holdfast_animtest.test_bat": "Test Bat (animation harness)",
+  "item.holdfast_animtest.test_axe": "Test Axe (animation harness)",
+  "item.holdfast_animtest.test_machete": "Test Machete (animation harness)",
+  "item.holdfast_animtest.test_crutch": "Test Crutch (animation harness)",
+  "entity.holdfast_animtest.test_walker": "Test Walker (animation harness)"
+}

@@ -433,14 +433,19 @@ EXECS = {
     # downward stab into a target on the ground; the player anim is solved against the crawler,
     # the prone walker is placed so its head sits in the same spot (dist values set by placement())
     "knife_ground": dict(length=1.2, dist=0, dist_prone=0, commit=0.32, impact=0.5, release=0.86, kind="stab_ground"),
+    # same scheme for the other melee weapons (Andrew, 2026-10-16); release = blade out / bat lifted
+    "axe_ground":     dict(length=1.4, commit=0.34, impact=0.56, release=0.96, kind="chop_ground"),
+    "machete_ground": dict(length=1.1, commit=0.2, impact=0.38, release=0.72, kind="chop_ground"),
+    "bat_ground":     dict(length=1.2, commit=0.2, impact=0.42, release=0.74, kind="blunt_ground"),
 }
+GROUND_EXECS = ("knife", "axe", "machete", "bat")
 
 
 def reactions():
     out = {}
     for name, e in EXECS.items():
         I, kind = e["impact"], e["kind"]
-        if kind == "stab_ground":
+        if kind.endswith("_ground"):          # ground executions have their own reactions
             continue
         R = e.get("release", I)
         if kind == "blunt_stagger":
@@ -501,15 +506,27 @@ def reactions():
 
 
 def ground_reactions():
-    """Prone walker and crawler pinned by a downward knife into the skull."""
-    e = EXECS["knife_ground"]
+    """Prone walker and crawler hit in the skull from above: pinned by a knife, axe or machete (released when the
+    blade comes out) or crushed by a bat. Names: react_<weapon>_ground_prone (walker) and
+    react_<weapon>_ground_crawler (registered on the crawler as react_<weapon>_ground)."""
+    out = {}
+    for w in GROUND_EXECS:
+        out.update(_ground_reaction(w))
+    return out
+
+
+def _ground_reaction(w):
+    e = EXECS[f"{w}_ground"]
     I, R = e["impact"], e["release"]
+    blunt = e["kind"].startswith("blunt")
+    hit = {"knife": "holdfast:hit.knife_skull", "axe": "holdfast:hit.axe_skull", "machete": "holdfast:hit.machete_skull",
+           "bat": "holdfast:hit.bat_skull"}[w]
     out = {}
     # prone walker: lifts its head at the player, gets pinned
     PR = dict(NEUTRAL, root=[90, 0, 0], root_pos=[0, 2, 16], torso=[0, 0, 0], head=[-50, 0, 0], jaw=[20, 0, 0],
               rightArm=[6, 0, 150], rightForearm=[-20, 0, 0], leftArm=[6, 0, -150], leftForearm=[-20, 0, 0],
               rightLeg=[0, 0, 4], leftLeg=[0, 0, -4], rightShin=[6, 0, 0], leftShin=[8, 0, 0])
-    for prefix, base, bones in (("react_knife_ground_prone", PR, ALL), ("react_knife_ground_crawler", dict(CBASE, head=[-50, 0, 0], jaw=[20, 0, 0], rightArm=[6, 0, 150], leftArm=[6, 0, -150], rightForearm=[-20, 0, 0], leftForearm=[-20, 0, 0]), CRAWL_BONES)):
+    for prefix, base, bones in ((f"react_{w}_ground_prone", PR, ALL), (f"react_{w}_ground_crawler", dict(CBASE, head=[-50, 0, 0], jaw=[20, 0, 0], rightArm=[6, 0, 150], leftArm=[6, 0, -150], rightForearm=[-20, 0, 0], leftForearm=[-20, 0, 0]), CRAWL_BONES)):
         a = Anim(round(R + 0.9, 2), "hold_on_last_frame")
         a.pose(0, **{k: v for k, v in base.items() if k.replace("_pos", "") in bones})
         a.pose(0.2, jaw=[30, 0, 0], head=[-54, 0, 0])
@@ -517,11 +534,15 @@ def ground_reactions():
         a.pose(I + 0.04, head=[-14, 0, 6], jaw=[34, 0, 0], rightForearm=[-2, 0, 0], leftForearm=[-2, 0, 0],
                rightArm=[14, 0, 166], leftArm=[14, 0, -166])                                  # slammed down, hands splay
         a.pose(I + 0.2, head=[-10, 0, 4], rightArm=[0, 0, 140], leftArm=[0, 0, -140])
-        a.pose(R - 0.08, head=[-16, 0, 4])
-        a.pose(R + 0.06, head=[-6, 20, 0], jaw=[22, 0, 0])                                     # knife out, head rolls
+        if blunt:                                                                               # crushed: no pin, it bounces
+            a.pose(I + 0.1, head=[-4, 0, 8], jaw=[38, 0, 0])
+            a.pose(R, head=[-2, 14, 4], jaw=[28, 0, 0])
+        else:
+            a.pose(R - 0.08, head=[-16, 0, 4])
+            a.pose(R + 0.06, head=[-6, 20, 0], jaw=[22, 0, 0])                                 # blade out, head rolls
         a.pose(R + 0.9, head=[-4, 30, 0], jaw=[20, 0, 0], rightArm=[0, 0, 120], leftArm=[0, 0, -120],
                rightForearm=[0, 0, 0], leftForearm=[0, 0, 0])
-        a.sound(I, "holdfast:hit.knife_skull").event(I, "kill").event(R, "release").event(R + 0.9, "corpse")
+        a.sound(I, hit).event(I, "kill").event(R, "release").event(R + 0.9, "corpse")
         out[prefix] = a
     return out
 
@@ -621,8 +642,9 @@ def build():
     reacts = reactions()
     crawl = crawler()
     ground = ground_reactions()
-    reacts["react_knife_ground_prone"] = ground["react_knife_ground_prone"]
-    crawl["react_knife_ground"] = ground["react_knife_ground_crawler"]
+    for w in GROUND_EXECS:
+        reacts[f"react_{w}_ground_prone"] = ground[f"react_{w}_ground_prone"]
+        crawl[f"react_{w}_ground"] = ground[f"react_{w}_ground_crawler"]
     walker_all = {**{f"body.{k}": v for k, v in body.items()}, **{f"arms.{k}": v for k, v in arms.items()},
                   **{f"head.{k}": v for k, v in heads.items()}, **fullb, **grabs, **reacts}
     for group in (fullb, grabs, reacts, crawl):

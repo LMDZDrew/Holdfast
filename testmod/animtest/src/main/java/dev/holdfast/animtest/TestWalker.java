@@ -165,7 +165,8 @@ public class TestWalker extends PathfinderMob implements GeoEntity {
             }
         }
         if (raw[layer] == null) return PlayState.STOP;
-        if (!finishLogged[layer] && state.getController().hasAnimationFinished()) {
+        // On the restart frame the controller still reports the previous run as finished, so skip that frame.
+        if (!finishLogged[layer] && tickCount > startTick[layer] && state.getController().hasAnimationFinished()) {
             finishLogged[layer] = true;
             HoldfastAnimTest.LOG.info("[holdfast-test] walker {} {} clip {} finished after {} entity ticks",
                     getId(), LAYER[layer], clip, tickCount - startTick[layer]);

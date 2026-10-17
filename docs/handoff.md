@@ -50,9 +50,25 @@
 - Added `testmod/animtest/`: test-only Forge 1.20.1 mod (MDK layout, ForgeGradle 6, Gradle 8.8 wrapper from MinecraftForge `1.20.1`) that takes `art/characters/export` as its resources, runs a load check on world join, and plays walker, crawler, player and paired clips by `/hfa` command, logging timing. `art/characters/source/gen_testmod_clips.py` generates its clip table; `make_all.sh` runs it.
 - **Not compiled yet** (no Forge or Mojang access here; Java parse check only). Next: Andrew builds it, loads it with the Gate 0 setup, and we record per-clip results.
 
+## Stage 1 in-game run — 2026-10-16 (Claude, with Andrew on his PC)
+
+**Branch** `claude/character-animation` (draft PR #1; do not merge). Every run, command, hash and observation is in `testing.md` (rows dated 2026-10-16 from "first compile" on).
+
+**Verified in game** (dedicated server + Prism client, Forge 47.4.8, GeckoLib 4.8.4, Player Animator 1.0.2-rc1+1.20):
+- Harness builds (one `build.gradle` repo fix) and loads; load check PASS for every clip. All walker, player and pair clips played via `/hfa sweep`; Andrew passed the poses. First-person camera fine; legless crawl in the swimming pose fine.
+- Held items: the exporter now converts `rightItem`/`leftItem` into Player Animator's hand frame (`pa_item.py`, read from `ItemInHandLayer` bytecode and `HeldItemMixin`). With the harness's test weapons (`gen_test_items.py`), the machete, charged bat and crutches passed; the axe passed after a vertical-blade term.
+- Standing knife re-posed as a temple stab; player drawn at 15/16 (`PLAYER_SCALE`) now accounted for in all paired clips. No complaint after the fix (not confirmed in words).
+- Injury speeds decided by Andrew (`decisions.md`): limp 85%, severe limp 55% (new clip), arm 95%, plus leg-loss speeds. Cycles re-authored to match; the limps passed in game with the harness's test-only speed modifier.
+
+**Built but not yet seen in game** (harness jar `1169668B…`, deployed): arm-through-torso solver check; ground-knife fix (arm crossed the chest); machete strike into the side of the skull; `exec_axe_ground`, `exec_machete_ground`, `exec_bat_ground` from one overhead template (`player_more.OVERHEAD`) with matching walker/crawler reactions and 6 new pair presets.
+
+**TaCZ (Gate 0 step 2)**: TaCZ 1.1.8-hotfix2 added to the same modpack (Andrew: no separate TaCZ-only server). Server and client load clean. **Failures:** holding a pistol or rifle "scrunches the shoulders"; with a Player Animator clip running (`move_limp`) you cannot aim down sights. Decisions recorded: TaCZ is the gun base and gun animations must match it; only TaCZ `pistol` guns can execute.
+
+**Not done:** handgun execution clips (wait for the arm-ownership fix); melee re-test of the jar above; walker `react_knife` may need a sideways snap for the temple stab; ground-knife bracing hand still 7–9 px short (rigid arms); Player Animator body pivot off by ≤ 0.25 px.
+
 ## Next task
 
-Build and run the harness; record load-check, pose, first-person, held-item, crawl and timing results per clip in `testing.md`; fix the editable source and re-export where clips fail. Then the TaCZ part of Gate 0. World generation stays on hold until stage one is complete.
+Resolve TaCZ vs Player Animator arm ownership (shoulder scrunch while holding guns; ADS blocked during injury clips), then author handgun executions against TaCZ's pistol hold, then re-test the melee clips. World generation stays on hold until stage one is complete.
 
 ## Handoff format for future work
 
