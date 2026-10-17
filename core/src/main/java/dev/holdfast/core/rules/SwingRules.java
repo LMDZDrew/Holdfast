@@ -53,12 +53,15 @@ public final class SwingRules {
         public final CombatTimings.Swing swing;
         public final long startTick;
         public final long contactTick;
+        /** The swinging client's clip ends about half a round trip before this tick of the server's. */
+        public final long endTick;
         private State state = State.PENDING;
 
         public Session(CombatTimings.Swing swing, long startTick, int rttMillis) {
             this.swing = swing;
             this.startTick = startTick;
             this.contactTick = startTick + contactDelay(swing, rttMillis);
+            this.endTick = Math.max(contactTick, startTick + swing.lengthTicks() - GrabRules.latencyAllowanceTicks(rttMillis));
         }
 
         public State state() {
@@ -84,7 +87,7 @@ public final class SwingRules {
          * cancelled swing frees the player at once (they switched weapon or were grabbed).
          */
         public boolean blocksNewSwing(long now) {
-            return state == State.PENDING || (state == State.RESOLVED && now < startTick + swing.lengthTicks());
+            return state == State.PENDING || (state == State.RESOLVED && now < endTick);
         }
 
         public boolean finished(long now) {

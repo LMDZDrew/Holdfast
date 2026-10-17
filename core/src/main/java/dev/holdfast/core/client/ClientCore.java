@@ -38,6 +38,7 @@ public final class ClientCore {
         MinecraftForge.EVENT_BUS.addListener(ClientCore::onClientTick);
         MinecraftForge.EVENT_BUS.addListener(ClientClips::camera);
         MinecraftForge.EVENT_BUS.addListener(ClientCore::onClickInput);
+        MinecraftForge.EVENT_BUS.addListener(PoseTrace::onRenderTick);
     }
 
     private static void onRenderers(EntityRenderersEvent.RegisterRenderers event) {

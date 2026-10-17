@@ -57,6 +57,16 @@ class SwingRulesTest {
     }
 
     @Test
+    void recoveryEndsWithTheClientsClipUnderLatency() {
+        CombatTimings.Swing s = CombatTimings.swing("swing_knife");
+        SwingRules.Session lagged = new SwingRules.Session(s, 0, 100);
+        assertEquals(s.contactTick() - 1, lagged.contactTick);
+        assertTrue(lagged.contactDue(lagged.contactTick));
+        assertTrue(lagged.blocksNewSwing(s.lengthTicks() - 2));
+        assertFalse(lagged.blocksNewSwing(s.lengthTicks() - 1), "a click at the client's clip end was refused");
+    }
+
+    @Test
     void cancelBeforeContactNeverResolvesAndFreesThePlayer() {
         SwingRules.Session session = new SwingRules.Session(CombatTimings.swing("swing_knife"), 0, 0);
         assertTrue(session.cancel());

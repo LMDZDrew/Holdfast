@@ -355,6 +355,18 @@ public final class ClientClips {
         return true;
     }
 
+    /** For {@link PoseTrace}: the clip on each Holdfast layer, with the action clip's tick. */
+    static String describe(AbstractClientPlayer p) {
+        Applied a = APPLIED.get(p.getUUID());
+        ModifierLayer<IAnimation> action = layer(p, ACTION);
+        String act = "-";
+        if (action != null && action.getAnimation() instanceof KeyframeAnimationPlayer kp && kp.isActive()) {
+            act = ACTION_NAMES.getOrDefault(p.getId(), "?") + "@" + kp.getTick();
+        }
+        return "action " + act + ", hold " + (a == null ? "-" : a.hold) + ", locomotion " + (a == null ? "-" : a.locomotion)
+                + (a == null ? "" : String.format(Locale.ROOT, " x%.2f", a.rate.speed));
+    }
+
     /** Same source-generated cosmetic camera cue as the harness, including the firearm-safe injury track. */
     static void camera(ViewportEvent.ComputeCameraAngles event) {
         var mc = Minecraft.getInstance();
