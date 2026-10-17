@@ -53,6 +53,11 @@ Status: accepted design unless labeled proposed. This file supersedes older word
 - Add general player animations for crouching, sprinting, walking, and jumping. They must coexist with injury motion, equipment, and TaCZ's gun poses; firearm locomotion leaves TaCZ's arm, item, and aiming transforms in charge.
 - Add distinct melee animation families for knives; two-handed bats and axes; swords and katanas; machetes; and one-handed hatchets. Match holds, attacks, and transitions to each weapon family rather than reusing a single generic melee pose. Exact clip list and visual style remain to be authored and tested.
 
+## Stage 1 validation with one human tester (accepted 2026-10-16, Andrew)
+
+- Finish the combat and presentation slice in `roadmap.md` before world generation. Andrew can perform solo visual checks on a dedicated server, but has no second human tester available now.
+- Use automated server tests, scripted reconnect/state checks, and a second local client only if practical to cover multiplayer-sensitive code. Record what each method verifies and what remains untested. Human multiplayer acceptance is deferred until testers are available; it is not a prerequisite for beginning world generation.
+
 ## Explicitly deferred
 
 Character skill leveling, friendly/recruitable survivors, dynamic dismemberment, broad stealth disguises beyond Whisperer masks, advanced structural physics, and guaranteed shader FPS. They can be revisited after a representative playable prototype.

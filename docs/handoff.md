@@ -94,6 +94,8 @@ Retest the new first-person limp cue and ADS, then author handgun executions aga
 
 **Audio direction added by Andrew:** Give walkers the raspy, breathy vocal character heard in the show. Pair blood spatter with distinct contact sounds for beating, slashing, stabbing, and gunshot flesh impacts; separate impact audio from the swing or shot itself. Source original or authorized audio that achieves this character. Trigger blood and impact sound from server-confirmed contact, with cosmetic timing on the client. Exact show recordings require rights clearance. See `docs/decisions.md`.
 
+**Accepted Stage 1 exit plan:** See `docs/roadmap.md` for the ordered pre-worldgen gate: (1) finish TaCZ/handgun/melee evidence, (2) build server-authoritative combat and persistence, (3) add general locomotion and melee-family clips, (4) add walker, weapon, blood and flesh sound plus cosmetic spatter, (5) pass solo dedicated-server, automated state/reconnect, and practical second-local-client checks. Andrew has no second human tester available; do not request a friend-based two-player test or hold world generation for one. Mark human multiplayer synchronization and 16-player load as explicit later risks until testers exist. Keep PR #1 and PR #2 as drafts and do not merge them.
+
 ## Handoff format for future work
 
 Branch/commit; files changed; behavior observed; exact tests and commands; unresolved issues; next safe task. Separate proposed behavior from verified behavior.
