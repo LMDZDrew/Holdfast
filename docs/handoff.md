@@ -68,7 +68,17 @@
 
 ## Next task
 
-Resolve TaCZ vs Player Animator arm ownership (shoulder scrunch while holding guns; ADS blocked during injury clips), then author handgun executions against TaCZ's pistol hold, then re-test the melee clips. World generation stays on hold until stage one is complete.
+Retest the new first-person limp cue and ADS, then author handgun executions against TaCZ's pistol hold, re-test the pending melee clips, and complete TaCZ Gate 0 step 2. World generation stays on hold until stage one is complete.
+
+## Codex arm-ownership handoff — 2026-10-16
+
+**Branch/commits:** `codex/tacz-arm-ownership`, `055ac3f` and `b572f6b`, based on `codex/tacz-arm-handoff`. Draft PR #1 and PR #2 remain drafts and unmerged.
+
+**Implemented:** The test harness plays source-generated firearm injury variants for TaCZ's `tacz:modern_kinetic_gun`. They key body translation and legs only, leaving arms, items, head and ADS to TaCZ. The harness layer is priority 95 (TaCZ installed jar uses 93–96). Firearm variants report Player Animator first-person mode `NONE`, which restored TaCZ first-person ADS. Added a source-generated asymmetric first-person injury camera cue, scaled by client movement; it is cosmetic and cannot decide injury or speed. Crutch and legless crawl clips have no gun variant. No core server gameplay implementation was added.
+
+**Evidence:** `docs/testing.md` has the exact Windows 11/Java 17/Python 3.14/Forge four-mod environment, commands, logs, and jar hashes. Source exporter, static validator and PA semantic checks passed; Gradle builds passed. Andrew observed normal third-person gun pose and ADS on jar `686207C5…`, and working first-person ADS on client jar `EC9F9184…` while the server kept `686207C5…`. Client log confirmed `move_limp_gun` and first-person mode `NONE`. The current camera-cue client jar is `B555A79DAC5DB46DEDA09923744650A97EB8758AB995CC9CFF50A8C922FB05FA`; it is installed in Prism, built and statically checked, but **not yet observed in game**. The dedicated server remains running from the earlier jar.
+
+**Open:** Andrew reported no noticeable first-person limp cue, even with empty hands, before the camera-cue change. Retest the new jar while walking and read its `first-person camera clip` log lines; verify ADS and third-person pose again. Pistol and rifle shot/reload observations with and without clips remain separate Gate 0 step 2 work. Handgun executions and the pending ground knife, machete, ground axe/machete/bat and `react_knife` retests are next. Do not start world generation or claim the camera cue passed before an in-game observation.
 
 ## Handoff format for future work
 
