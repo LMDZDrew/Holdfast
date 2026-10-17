@@ -92,6 +92,8 @@ Retest the new first-person limp cue and ADS, then author handgun executions aga
 
 **Added for the next Stage 1 work session (Andrew, 2026-10-16):** After the in-flight handgun execution, melee retest, and TaCZ Gate 0 checks, start sound and cosmetic blood spatter feedback for confirmed hits and shots. Then author general crouch, sprint, walk, and jump animations, followed by distinct melee sets for knives, two-handed bats and axes, swords/katanas, machetes, and one-handed hatchets. Check every movement set with empty hands, melee items, and TaCZ guns so the new layers do not revive the arm/ADS conflict. Update editable animation source, regenerate exports, build, and record actual in-game results. The new scope is recorded in `docs/decisions.md`; it remains Stage 1 and does not authorize world generation. The server remains stopped until the next test.
 
+**Audio direction added by Andrew:** Give walkers the raspy, breathy vocal character heard in the show. Pair blood spatter with distinct contact sounds for beating, slashing, stabbing, and gunshot flesh impacts; separate impact audio from the swing or shot itself. Source original or authorized audio that achieves this character. Trigger blood and impact sound from server-confirmed contact, with cosmetic timing on the client. Exact show recordings require rights clearance. See `docs/decisions.md`.
+
 ## Handoff format for future work
 
 Branch/commit; files changed; behavior observed; exact tests and commands; unresolved issues; next safe task. Separate proposed behavior from verified behavior.

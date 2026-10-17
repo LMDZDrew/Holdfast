@@ -48,6 +48,8 @@ Status: accepted design unless labeled proposed. This file supersedes older word
 ## Animation and combat feedback expansion (accepted 2026-10-16, Andrew)
 
 - Add sound effects and cosmetic blood spatter for confirmed hits and shots. The server decides hits, hit regions, wounds, and deaths; clients display the corresponding effects. Animation event markers remain presentation cues, never a source of gameplay outcomes.
+- Walker vocalizations should closely match the raspy, strained, breathy character of walkers in AMC's *The Walking Dead*. Use original recordings/design or audio whose use is authorized; exact show recordings require rights clearance.
+- Blood and flesh impacts need distinct, synchronized audio: blunt beating, blade slashing, and knife stabbing each sound different, with suitable variation to avoid one repeated sample. Gunshot impacts receive their own blood/flesh response. Play these only for the corresponding server-confirmed contact, separate from weapon swing or gunfire sounds.
 - Add general player animations for crouching, sprinting, walking, and jumping. They must coexist with injury motion, equipment, and TaCZ's gun poses; firearm locomotion leaves TaCZ's arm, item, and aiming transforms in charge.
 - Add distinct melee animation families for knives; two-handed bats and axes; swords and katanas; machetes; and one-handed hatchets. Match holds, attacks, and transitions to each weapon family rather than reusing a single generic melee pose. Exact clip list and visual style remain to be authored and tested.
 
