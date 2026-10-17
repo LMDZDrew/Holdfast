@@ -377,6 +377,18 @@ def locomotion():
         for part in ("torso", "head", "rightArm", "leftArm", "rightItem", "leftItem"):
             gg.tracks.pop(part, None)
         out[name + "_gun"] = (gg, dict(info, firearm_variant=True))
+    # Non-firearm take-off is already airborne when selected. Hold the tuck until the controller sees descent;
+    # do not play a ground-loading squat or a timed landing while still rising. Preserve accepted _gun assets above.
+    rising = Anim(.3, "hold_on_last_frame")
+    rising.pose(0, **dict(STAND, rightLeg=[6, 0, 0], leftLeg=[2, 0, 0]),
+                rightArm=[-18, 0, 10], leftArm=[-18, 0, -10], rightItem=[0, 0, 0])
+    rising.pose(.15, body_pos=[0, .15, 0], torso=[3, 0, 0], head=[-3, 0, 0],
+                rightLeg=[-18, 0, 0], leftLeg=[-8, 0, 0],
+                rightArm=[-32, 0, 14], leftArm=[-32, 0, -14])
+    rising.pose(.3, body_pos=[0, .2, 0], torso=[4, 0, 0], head=[-2, 0, 0],
+                rightLeg=[-22, 0, 0], leftLeg=[-10, 0, 0],
+                rightArm=[-30, 0, 15], leftArm=[-30, 0, -15])
+    out["move_jump"] = (rising, dict(impacts=[]))
     speeds = {n: round(pm.ground_speed(out[n][0].length, *pm.fit_cycle(n, a_leg, a_leg)[1:]), 3)
               for n, a_leg in (("move_walk", 32), ("move_sprint", 48), ("move_crouch_walk", 22))}
     return out, speeds

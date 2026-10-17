@@ -133,7 +133,7 @@ public final class Clips {
         Map.entry("move_fall_gun", 1.0),
         Map.entry("move_idle", 3.2),
         Map.entry("move_idle_gun", 3.2),
-        Map.entry("move_jump", 0.8),
+        Map.entry("move_jump", 0.3),
         Map.entry("move_jump_gun", 0.8),
         Map.entry("move_land", 0.3),
         Map.entry("move_land_gun", 0.3),

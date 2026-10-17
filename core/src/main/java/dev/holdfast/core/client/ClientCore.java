@@ -74,6 +74,9 @@ public final class ClientCore {
                 || mc.player.isSpectator()) return;
         var type = mc.hitResult == null ? net.minecraft.world.phys.HitResult.Type.MISS : mc.hitResult.getType();
         if (type == net.minecraft.world.phys.HitResult.Type.BLOCK) return;
+        if (!ClientClips.ownsAttack(mc.player)) return;
+        // Keep vanilla's attack request, but remove its additional arm/body-yaw swing even on refused rapid clicks.
+        event.setSwingHand(false);
         if (!ClientClips.localSwing(mc.player, mc.player.getAttackStrengthScale(0.5F))) return;
         if (type == net.minecraft.world.phys.HitResult.Type.MISS) CoreNet.CHANNEL.sendToServer(new dev.holdfast.core.net.SwingPacket());
     }

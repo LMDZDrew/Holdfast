@@ -1,20 +1,18 @@
 {
-  "version": 1,
+  "version": 2,
   "description": "Local user-supplied recordings; waveform-selected cuts. Semantic assignments await listening review.",
   "cuts": [
     {"id": "wet_1", "source": "walker_hit_squelch.mp3", "start": 0.110, "end": 0.850},
     {"id": "wet_2", "source": "walker_hit_squelch_2.mp3", "start": 0.060, "end": 0.960},
-    {"id": "axe_1", "source": "axe_hit.mp3", "start": 0.015, "end": 1.000},
-    {"id": "axe_2", "source": "axe_hit.mp3", "start": 3.410, "end": 4.350},
     {"id": "blade_1", "source": "sword_stabbing_slashing.mp3", "start": 0.055, "end": 1.020},
     {"id": "blade_2", "source": "sword_stabbing_slashing.mp3", "start": 1.350, "end": 1.965},
     {"id": "blade_3", "source": "sword_stabbing_slashing.mp3", "start": 1.980, "end": 2.940}
   ],
   "events": {
     "impact.blunt": ["wet_1", "wet_2"],
-    "impact.slash": ["blade_1", "blade_3", "axe_1", "axe_2"],
+    "impact.slash": ["blade_1", "blade_3"],
     "impact.stab": ["blade_2", "wet_1", "wet_2"],
     "impact.skull_blunt": ["wet_1", "wet_2"],
-    "impact.skull_blade": ["axe_1", "axe_2", "blade_1", "blade_2", "blade_3"]
+    "impact.skull_blade": ["blade_1", "blade_2", "blade_3"]
   }
 }

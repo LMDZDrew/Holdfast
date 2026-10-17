@@ -28,3 +28,9 @@ for path in glob.glob(os.path.join(OUT, "player_animation", "*_gun.json")):
         if part == "body":
             assert set(channels) <= {"position"}, (path, channels)
 print("Firearm movement clips never key upper-body, item or aim transforms.")
+
+# Take-off is selected once already airborne, not in anticipation of a jump button press.
+jump = json.load(open(os.path.join(OUT, "player_animation", "move_jump.json")))["animations"]["move_jump"]
+assert jump["loop"] == "hold_on_last_frame", "take-off must not finish/land during a long ascent"
+assert all(v["post"][1] >= 0 for v in jump["bones"]["body"]["position"].values()), "no airborne loading squat"
+print("Non-firearm take-off holds its last frame without a ground-loading squat or timed landing.")

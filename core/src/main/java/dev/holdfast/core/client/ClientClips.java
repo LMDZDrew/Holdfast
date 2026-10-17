@@ -63,6 +63,7 @@ public final class ClientClips {
         double x, y, z, speed, distance;
         boolean positioned;
         int airTicks, landingTicks;
+        final JumpPresentation jump = new JumpPresentation();
         final SpeedModifier rate = new SpeedModifier(1);
         boolean rateInstalled;
     }
@@ -94,7 +95,7 @@ public final class ClientClips {
             HoldfastCore.LOG.warn("[holdfast] no Player Animator clip holdfast:{}", clip);
             return null;
         }
-        return new KeyframeAnimationPlayer(data).setFirstPersonMode(fp)
+        return (meleeAction(clip) ? new MeleeActionPlayer(data) : new KeyframeAnimationPlayer(data)).setFirstPersonMode(fp)
                 .setFirstPersonConfiguration(new FirstPersonConfiguration(true, true, true, true));
     }
 
@@ -107,16 +108,21 @@ public final class ClientClips {
         ModifierLayer<IAnimation> layer = layer(p, ACTION);
         if (layer == null) return;
         if (m.clip().isEmpty()) {
+            String previous = ACTION_NAMES.get(p.getId());
             ACTION_NAMES.remove(p.getId());
-            blend(layer, null, 3);
+            if (!holdingGun(p) && (meleeAction(previous) || "bat_charge_hold".equals(previous))) blendMelee(layer, null, 3);
+            else blend(layer, null, 3);
             return;
         }
         KeyframeAnimationPlayer kp = player(m.clip(), m.ownsArms() ? FirstPersonMode.THIRD_PERSON_MODEL : FirstPersonMode.NONE);
         if (kp == null) return;
-        layer.setAnimation(kp);
+        if (meleeAction(m.clip())) blendMelee(layer, kp, 2);
+        else layer.setAnimation(kp);
         ACTION_NAMES.put(p.getId(), m.clip());
-        p.yBodyRot = p.getYRot();
-        p.yBodyRotO = p.yBodyRot;
+        if (!meleeAction(m.clip())) {
+            p.yBodyRot = p.getYRot();
+            p.yBodyRotO = p.yBodyRot;
+        }
     }
 
     /** Other players' injury walks, by entity id (MovementPacket). */
@@ -178,6 +184,19 @@ public final class ClientClips {
 
     private static void blend(ModifierLayer<IAnimation> layer, IAnimation next, int ticks) {
         if (layer != null) layer.replaceAnimationWithFade(AbstractFadeModifier.standardFadeIn(ticks, Ease.INOUTSINE), next);
+    }
+
+    private static boolean meleeAction(String clip) {
+        return clip != null && (clip.startsWith("swing_") || clip.equals("bat_charged_miss"));
+    }
+
+    private static void blendMelee(ModifierLayer<IAnimation> layer, IAnimation next, int ticks) {
+        // PA's default overload silently skips fades when there is no active previous animation.
+        if (layer != null) layer.replaceAnimationWithFade(new MeleeFade(ticks), next, true);
+    }
+
+    static boolean ownsAttack(AbstractClientPlayer p) {
+        return !holdingGun(p) && !p.isUsingItem() && !inspecting(p) && !Weapons.held(p).firearm();
     }
 
     private static void clear(ModifierLayer<IAnimation> layer) {
@@ -256,7 +275,8 @@ public final class ClientClips {
             }
         }
         // ---- locomotion
-        double dx = p.getX() - a.x, dz = p.getZ() - a.z, dy = p.getY() - a.y;
+        double dx = p.getX() - a.x, dz = p.getZ() - a.z;
+        double dy = a.positioned ? p.getY() - a.y : p.getDeltaMovement().y;
         double speed = a.positioned ? Math.min(0.5, Math.hypot(dx, dz)) : 0;
         a.x = p.getX(); a.y = p.getY(); a.z = p.getZ(); a.positioned = true;
         a.speed += (speed - a.speed) * 0.45;
@@ -271,14 +291,17 @@ public final class ClientClips {
             a.landingTicks = 0;
         }
         String loco;
+        boolean specialMotion = p.isPassenger() || p.isFallFlying() || p.isSleeping() || p.isSwimming()
+                || p.getAbilities().flying || p.isInWaterOrBubble() || p.isInLava() || p.onClimbable();
+        String airborne = a.jump.advance(p.onGround(), dy, specialMotion);
         String injury = self ? injuryClip : REMOTE_INJURY.get(p.getId());
-        if (p.isPassenger() || p.isFallFlying() || p.isSleeping() || p.isSwimming()) {
+        if (p.isPassenger() || p.isFallFlying() || p.isSleeping() || p.isSwimming() || (!gun && specialMotion)) {
             loco = null; // These poses are owned by their existing renderer until explicitly authored.
         } else if (injury != null && moving && p.onGround()) {
             loco = injury;
         } else if (!p.onGround()) {
-            loco = a.airTicks <= 7 && (dy > 0 || p.getDeltaMovement().y > 0) ? "move_jump" : "move_fall";
-        } else if (a.landingTicks > 0) {
+            loco = gun ? (a.airTicks <= 7 && (dy > 0 || p.getDeltaMovement().y > 0) ? "move_jump" : "move_fall") : airborne;
+        } else if (gun ? a.landingTicks > 0 : airborne != null) {
             loco = "move_land";
         } else if (!moving) {
             loco = p.isCrouching() ? "move_crouch" : "move_idle";
@@ -322,7 +345,8 @@ public final class ClientClips {
                 LookPlayer motion = data == null ? null : new LookPlayer(data, !freeArms, phaseTick);
                 if (motion != null) motion.setFirstPersonMode(freeArms ? FirstPersonMode.NONE : FirstPersonMode.THIRD_PERSON_MODEL)
                         .setFirstPersonConfiguration(new FirstPersonConfiguration(true, true, true, true));
-                blend(layer, motion, 4);
+                if (gun) blend(layer, motion, 4);
+                else blendMelee(layer, motion, airborne != null ? 2 : 4);
             }
         }
         // ---- weapon hold (melee families; TaCZ guns keep their own hold)
@@ -337,7 +361,7 @@ public final class ClientClips {
             // Weapon to weapon: the item swaps at once, so the carry does too. A fade would turn the new weapon through
             // the per-channel blend of two unrelated wrist poses (a visible twirl). Fade only to and from empty hands.
             if (swap && layer != null) layer.setAnimation(carry);
-            else blend(layer, carry, 5);
+            else blendMelee(layer, carry, 5);
         }
     }
 
@@ -347,15 +371,17 @@ public final class ClientClips {
      * Returns false when no swing starts (gun, item use, a swing already playing), so no air-swing request is sent.
      */
     static boolean localSwing(AbstractClientPlayer p, double attackStrength) {
-        if (holdingGun(p) || p.isUsingItem() || inspecting(p)) return false;
+        if (!ownsAttack(p)) return false;
         var weapon = Weapons.held(p);
         if (weapon.firearm()) return false;
         String clip = dev.holdfast.core.rules.SwingRules.clipFor(weapon, dev.holdfast.core.rules.SwingRules.heavy(attackStrength));
         ModifierLayer<IAnimation> layer = layer(p, ACTION);
-        if (clip == null || layer == null || (layer.getAnimation() != null && layer.getAnimation().isActive())) return false;
+        if (clip == null || layer == null) return false;
+        IAnimation current = layer.getAnimation();
+        if (current instanceof MeleeActionPlayer melee ? melee.blocksInput() : current != null && current.isActive()) return false;
         KeyframeAnimationPlayer kp = player(clip, FirstPersonMode.THIRD_PERSON_MODEL);
         if (kp == null) return false;
-        blend(layer, kp, 2);
+        blendMelee(layer, kp, 2);
         ACTION_NAMES.put(p.getId(), clip);
         return true;
     }

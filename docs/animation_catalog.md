@@ -134,7 +134,7 @@ Times are seconds from the start of the clip. Events and sounds are **presentati
 | `move_fall_gun` | 1.00 | loop | body, leftLeg, rightLeg | — | — | — |
 | `move_idle` | 3.20 | loop | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | — |
 | `move_idle_gun` | 3.20 | loop | body, leftLeg, rightLeg | — | — | — |
-| `move_jump` | 0.80 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | — |
+| `move_jump` | 0.30 | hold last frame | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | — |
 | `move_jump_gun` | 0.80 | once | body, leftLeg, rightLeg | — | — | — |
 | `move_land` | 0.30 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | — |
 | `move_land_gun` | 0.30 | once | body, leftLeg, rightLeg | — | — | — |
