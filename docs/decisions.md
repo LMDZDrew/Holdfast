@@ -70,6 +70,13 @@ Status: accepted design unless labeled proposed. This file supersedes older word
 - Evaluate Extra Gore 5.3 and its Bookling Gear dependency as optional client presentation. Holdfast's confirmed-hit packet remains the only emitter in this integration; no predicted click, health heuristic, particle or sound decides an outcome. Version selection remains a candidate until a client compatibility run and user review.
 - Andrew authorized animation quality checks and source corrections while away. Automated checks do not constitute his in-game acceptance.
 
+## Latest melee presentation direction (Andrew, 2026-10-17)
+
+- Sword/katana, axe, knife and hatchet need natural resting carries outside combat and distinct ready stances during combat and a few seconds afterward, then return to rest. The exact timeout is not prescribed; document any tuning default.
+- Gun animations are accepted by Andrew and should be left alone for now. This does not waive separate server firearm checks.
+- Remove the unwanted torso shimmy Andrew reports on every click. Executions must support front, rear, side and diagonal approaches while retaining server-owned eligibility, reach, collision/obstruction checks, weapon gates and outcomes; this is not authorization for unlimited reach or through-wall alignment.
+- Claude owns resting/ready poses, remaining axe/knife hit instability and the newly reported buggy jumping. Codex owns impact-sound extraction from Andrew's four supplied MP3s. Extract individual effects, never play entire source recordings as one hit. Keep sounds cosmetic and preserve server-confirmed contact timing.
+
 ## Explicitly deferred
 
 Character skill leveling, friendly/recruitable survivors, dynamic dismemberment, broad stealth disguises beyond Whisperer masks, advanced structural physics, and guaranteed shader FPS. They can be revisited after a representative playable prototype.

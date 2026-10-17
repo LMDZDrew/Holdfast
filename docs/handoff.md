@@ -1,5 +1,17 @@
 # Assistant handoff
 
+## Latest assignment: impact samples / Claude melee and jumping — 2026-10-17
+
+**Branch:** `codex/stage1-impact-samples`, based on pushed `aaad76e` (`codex/stage1-blood-audio`, implementation `5640c17`). Detailed Claude continuation prompt: **`docs/claude_stage1_stances_handoff.md`**. Claude should use its own scoped branch and separate worktree for concurrent animation work; Codex owns audio.
+
+**Andrew's new actual feedback:** impact sounds are disliked; swords/katanas constantly look combat-ready; axes look T-posed; knives and hatchets need natural resting carries too. Require separate rest/ready poses for those families, ready during combat and a few seconds afterward. Axes and knives still bug during hits. **Jumping is buggy**, exact symptom unspecified. **Gun animations are perfect; leave them alone.** These are partial observations, not acceptance of every outstanding gameplay/checklist item.
+
+**Added while preparing the handoff:** Andrew dislikes the torso shimmy triggered by every click and wants it removed. Executions must work from behind, either side, diagonals and front, with safe server-validated alignment and the existing reach/obstruction and weapon rules. Claude's detailed prompt includes both tasks and required automated coverage; no implementation or pass is claimed for them.
+
+**Audio implemented as a local pack:** Extracted seven proper subranges from the four provided Downloads MP3s, with editable cut recipe, mono conversion, reduce-only gain, short fades and decode checks. `art/audio/build_impact_pack.py` builds five melee impact event replacements; no whole MP3 playback. `docs/impact_audio.md` records cuts, provisional routing, reproduction and limitations. Pack SHA-256 **`CD1CEBC3B3191208680DA9E416C0427CF4A71CB17A3D9A036C79EEB105B5C44B`**; copied to Gate 0 client resourcepacks, **not enabled while client is running**. Existing jars/server/session and enabled Tissou pack were preserved. No Java/animation change or fresh game acceptance. Axe/sword share current SLASH metadata; no dedicated weapon routing was added. Listening/semantic assignments and in-game playback remain pending.
+
+**Next:** Claude fixes stances, attack instability and jumping in source, regenerates, builds/checks, then one consolidated visual review. Codex continues impact listening/tuning and pack activation when the session permits. Keep source audio local, gun animations unchanged, PR #1/#2 drafts/unmerged, and no world generation. Server authority remains unchanged. See newest `docs/testing.md` evidence for exact commands and hashes; older entries below are historical.
+
 ## Current state — 2026-10-16
 
 - This repository foundation was prepared locally for `LMDZDrew/Holdfast`. Confirm remote publication and commit SHA before relying on the repository as the shared source of truth.
