@@ -57,6 +57,7 @@ public final class PlayerClips {
         final Map<Double, String> timeline = new HashMap<>();
         final Set<Double> fired = new HashSet<>();
         boolean finishLogged;
+        int lastCameraLogTick = -1000;
 
         Active(String clip, KeyframeAnimationPlayer anim, int startClientTick, int camera) {
             this.clip = clip;
@@ -109,8 +110,12 @@ public final class PlayerClips {
             if (p == mc.player) mc.player.displayClientMessage(Component.literal("Player Animator has no clip holdfast:" + m.playerClip()), false);
             return;
         }
+        // NONE lets Player Animator defer the first-person render mode to TaCZ/vanilla.
+        // THIRD_PERSON_MODEL here masks TaCZ's sight view even though this clip keys no arms.
+        FirstPersonMode firstPerson = selected.endsWith("_gun")
+                ? FirstPersonMode.NONE : FirstPersonMode.valueOf(m.firstPerson());
         KeyframeAnimationPlayer kp = new KeyframeAnimationPlayer(data)
-                .setFirstPersonMode(FirstPersonMode.valueOf(m.firstPerson()))
+                .setFirstPersonMode(firstPerson)
                 .setFirstPersonConfiguration(new FirstPersonConfiguration(true, true, true, true));
         layer.setAnimation(kp);
         // Line the body up with the view so paired clips start from the same facing the server used.
@@ -124,7 +129,7 @@ public final class PlayerClips {
                         + "Player Animator stopTick {} endTick {} infinite {}; first person {}; camera flags {} ({} rotation keys)",
                 p.getGameProfile().getName(), selected, clientTicks, len == null ? "?" : TestWalkerFmt.f(len),
                 len == null ? "?" : TestWalkerFmt.f(len * 20), data.stopTick, data.endTick, data.isInfinite,
-                m.firstPerson(), m.camera(), a.camRot.size());
+                firstPerson, m.camera(), a.camRot.size());
     }
 
     private static void loadExtras(Active a) {
@@ -191,9 +196,17 @@ public final class PlayerClips {
         if (a == null || (a.camera & 1) == 0 || a.camRot.isEmpty() || !a.anim.isActive()) return;
         float time = (float) ((a.anim.getTick() + event.getPartialTick()) / 20.0);
         float[] r = sample(a.camRot, time);
-        float pitch = (a.camera & 8) != 0 ? -r[1] : r[1];
-        float yaw = (a.camera & 2) != 0 ? -r[2] : r[2];
-        float roll = (a.camera & 4) != 0 ? -r[3] : r[3];
+        float movement = a.clip.startsWith("move_")
+                ? (float) Math.min(1.0, mc.player.getDeltaMovement().horizontalDistance() / 0.12) : 1.0F;
+        float pitch = ((a.camera & 8) != 0 ? -r[1] : r[1]) * movement;
+        float yaw = ((a.camera & 2) != 0 ? -r[2] : r[2]) * movement;
+        float roll = ((a.camera & 4) != 0 ? -r[3] : r[3]) * movement;
+        if (movement > 0.4F && clientTicks - a.lastCameraLogTick >= 20) {
+            a.lastCameraLogTick = clientTicks;
+            HoldfastAnimTest.LOG.info("[holdfast-test] first-person camera clip {} tick {} movement {} pitch {} yaw {} roll {}",
+                    a.clip, a.anim.getTick(), TestWalkerFmt.f(movement), TestWalkerFmt.f(pitch),
+                    TestWalkerFmt.f(yaw), TestWalkerFmt.f(roll));
+        }
         event.setPitch(event.getPitch() + pitch);
         event.setYaw(event.getYaw() + yaw);
         event.setRoll(event.getRoll() + roll);

@@ -464,6 +464,13 @@ def camera_track(a, info, step=0.05):
         if info.get("tremor"):
             pr[0] += info["tremor"] * math.sin(t * 70)
             pr[2] += info["tremor"] * math.sin(t * 53 + 1)
+        if info.get("injury_camera"):
+            # A readable first-person uneven step. This is presentation only; the harness
+            # scales the track by actual movement so standing still does not bob the view.
+            phase = 2 * math.pi * t / a.length
+            severity = info["injury_camera"]
+            pr[0] += severity * 1.4 * max(0.0, -math.cos(phase))
+            pr[2] += severity * 2.4 * math.sin(phase)
         cam.key(t, "camera", rot=pr, pos=[-0.9 * dpos[0], 0.9 * dpos[1], 0.9 * dpos[2]])
     return cam
 
@@ -479,6 +486,9 @@ def build():
         reports += b.report
     out.update(grab_anims())
     more, rep2, speeds = player_more.build()
+    for name, severity in (("move_limp", 1.0), ("move_limp_severe", 1.6),
+                           ("move_arm_injured", 0.35), ("move_prosthesis", 0.7)):
+        more[name][1]["injury_camera"] = severity
     out.update(more)
     # TaCZ owns the complete gun hold/aim chain. These firearm locomotion variants retain
     # the injury gait and body translation, but never key the torso lean, head, arms or items.
