@@ -80,6 +80,14 @@ Retest the new first-person limp cue and ADS, then author handgun executions aga
 
 **Open:** Andrew reported no noticeable first-person limp cue, even with empty hands, before the camera-cue change. Retest the new jar while walking and read its `first-person camera clip` log lines; verify ADS and third-person pose again. Pistol and rifle shot/reload observations with and without clips remain separate Gate 0 step 2 work. Handgun executions and the pending ground knife, machete, ground axe/machete/bat and `react_knife` retests are next. Do not start world generation or claim the camera cue passed before an in-game observation.
 
+## Codex overnight stop — 2026-10-16
+
+**Branch/commit:** `codex/stage1-handgun-executions`, after `c4159f8` (this stop records the later retest). No handgun source changes were made on this branch. Draft PR #1 and PR #2 remain drafts and unmerged.
+
+**Observed:** With client jar SHA-256 `B555A79DAC5DB46DEDA09923744650A97EB8758AB995CC9CFF50A8C922FB05FA`, Andrew said the selected `move_limp_gun` version “works.” Prism `latest.log` at 22:55:41 passed the 51/14/38 clip load check, selected `move_limp_gun` at 22:56:27 with first-person mode `NONE`, and logged applied first-person camera angles during empty-hand and gun-held walking. Exact log values and environment are in `docs/testing.md`. This is a general user success report; individual pistol/rifle firing and reload, and the perceived camera strength, were not separately reported.
+
+**Next:** Continue from the exact installed TaCZ 1.1.8-hotfix2 pistol `hold_upper`/`aim_upper` poses inspected in the default gun pack. Author standing and appropriate ground handgun pairs in editable source, then regenerate exports and build the harness. The future core server S7 gate must accept only TaCZ index `type: pistol`; the harness must not claim server gameplay authority. Then re-test ground knife, standing machete, ground axe/machete/bat, and temple `react_knife`; finish Gate 0 step 2 with separate pistol/rifle shot, reload and ADS observations with and without Holdfast clips. Stay in Stage 1; do not begin world generation.
+
 ## Handoff format for future work
 
 Branch/commit; files changed; behavior observed; exact tests and commands; unresolved issues; next safe task. Separate proposed behavior from verified behavior.
