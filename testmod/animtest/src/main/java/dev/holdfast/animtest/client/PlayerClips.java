@@ -22,6 +22,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.entity.Entity;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.event.TickEvent;
 
@@ -66,7 +67,10 @@ public final class PlayerClips {
     }
 
     static void registerLayer() {
-        PlayerAnimationFactory.ANIMATION_DATA_FACTORY.registerFactory(LAYER, 1000, player -> new ModifierLayer<>());
+        // TaCZ's lower/upper/rotation layers are 93-96 in the installed 1.1.8-hotfix2 jar.
+        // Run after its lower locomotion, but before its final gun rotation layer. Firearm
+        // injury variants key only body translation and legs, leaving gun parts untouched.
+        PlayerAnimationFactory.ANIMATION_DATA_FACTORY.registerFactory(LAYER, 95, player -> new ModifierLayer<>());
         HoldfastAnimTest.LOG.info("[holdfast-test] Player Animator layer {} registered", LAYER);
     }
 
@@ -94,7 +98,11 @@ public final class PlayerClips {
             HoldfastAnimTest.LOG.info("[holdfast-test] player {} clip stopped", p.getGameProfile().getName());
             return;
         }
-        KeyframeAnimation data = PlayerAnimationRegistry.getAnimation(new ResourceLocation(HoldfastAnimTest.ASSETS, m.playerClip()));
+        String selected = m.playerClip();
+        ResourceLocation held = ForgeRegistries.ITEMS.getKey(p.getMainHandItem().getItem());
+        if (held != null && held.equals(new ResourceLocation("tacz", "modern_kinetic_gun"))
+                && Clips.PLAYER.containsKey(selected + "_gun")) selected += "_gun";
+        KeyframeAnimation data = PlayerAnimationRegistry.getAnimation(new ResourceLocation(HoldfastAnimTest.ASSETS, selected));
         if (data == null) {
             HoldfastAnimTest.LOG.error("[holdfast-test] FAIL player clip {}:{} is not registered by Player Animator",
                     HoldfastAnimTest.ASSETS, m.playerClip());
@@ -108,13 +116,13 @@ public final class PlayerClips {
         // Line the body up with the view so paired clips start from the same facing the server used.
         p.yBodyRot = p.getYRot();
         p.yBodyRotO = p.yBodyRot;
-        Active a = new Active(m.playerClip(), kp, clientTicks, m.camera());
+        Active a = new Active(selected, kp, clientTicks, m.camera());
         loadExtras(a);
         ACTIVE.put(p.getId(), a);
-        Double len = Clips.PLAYER.get(m.playerClip());
+        Double len = Clips.PLAYER.get(selected);
         HoldfastAnimTest.LOG.info("[holdfast-test] player {} start clip {} at client tick {}; exported length {} s = {} ticks; "
                         + "Player Animator stopTick {} endTick {} infinite {}; first person {}; camera flags {} ({} rotation keys)",
-                p.getGameProfile().getName(), m.playerClip(), clientTicks, len == null ? "?" : TestWalkerFmt.f(len),
+                p.getGameProfile().getName(), selected, clientTicks, len == null ? "?" : TestWalkerFmt.f(len),
                 len == null ? "?" : TestWalkerFmt.f(len * 20), data.stopTick, data.endTick, data.isInfinite,
                 m.firstPerson(), m.camera(), a.camRot.size());
     }

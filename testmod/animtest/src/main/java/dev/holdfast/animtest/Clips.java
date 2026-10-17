@@ -110,12 +110,16 @@ public final class Clips {
         Map.entry("grabbed_shove", 0.6),
         Map.entry("grabbed_struggle", 0.8),
         Map.entry("move_arm_injured", 0.5),
+        Map.entry("move_arm_injured_gun", 0.5),
         Map.entry("move_crawl_legless", 2.2),
         Map.entry("move_crutch_improvised", 0.65),
         Map.entry("move_crutch_medical", 0.45),
         Map.entry("move_limp", 0.5),
+        Map.entry("move_limp_gun", 0.5),
         Map.entry("move_limp_severe", 0.6),
-        Map.entry("move_prosthesis", 0.6)
+        Map.entry("move_limp_severe_gun", 0.6),
+        Map.entry("move_prosthesis", 0.6),
+        Map.entry("move_prosthesis_gun", 0.6)
     );
 
     /** injury movement clip -> speed as a fraction of vanilla walking (4.317 blocks/s) its footsteps match */

@@ -470,6 +470,7 @@ def camera_track(a, info, step=0.05):
 
 def build():
     import player_more
+    import copy
     execs = dict(exec_knife=knife(), exec_bat_quick=bat_quick(), bat_charge_hold=bat_charge(),
                  exec_bat_charged=bat_charged(), exec_axe=axe(), exec_machete=machete())
     out, reports = {}, []
@@ -479,6 +480,17 @@ def build():
     out.update(grab_anims())
     more, rep2, speeds = player_more.build()
     out.update(more)
+    # TaCZ owns the complete gun hold/aim chain. These firearm locomotion variants retain
+    # the injury gait and body translation, but never key the torso lean, head, arms or items.
+    # Removing the authored torso lean also prevents its exported whole-body rotation from
+    # carrying TaCZ's arms away from the gun. Crutches and legless crawl are excluded: they
+    # require their arms to move and cannot be combined with a normal firearm hold.
+    for name in ("move_limp", "move_limp_severe", "move_arm_injured", "move_prosthesis"):
+        gait, info = more[name]
+        gun_gait = copy.deepcopy(gait)
+        for part in ("torso", "head", "rightArm", "leftArm", "rightItem", "leftItem"):
+            gun_gait.tracks.pop(part, None)
+        out[name + "_gun"] = (gun_gait, dict(info, firearm_variant=True))
     reports += rep2
     write_json(os.path.join(OUT, "player_move_speeds.json"), speeds, indent=2)
     return out, reports
@@ -487,7 +499,7 @@ def build():
 PA_PARTS = set(PLAYER_BONES) | {"rightItem", "leftItem"}
 
 
-def to_player_animator(a, step=0.05):
+def to_player_animator(a, step=0.05, firearm_variant=False):
     """Map our authoring rig onto Player Animator 1.0.2-rc1 parts, baked at 20 keys per second.
 
     In Player Animator the "torso" part only turns the chest box about the neck and does not carry
@@ -530,7 +542,7 @@ def to_player_animator(a, step=0.05):
     # them in the arm frame about the fist (pa_item.py). Convert every key, and pin the pivot with a
     # constant position key so the same item model works whether or not a clip keys the wrist.
     import pa_item
-    for part in ("rightItem", "leftItem"):
+    for part in (() if firearm_variant else ("rightItem", "leftItem")):
         rot = out.tracks.get(part, {}).get("rotation", {})
         near = None
         for t in sorted(rot):
@@ -548,7 +560,7 @@ def export(out):
     keys = {}
     for k, (a, info) in out.items():
         write_json(os.path.join(pdir, f"{k}.json"),
-                   {"format_version": "1.8.0", "animations": {k: to_player_animator(a).to_json(smooth="linear")}})
+                   {"format_version": "1.8.0", "animations": {k: to_player_animator(a, firearm_variant=info.get("firearm_variant", False)).to_json(smooth="linear")}})
         ex = camera_track(a, info)
         ex.sounds, ex.timeline = dict(a.sounds), dict(a.timeline)
         meta = {"weapon": info.get("weapon"), "vanilla_pose": info.get("vanilla_pose")}

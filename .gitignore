@@ -11,3 +11,6 @@ crash-reports/
 *.iml
 art/characters/build/
 __pycache__/
+.venv/
+.uv-cache/
+art/characters/.deps/
