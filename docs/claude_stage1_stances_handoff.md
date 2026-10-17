@@ -1,5 +1,7 @@
 # Claude Code continuation: melee stances, unstable hits, jumping, and all-angle executions
 
+> **Continuation update:** Andrew subsequently assigned Codex the motion corrections. Start with `claude_stage1_motion_followup.md` and the latest handoff/testing record; this file preserves the original detailed requirements. Do not repeat already implemented fixes or use its older branch as the current base.
+
 ## Assignment and coordination
 
 Continue Holdfast Stage 1 in `C:\Users\drewl\Holdfast`. Andrew assigns **animation corrections to Claude**, while **Codex owns impact audio** from his four supplied MP3s. Finish feasible implementation and automated checks before asking for one consolidated in-game review. Do not call numerical checks a visual pass.

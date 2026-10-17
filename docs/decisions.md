@@ -76,6 +76,8 @@ Status: accepted design unless labeled proposed. This file supersedes older word
 - Gun animations are accepted by Andrew and should be left alone for now. This does not waive separate server firearm checks.
 - Remove the unwanted torso shimmy Andrew reports on every click. Executions must support front, rear, side and diagonal approaches while retaining server-owned eligibility, reach, collision/obstruction checks, weapon gates and outcomes; this is not authorization for unlimited reach or through-wall alignment.
 - Claude owns resting/ready poses, remaining axe/knife hit instability and the newly reported buggy jumping. Codex owns impact-sound extraction from Andrew's four supplied MP3s. Extract individual effects, never play entire source recordings as one hit. Keep sounds cosmetic and preserve server-confirmed contact timing.
+- Subsequent direction: Codex should address the click shimmy, jumping and axe/knife instability first, then leave Claude an updated handoff. Andrew likes the extracted effects but rejects the ding in **`axe_hit.mp3`**; exclude that source from playback. Stop implementation and write the handoff if the active usage window reaches 5% remaining.
+- **Proposed for evaluation, not selected:** Andrew wants to consider tailoring first-person presentation to Punchy. Evaluate a reversible Forge 1.20.1 client trial and ownership/synchronization with Holdfast and TaCZ before replacing existing first-person animation. Keep server combat outcomes authoritative and preserve accepted gun animations.
 
 ## Explicitly deferred
 

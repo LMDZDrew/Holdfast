@@ -1,5 +1,17 @@
 # Stage 1 bulk test sheet (for Andrew)
 
+## Current review: motion corrections and no-ding audio (2026-10-17)
+
+Branch `codex/stage1-motion-corrections`, code `e3f2181`. Installed core `644ED4B7…`, harness `B57180A7…`; five-cut impact pack `5378A624…`. Server restarted and ready, client left closed. Automated checks passed; **these visual outcomes are not yet accepted**. Use `/hfa stop` so core layers own playback. One batch when ready:
+
+1. **Clicks:** with empty hands, knife and axe, attack the air/a walker, then click rapidly during recovery. Check both views for the unwanted torso shimmy or repeated animation restarts. Intentional body lean inside the attack remains; say if that is the movement you dislike. Block mining remains vanilla input.
+2. **Jump:** empty-handed, then knife/axe: standing/running jumps, repeated jumps, off a ledge and under a low ceiling. Check rising, apex, fall and landing in both views. Creative flight and ladders should not force a nongun falling/landing pose.
+3. **Weapon recovery:** knife light/heavy and axe light/overhead, idle and moving, both views. Check whether the weapon still spins/jumps as the hit finishes and returns to carry. Include a quick slot switch. Server contact should still coincide with the strike.
+4. **Audio:** actual blunt/slash/stab contacts. The metallic ding from `axe_hit.mp3` should be absent; the remaining approved wet/blade effects should play. No new blood or walker voice change.
+5. **Gun preservation:** quick pistol/rifle hold and ADS check only to catch regressions; all 28 protected firearm assets match the previous jar byte-for-byte. This does not complete the broader fire/reload/ammo Gate 0 evidence.
+
+Rest/ready stance separation and execution approaches from all sides are **not implemented by this revision**; Claude's next prompt is `claude_stage1_motion_followup.md`, including a proposed Punchy first-person compatibility trial. The older sheets below retain outstanding combat/persistence checks and historical instructions.
+
 ## Next review: runtime corrections + blood/audio (2026-10-17, branch `codex/stage1-blood-audio`)
 
 Andrew's last review reported floating corpses, click-time hits, a wrong hatchet carry, unstable weapons, and unacceptable blood/audio. He subsequently reopened blood/audio and authorized animation quality work while away. This revision includes Claude's runtime fixes plus the Extra Gore confirmed-contact adapter, Tissou audio-only pack, and slower light knife/machete wind-ups with regenerated server contact times. Use `/hfa stop` first so the automatic core layers are in control. Report by number; "fine" is a valid answer. All visual/audio acceptance remains pending Andrew's review.
