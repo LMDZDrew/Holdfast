@@ -115,19 +115,28 @@ public final class Clips {
         Map.entry("grabbed_shove", 0.6),
         Map.entry("grabbed_struggle", 0.8),
         Map.entry("hold_axe", 3.2),
-        Map.entry("hold_hatchet", 3.0),
+        Map.entry("hold_bat", 3.2),
+        Map.entry("hold_hatchet", 3.2),
         Map.entry("hold_katana", 3.2),
-        Map.entry("hold_knife", 3.0),
-        Map.entry("hold_machete", 3.0),
+        Map.entry("hold_knife", 3.2),
+        Map.entry("hold_machete", 3.2),
         Map.entry("move_arm_injured", 0.5),
         Map.entry("move_arm_injured_gun", 0.5),
         Map.entry("move_crawl_legless", 2.2),
+        Map.entry("move_crouch", 3.2),
+        Map.entry("move_crouch_gun", 3.2),
         Map.entry("move_crouch_walk", 0.85),
         Map.entry("move_crouch_walk_gun", 0.85),
         Map.entry("move_crutch_improvised", 0.65),
         Map.entry("move_crutch_medical", 0.45),
+        Map.entry("move_fall", 1.0),
+        Map.entry("move_fall_gun", 1.0),
+        Map.entry("move_idle", 3.2),
+        Map.entry("move_idle_gun", 3.2),
         Map.entry("move_jump", 0.8),
         Map.entry("move_jump_gun", 0.8),
+        Map.entry("move_land", 0.3),
+        Map.entry("move_land_gun", 0.3),
         Map.entry("move_limp", 0.5),
         Map.entry("move_limp_gun", 0.5),
         Map.entry("move_limp_severe", 0.6),
@@ -140,6 +149,8 @@ public final class Clips {
         Map.entry("move_walk_gun", 0.35),
         Map.entry("swing_axe", 0.75),
         Map.entry("swing_axe_overhead", 1.0),
+        Map.entry("swing_bat", 0.65),
+        Map.entry("swing_bat_heavy", 0.9),
         Map.entry("swing_hatchet", 0.5),
         Map.entry("swing_hatchet_heavy", 0.75),
         Map.entry("swing_katana", 0.65),
@@ -147,9 +158,14 @@ public final class Clips {
         Map.entry("swing_knife", 0.45),
         Map.entry("swing_knife_heavy", 0.7),
         Map.entry("swing_machete", 0.6),
-        Map.entry("swing_machete_heavy", 0.8)
+        Map.entry("swing_machete_heavy", 0.8),
+        Map.entry("swing_unarmed", 0.45),
+        Map.entry("swing_unarmed_heavy", 0.65)
     );
 
+    /** Cosmetic harness shot timing, from the same authored table as core execution ticks. */
+    public static final Map<String, Integer> PISTOL_SHOT_TICKS = Map.of(
+        "exec_pistol", 7, "exec_pistol_ground", 9);
     /** injury movement clip -> speed as a fraction of vanilla walking (4.317 blocks/s) its footsteps match */
     public static final Map<String, Double> MOVE_SPEED = Map.ofEntries(
         Map.entry("move_arm_injured", 0.95),
@@ -181,6 +197,7 @@ public final class Clips {
         Map.entry("exec_pistol", "pistol"),
         Map.entry("exec_pistol_ground", "pistol"),
         Map.entry("hold_axe", "axe"),
+        Map.entry("hold_bat", "bat"),
         Map.entry("hold_hatchet", "hatchet"),
         Map.entry("hold_katana", "katana"),
         Map.entry("hold_knife", "knife"),
@@ -189,6 +206,8 @@ public final class Clips {
         Map.entry("move_crutch_medical", "crutch"),
         Map.entry("swing_axe", "axe"),
         Map.entry("swing_axe_overhead", "axe"),
+        Map.entry("swing_bat", "bat"),
+        Map.entry("swing_bat_heavy", "bat"),
         Map.entry("swing_hatchet", "hatchet"),
         Map.entry("swing_hatchet_heavy", "hatchet"),
         Map.entry("swing_katana", "katana"),

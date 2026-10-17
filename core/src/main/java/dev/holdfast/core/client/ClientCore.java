@@ -36,6 +36,7 @@ public final class ClientCore {
         modBus.addListener(ClientCore::onOverlays);
         modBus.addListener((FMLClientSetupEvent e) -> e.enqueueWork(ClientClips::registerLayers));
         MinecraftForge.EVENT_BUS.addListener(ClientCore::onClientTick);
+        MinecraftForge.EVENT_BUS.addListener(ClientClips::camera);
     }
 
     private static void onRenderers(EntityRenderersEvent.RegisterRenderers event) {
@@ -49,8 +50,8 @@ public final class ClientCore {
     private static void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null) return;
         ClientClips.tick();
+        if (mc.player == null) return;
         while (ACTION.consumeClick()) {
             Entity looked = mc.hitResult instanceof EntityHitResult eh ? eh.getEntity() : null;
             CoreNet.CHANNEL.sendToServer(new ActionPacket(looked == null ? -1 : looked.getId()));

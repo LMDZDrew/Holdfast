@@ -37,6 +37,7 @@ public final class Executions {
         final ExecutionRules.Session session;
         final Vec3 snapped;
         final WeaponClass weapon;
+        net.minecraft.world.item.ItemStack gun = net.minecraft.world.item.ItemStack.EMPTY;
         ServerPlayer ref;
 
         Active(WalkerEntity target, ExecutionRules.Session session, Vec3 snapped, WeaponClass weapon) {
@@ -90,6 +91,7 @@ public final class Executions {
         long now = p.serverLevel().getGameTime();
         Active active = new Active(w, new ExecutionRules.Session(clip, now), at, weapon);
         active.ref = p;
+        if (weapon == WeaponClass.PISTOL) active.gun = p.getMainHandItem().copy();
         ACTIVE.put(p.getUUID(), active);
         w.playFull(clip.targetClip(), clip.lengthTicks() + 40);
         Grabs.clip(p, clip.playerClip(), w);
@@ -126,6 +128,8 @@ public final class Executions {
             boolean inPlace = a.target.isAlive() && !a.target.isCorpse() && a.target.position().distanceTo(a.snapped) <= IN_PLACE;
             switch (a.session.tick(now, inPlace)) {
                 case KILL -> {
+                    if (!a.gun.isEmpty()) CoreNet.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> p),
+                            new dev.holdfast.core.net.GunShotPacket(p.getId(), a.gun));
                     a.target.brainKill(a.session.clip.targetClip(), 0);
                     Vec3 head = a.target.position().add(0, a.target.posture().onGround() ? 0.3 : 1.8, 0);
                     CoreNet.CHANNEL.send(PacketDistributor.TRACKING_ENTITY.with(() -> a.target),

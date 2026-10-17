@@ -59,6 +59,8 @@ Where it lives: `holdfast_core`'s `client/ClientClips` already has a first versi
 
 ## How to work
 
+**Latest Codex revision:** `codex/stage1-animation-quality` implements the continuous controller improvements, relaxed carries and bat hold, revised gait/swing keys, empty-hand attacks, native TaCZ execution-shot presentation and the `/hfa freeze` diagnostic. It also corrects the confirmed pre-scale Player Animator body-pivot mismatch and starts core paired reactions with the player packet. Source/build/server checks passed; the current visual review is still pending. Read the newest `docs/handoff.md` entry and the consolidated review at the top of `docs/stage1_bulk_test.md` before repeating work. The reported standing knife miss is not yet declared fixed in game.
+
 - Never hand-edit exports. Edit `art/characters/source/*.py`, then `PYTHONUTF8=1 bash make_all.sh` (Python venv with numpy, scipy, Pillow; soundfile for audio) and run `check_pa_semantics.py`, `measure.py`, `gen_core_tables.py`, `gen_catalog.py`. Revert PNGs whose pixels didn't change.
 - Build: `testmod\animtest\gradlew.bat build` and `core\gradlew.bat build runGameTestServer` (19 JUnit + 11 GameTests must stay green). Java 17.
 - Install both jars in the server and Prism mods folders; check no server process is running before starting one (a duplicate hits the world lock and overwrites `latest.log`).

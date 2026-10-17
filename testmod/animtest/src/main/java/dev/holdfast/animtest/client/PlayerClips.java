@@ -50,7 +50,8 @@ public final class PlayerClips {
 
     private static final class Active {
         final String clip;
-        final KeyframeAnimationPlayer anim;
+        KeyframeAnimationPlayer anim;
+        boolean frozen;
         final int startClientTick;
         final int camera;
         final List<float[]> camRot = new ArrayList<>(); // {time, pitch, yaw, roll}
@@ -132,6 +133,35 @@ public final class PlayerClips {
                 firstPerson, m.camera(), a.camRot.size());
     }
 
+    private static final class FrozenPlayer extends KeyframeAnimationPlayer {
+        private final float fraction;
+        private final float seconds;
+        FrozenPlayer(KeyframeAnimation data, double seconds) {
+            super(data, (int) Math.floor(seconds * 20));
+            this.seconds = (float) seconds;
+            fraction = (float) (seconds * 20 - Math.floor(seconds * 20));
+        }
+        @Override public void tick() { }
+        @Override public void setupAnim(float partial) { super.setupAnim(fraction); }
+    }
+
+    public static void freeze(Net.Freeze m) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null || !(mc.level.getEntity(m.playerId()) instanceof AbstractClientPlayer p)) return;
+        Active a = ACTIVE.get(p.getId());
+        if (a == null) return;
+        double seconds = Math.min(m.seconds(), Math.max(0, Clips.PLAYER.getOrDefault(a.clip, 0.0) - .001));
+        FrozenPlayer frozen = new FrozenPlayer(a.anim.getData(), seconds);
+        frozen.setFirstPersonMode(a.anim.getFirstPersonMode(0));
+        frozen.setFirstPersonConfiguration(new FirstPersonConfiguration(true, true, true, true));
+        a.anim = frozen;
+        a.frozen = true;
+        layer(p).setAnimation(frozen);
+        if (mc.level.getEntity(m.walkerId()) instanceof TestWalker w) w.freezeAt(seconds * 20);
+        HoldfastAnimTest.LOG.info("[holdfast-test] freeze {} player {} walker {} at {} seconds ({} ticks), player skin {}",
+                a.clip, p.getId(), m.walkerId(), seconds, seconds * 20, p.getModelName());
+    }
+
     private static void loadExtras(Active a) {
         ResourceLocation rl = new ResourceLocation(HoldfastAnimTest.ASSETS, "player_animation_extras/" + a.clip + ".extras.json");
         Optional<Resource> res = Minecraft.getInstance().getResourceManager().getResource(rl);
@@ -165,7 +195,8 @@ public final class PlayerClips {
     static void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null || mc.isPaused()) return;
+        if (mc.level == null) { ACTIVE.clear(); return; }
+        if (mc.isPaused()) return;
         LoadCheck.runOnce();
         clientTicks++;
         ACTIVE.entrySet().removeIf(entry -> {
@@ -183,7 +214,7 @@ public final class PlayerClips {
                 Double len = Clips.PLAYER.get(a.clip);
                 HoldfastAnimTest.LOG.info("[holdfast-test] player clip {} finished: {} client ticks after start, animation tick {}; exported {} ticks",
                         a.clip, clientTicks - a.startClientTick, t, len == null ? "?" : TestWalkerFmt.f(len * 20));
-                return true;
+                return false; // Keep the last clip for /hfa freeze after playback finishes.
             }
             return false;
         });
@@ -194,7 +225,7 @@ public final class PlayerClips {
         if (mc.player == null || !mc.options.getCameraType().isFirstPerson()) return;
         Active a = ACTIVE.get(mc.player.getId());
         if (a == null || (a.camera & 1) == 0 || a.camRot.isEmpty() || !a.anim.isActive()) return;
-        float time = (float) ((a.anim.getTick() + event.getPartialTick()) / 20.0);
+        float time = a.anim instanceof FrozenPlayer frozen ? frozen.seconds : (float) ((a.anim.getTick() + event.getPartialTick()) / 20.0);
         float[] r = sample(a.camRot, time);
         float movement = a.clip.startsWith("move_")
                 ? (float) Math.min(1.0, mc.player.getDeltaMovement().horizontalDistance() / 0.12) : 1.0F;

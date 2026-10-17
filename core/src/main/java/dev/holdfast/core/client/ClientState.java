@@ -16,9 +16,9 @@ public final class ClientState {
     private ClientState() {}
 
     public static void condition(ConditionSyncPacket m) {
-        String before = condition.movement();
         condition = m;
-        if (!before.equals(m.movement())) ClientClips.movementChanged(m.movement());
+        // Rehydrate the animation state even when a reconnect sends the same saved injury as the last session.
+        ClientClips.movementChanged(m.movement());
     }
 
     public static void prompt(GrabPromptPacket m) {

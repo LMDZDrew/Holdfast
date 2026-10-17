@@ -1,6 +1,6 @@
 """Check that the exported Player Animator clips reproduce the authored (solved) poses when played
 with Player Animator's part semantics, as read from its 1.0.2-rc1 source:
-  - "body" rotates and offsets the whole player about a point 11.2 px (0.7 blocks) above the feet;
+  - "body" rotates about 0.7 real blocks BEFORE the 15/16 model scale (11.9467 model px);
   - "torso" turns only the chest box about the neck; head, arms and legs are not its children.
 Compares world positions of hands, held-item tip markers, head and feet over every clip.
 This is a model of Player Animator, not Player Animator itself; the in-game test still decides."""
@@ -16,7 +16,7 @@ def pa_rig():
     R = copy.deepcopy(fk.rig("survivor_preview.geo.json"))
     geo = fk.load("survivor_preview.geo.json")["minecraft:geometry"][0]
     piv = {b["name"]: np.array([-b["pivot"][0], b["pivot"][1], b["pivot"][2]], float) for b in geo["bones"]}
-    piv["body"] = np.array([0, 11.2, 0])
+    piv["body"] = np.array([0, pa.PA_BODY_PIVOT, 0])
     piv["torso"] = np.array([0, 24, 0])
     parent = {b["name"]: b.get("parent") for b in geo["bones"]}
     for part in ("head", "rightArm", "leftArm", "rightLeg", "leftLeg", "torso"):

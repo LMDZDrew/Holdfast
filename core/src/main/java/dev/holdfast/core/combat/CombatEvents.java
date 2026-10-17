@@ -100,9 +100,9 @@ public final class CombatEvents {
             var at = Strikes.meleeHitPoint(p, w);
             Strikes.apply(p, w, m.weaponClass, at, Strikes.region(w, at), 1.0, charge);
             p.getMainHandItem().hurtAndBreak(1, p, x -> {});
-            clip = "bat_swing_quick";
+            clip = charge >= dev.holdfast.core.rules.WalkerStrikeRules.FULL_CHARGE ? "swing_bat_heavy" : "swing_bat";
         } else {
-            clip = charge >= dev.holdfast.core.rules.WalkerStrikeRules.FULL_CHARGE ? "bat_charged_miss" : "bat_swing_quick";
+            clip = charge >= dev.holdfast.core.rules.WalkerStrikeRules.FULL_CHARGE ? "bat_charged_miss" : "swing_bat";
         }
         p.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
         p.resetAttackStrengthTicker();

@@ -43,6 +43,21 @@ public class TestWalker extends PathfinderMob implements GeoEntity {
     private final RawAnimation[] raw = new RawAnimation[3];
     private final int[] startTick = new int[3];
     private final boolean[] finishLogged = new boolean[3];
+    private double frozenTick = -1;
+
+    /** Client inspection time shared by all three controllers. No server gameplay state is changed. */
+    public void freezeAt(double tick) {
+        frozenTick = tick;
+        cache.getManagerForId(getId()).getAnimationControllers().values().forEach(AnimationController::forceAnimationReset);
+    }
+
+    private final class InspectController extends AnimationController<TestWalker> {
+        InspectController(String name, AnimationStateHandler<TestWalker> handler) { super(TestWalker.this, name, 0, handler); }
+        @Override protected double adjustTick(double tick) {
+            double normal = super.adjustTick(tick);
+            return frozenTick < 0 ? normal : frozenTick;
+        }
+    }
 
     public TestWalker(EntityType<? extends TestWalker> type, Level level) {
         super(type, level);
@@ -116,6 +131,7 @@ public class TestWalker extends PathfinderMob implements GeoEntity {
 
     /** Client: start clips now (from a pair packet) instead of waiting for the entity-data sync. */
     public void startLocally(String body, String arms, String head, int nonce, boolean crawler) {
+        frozenTick = -1;
         localClips = new String[]{body, arms, head};
         localNonce = nonce;
         localCrawler = crawler;
@@ -134,7 +150,7 @@ public class TestWalker extends PathfinderMob implements GeoEntity {
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         for (int i = 0; i < 3; i++) {
             final int layer = i;
-            controllers.add(new AnimationController<>(this, LAYER[i], 0, state -> handle(layer, state))
+            controllers.add(new InspectController(LAYER[i], state -> handle(layer, state))
                     .setCustomInstructionKeyframeHandler(e -> HoldfastAnimTest.LOG.info(
                             "[holdfast-test] walker {} {} clip {} timeline '{}' at controller tick {} ({} s)",
                             getId(), LAYER[layer], seenClip[layer], e.getKeyframeData().getInstructions(),
@@ -151,6 +167,7 @@ public class TestWalker extends PathfinderMob implements GeoEntity {
         int nonce = effectiveNonce();
         boolean crawler = isCrawler();
         if (nonce != seenNonce[layer] || !clip.equals(seenClip[layer])) {
+            if (nonce != seenNonce[layer]) frozenTick = -1;
             seenNonce[layer] = nonce;
             seenClip[layer] = clip;
             startTick[layer] = tickCount;

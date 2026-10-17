@@ -2,6 +2,7 @@ package dev.holdfast.animtest;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -73,6 +74,16 @@ public final class TestCommands {
                                 .suggests(from(Clips.PAIRS.stream().map(Clips.Pair::name).toList()))
                                 .executes(TestCommands::pair)))
                 .then(Commands.literal("stop").executes(TestCommands::stop))
+                .then(Commands.literal("freeze").then(Commands.argument("seconds", DoubleArgumentType.doubleArg(0, 10)).executes(c -> {
+                    ServerPlayer p = c.getSource().getPlayerOrException();
+                    double time = DoubleArgumentType.getDouble(c, "seconds");
+                    if (!Net.freeze(p, time)) {
+                        c.getSource().sendFailure(Component.literal("Start a player clip or pair first"));
+                        return 0;
+                    }
+                    say(c, "pair frozen at " + time + " s; reissue /hfa freeze to seek, /hfa stop to clear");
+                    return 1;
+                })))
                 .then(Commands.literal("weapons").executes(TestCommands::weapons))
                 .then(Commands.literal("sweep")
                         .then(Commands.literal("stop").executes(TestCommands::sweepStop))
@@ -225,7 +236,11 @@ public final class TestCommands {
         Item gun = ForgeRegistries.ITEMS.getValue(new ResourceLocation("tacz", "modern_kinetic_gun"));
         if (gun == null || gun == net.minecraft.world.item.Items.AIR) return " (TaCZ not installed: hold a pistol yourself)";
         ItemStack held = p.getMainHandItem();
-        if (held.is(gun)) return " holding your TaCZ gun";
+        if (held.is(gun)) {
+            var api = com.tacz.guns.api.item.IGun.getIGunOrNull(held);
+            if (api != null && com.tacz.guns.api.TimelessAPI.getCommonGunIndex(api.getGunId(held))
+                    .map(index -> "pistol".equals(index.getType())).orElse(false)) return " holding your TaCZ pistol";
+        }
         ItemStack glock = new ItemStack(gun);
         glock.getOrCreateTag().putString("GunId", "tacz:glock_17");
         if (!held.isEmpty() && !p.getInventory().add(held.copy())) p.drop(held.copy(), false);
@@ -359,7 +374,9 @@ public final class TestCommands {
     }
 
     public static void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END || SWEEPS.isEmpty()) return;
+        if (event.phase != TickEvent.Phase.END) return;
+        Net.tick(event.getServer());
+        if (SWEEPS.isEmpty()) return;
         MinecraftServer server = event.getServer();
         int now = server.getTickCount();
         SWEEPS.entrySet().removeIf(entry -> {

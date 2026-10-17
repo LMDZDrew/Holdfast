@@ -1,13 +1,27 @@
 """Frame-by-frame contact check: how deep the weapon's striking point is inside the walker's skull,
 and whether the weapon passes through the head before the authored impact time."""
-import json
+import json, os
 import numpy as np
 import fk
 import player_anims as pa
 import walker_anims as wa
 
 import placement
-out, _ = pa.build()
+from lib import Anim, OUT
+# Measure the exact generated keys that are about to ship, rather than running the nonlinear solvers again.
+raw = json.load(open(os.path.join(OUT, "player_keys.animation.json")))["animations"]
+out = {}
+for full_name, data in raw.items():
+    name = full_name.removeprefix("animation.holdfast.player.")
+    if not name.startswith("exec_"):
+        continue
+    a = Anim(data["animation_length"], data["loop"])
+    for bone, channels in data["bones"].items():
+        for channel, keys in channels.items():
+            for time, value in keys.items():
+                a.key(float(time), bone, **({"rot": value["post"]} if channel == "rotation" else {"pos": value["post"]}))
+    meta = json.load(open(os.path.join(OUT, "player_animation_extras", name + ".extras.json")))["holdfast_meta"]
+    out[name] = (a, meta)
 PAIR = placement.load()
 SKULL = (np.array([-4, 2, -4]), np.array([4, 8, 4]))   # head-bone local (skull cube); jaw below
 

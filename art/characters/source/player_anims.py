@@ -29,6 +29,10 @@ WEAPON = {  # strike marker, grip marker for the left hand (None = one-handed)
 # model pixels, so a walker (and its distance) is 16/15 larger there. Before this, knife strikes landed ~1 px
 # short and ~1.7 px low in game, below the skull (Andrew, 2026-10-16).
 PLAYER_SCALE = 0.9375
+# The installed PlayerRendererMixin applies its 0.7-block pivot BEFORE PlayerRenderer's 15/16 model scale.
+# Thus the runtime pivot is 11.9467 model pixels, not the authoring rig's 11.2. Correct the exported body
+# translation rather than changing a solved weapon pose to hide this frame mismatch.
+PA_BODY_PIVOT = 0.7 * 16 / PLAYER_SCALE
 
 
 def walker_world(dist):
@@ -558,8 +562,9 @@ def to_player_animator(a, step=0.05, firearm_variant=False):
 
     In Player Animator the "torso" part only turns the chest box about the neck and does not carry
     the head or arms, while "body" turns the whole player about a point 0.7 blocks (11.2 px) up
-    (PlayerRendererMixin.applyBodyTransforms). Our "torso" bone is an upper-body lean about that
-    same point, so it is exported as "body" rotation, and the legs (which in game would now turn
+    (PlayerRendererMixin.applyBodyTransforms, before the 15/16 model scale). Our "torso" bone leans about
+    11.2 authoring pixels; a body-translation correction preserves that pose at the actual scaled pivot.
+    It is exported as "body" rotation, and the legs (which in game would now turn
     with the body) are counter-rotated so they keep their authored world orientation."""
     from lib import bb_matrix, bb_euler
     b = a.baked(step)
@@ -585,12 +590,19 @@ def to_player_animator(a, step=0.05, firearm_variant=False):
     for t, v in lean.items():
         out.key(t, "body", rot=v)
         L = bb_matrix(v)
+        delta = pivot - np.array([0.0, PA_BODY_PIVOT, 0.0])
+        correction = delta - L @ delta
+        authored = np.array(b.value("body", "position", t) or [0, 0, 0], float)
+        out.key(t, "body", pos=(authored + np.array([-correction[0], correction[1], correction[2]])) * PLAYER_SCALE)
         for leg, hip in hips.items():
             if leg not in b.tracks or "rotation" not in b.tracks[leg]:
                 out.key(t, leg, rot=[round(x, 2) for x in bb_euler(L.T)])
             # keep the hip joint where it was authored: offset expressed in the leaned body frame
             d = L.T @ (hip - (pivot + L @ (hip - pivot)))
-            if np.abs(d).max() > 0.005:
+            authored_leg = b.value(leg, "position", t)
+            if authored_leg is not None:
+                d += L.T @ np.array([-authored_leg[0], authored_leg[1], authored_leg[2]])
+            if np.abs(d).max() > 0.005 or authored_leg is not None:
                 out.key(t, leg, pos=[round(-d[0], 3), round(d[1], 3), round(d[2], 3)])
     # Held items: Player Animator turns them in the vanilla hand frame about the grip point, our rig turns
     # them in the arm frame about the fist (pa_item.py). Convert every key, and pin the pivot with a
@@ -606,12 +618,13 @@ def to_player_animator(a, step=0.05, firearm_variant=False):
     return out
 
 
-def export(out):
+def export(out, merge_keys=False):
     """Player Animator files (body parts + held-item parts, explicit linear keys at 20/s) and an
     extras file per clip for our core (first-person camera, sounds, events, metadata)."""
     pdir = os.path.join(OUT, "player_animation")
     xdir = os.path.join(OUT, "player_animation_extras")
-    keys = {}
+    key_path = os.path.join(OUT, "player_keys.animation.json")
+    keys = json.load(open(key_path))["animations"] if merge_keys and os.path.exists(key_path) else {}
     for k, (a, info) in out.items():
         native = info.get("pa_native", False)
         pa_clip = native_player_animator(a) if native else to_player_animator(a, firearm_variant=info.get("firearm_variant", False))

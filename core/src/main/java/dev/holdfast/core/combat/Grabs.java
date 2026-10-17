@@ -231,6 +231,7 @@ public final class Grabs {
 
     static void clip(ServerPlayer p, String clip, WalkerEntity partner) {
         CoreNet.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> p),
-                new PlayClipPacket(p.getId(), clip, partner == null ? -1 : partner.getId(), true));
+                new PlayClipPacket(p.getId(), clip, partner == null ? -1 : partner.getId(), true,
+                        partner == null ? "" : partner.fullClip(), partner == null ? -1 : partner.clipNonce()));
     }
 }

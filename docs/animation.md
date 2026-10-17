@@ -7,13 +7,13 @@ Branch `claude/character-animation`. Source of truth for the character rigs, cli
 | What | Where | Status |
 |---|---|---|
 | Walker and crawler geometry, walker and crawler clips | `art/characters/export/assets/holdfast/geo`, `.../animations` | **Exported asset.** Generated from source, statically validated against the GeckoLib 4.8.4 loader source. **Not tested in game.** |
-| Player clips | `.../player_animation/*.json` | **Exported asset.** Statically validated against the Player Animator 1.0.2-rc1 loader source; pose equivalence checked against a model of its part semantics. **Not tested in game.** |
-| First-person camera, sounds, events per player clip | `.../player_animation_extras/*.extras.json` | **Exported data for our core mod.** No consumer exists yet. |
+| Player clips | `.../player_animation/*.json` | Source-generated and statically checked; previous builds were reviewed in game. Current quality revision still needs its visual review; see `codex_stage1_animation_feedback.md` and `testing.md`. |
+| First-person camera, sounds, events per player clip | `.../player_animation_extras/*.extras.json` | Camera rotations are consumed by the core and harness. Most harness sound markers remain log-only; core hit sounds and blood follow server feedback. Camera position is not applied. |
 | Walker textures (4 outfits), player skin | `.../textures/entity/walker/*.png`, `.../textures/entity/player/survivor_default.png` | **Placeholder.** Procedural pixel art to prove UV layout and readability; replace with authored art. |
 | Browser preview, frame sheets | `art/characters/preview/` | **Preview.** Our own renderer of the exported keyframes. Not Minecraft, GeckoLib or Player Animator. |
 | Library loading (Gate 0) | `docs/testing.md` on PR #2 (`codex/gate0-windows-kit`) | **Tested in game, libraries only.** Forge 1.20.1-47.4.8 client and dedicated server on Andrew's Windows PC loaded GeckoLib 4.8.4 and Player Animator 1.0.2-rc1+1.20 with no errors (2026-10-16). Says nothing about our files. |
-| In-game test harness | `testmod/animtest/` | **Source, not yet compiled.** Test-only Forge mod that loads the exports unchanged, checks them at load, and plays them by command. See its README. |
-| Our assets tested in game | — | **None yet.** Pending the harness build. |
+| In-game test harness | `testmod/animtest/` | Built and run on Andrew's Windows PC. Command clips, sweeps, paired playback and freeze inspection; remains test-only. |
+| Our assets tested in game | `docs/testing.md` | Partial visual results on multiple builds; the latest source/geometry checks do not transfer those passes to revised clips. |
 
 ## Before integration (CLAUDE.md checklist)
 

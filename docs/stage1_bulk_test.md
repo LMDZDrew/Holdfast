@@ -1,8 +1,20 @@
 # Stage 1 bulk test sheet (for Andrew)
 
-Everything below was built and statically checked on 2026-10-17 but **not run in game**. Work through it in one sitting and note anything that looks wrong by section number. Branch `claude/stage1-combat-and-animation`.
+The original sections 1-3 were reviewed on 2026-10-17; exact feedback is in `codex_stage1_animation_feedback.md`. Section 4 has not yet been run. The current Codex revision is on `codex/stage1-animation-quality`; its build and installed jar hashes are recorded in `testing.md`.
 
-## 0. Install (done 2026-10-17: core `C530725F…`, harness `B1903C7D…` in both mods folders; redo after any rebuild)
+## Consolidated review for the Codex revision
+
+Run this only after the current jars have been built, checked and installed. `/hfa` clips temporarily take precedence over the automatic core animation layers; `/hfa stop` returns to ordinary play.
+
+1. Run `/hfa stop`. With empty hands, then each **Holdfast** melee item (including the bat), stand, walk, sprint, crouch, crouch-walk, jump and land, and left-click into the air. Repeat a few moves with a vanilla sword and axe. Look for relaxed blade-down one-hand carries, clear two-hand grips, moving shoulders, smoother transitions, distinct swings, and whether first-person views remain usable. Continuous movement uses the real core controller; no `/hfa player move_*` command is needed.
+2. Run `/hfa pair exec_knife`. Check contact. If it still lands short, run `/hfa freeze 0.27`, then `0.30` and `0.33` to seek both clips to those exact times. The pose stays frozen so it can be viewed from the side and above. Report where the tip sits relative to the temple; the client log also records the skin model (classic/slim). `/hfa stop` clears inspection. The knife pose itself has not been moved to hide the mismatch; the exporter now compensates the library's actual body pivot.
+3. Run the three pistol presets in section 1. Each now has a cosmetic shot using the held pistol's own TaCZ sound, separately from core skull contact audio. A currently held TaCZ pistol is preserved, so repeat with a second pistol if available; otherwise the harness equips a Glock 17. The native local muzzle-flash hook is invoked; its visibility still needs review. Harness shots are cosmetic and do not fire a projectile or consume ammo.
+4. Run **section 4 below** for the first time. The walker vocals and flesh/skull impact audio are original procedural sounds from `art/audio/gen_sounds.py`; they play around `/holdfast walker` entities and server-resolved contacts. The harness test walkers and most harness sound markers still only log cues. Report sound character, volume and timing, blood, actual combat, grabs/bites, V-key executions and condition persistence by the section's item numbers.
+5. Finish the TaCZ check with **pistol and rifle reported separately**. For each, check third-person hold, first-person ADS, fire and reload after `/hfa stop`, then while `/holdfast injury LIMP` is active and you walk. Finish with `/holdfast injury NORMAL`. All mods stay in the same pack. No second human tester is required.
+
+These are pending observations, not recorded passes. In particular, the exact cause of the standing knife's reported miss, automatic animation quality, client shot playback, remote rendering and core section 4 remain open until tested.
+
+## 0. Install (done 2026-10-17: core `A718C40A…`, harness `63E968EB…` in both mods folders; redo after any rebuild)
 
 - Build both mods: `testmod\animtest\gradlew.bat build` and `core\gradlew.bat build` (Java 17).
 - Copy **both** jars — `testmod/animtest/build/libs/holdfast_animtest-0.1.0.jar` and `core/build/libs/holdfast_core-0.1.0.jar` — into `C:\HoldfastGate0\holdfast-gate0\server\mods` and the Prism "Holdfast Gate0" mods folder, next to GeckoLib, Player Animator and TaCZ.
@@ -34,14 +46,14 @@ Look for: knife into the walker's left temple and its **head knocked sideways** 
 
 ```
 /hfa weapons
-/hfa player hold_knife      (then hold_machete, hold_hatchet, hold_katana, hold_axe)
+/hfa player hold_knife      (then hold_machete, hold_hatchet, hold_katana, hold_axe, hold_bat)
 /hfa player swing_knife     (then swing_knife_heavy, swing_machete, swing_machete_heavy, swing_hatchet,
                              swing_hatchet_heavy, swing_katana, swing_katana_heavy, swing_axe, swing_axe_overhead)
 /hfa player move_walk       (walk forward; then move_sprint while sprinting, move_crouch_walk while crouching)
 /hfa player move_jump
 /hfa stop
 ```
-Look for: each weapon held the way it's used (knife low guard, machete up by the shoulder, hatchet low, katana two-handed in front, axe on the shoulder), blades and edges pointing the right way, swings that look like that weapon. For the walk clips: do the feet slide, and does it look better or worse than vanilla's walk? Repeat one walk clip **holding a TaCZ gun**: the gun pose and ADS must stay TaCZ's.
+Look for: relaxed knife/machete/hatchet carries with the blades down, katana two-handed in front, axe and bat low across the front with the weapon clear of the body, and distinct swings. For the walk clips: do the feet slide, and does it look better or worse than vanilla's walk? Repeat one walk clip **holding a TaCZ gun**: the gun pose and ADS must stay TaCZ's.
 
 ## 4. Core combat (holdfast_core, the real systems)
 

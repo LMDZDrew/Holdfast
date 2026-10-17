@@ -61,6 +61,8 @@ dependencies {
     // Same files Gate 0 verified: GeckoLib 4.8.4 (project 8BmcQJ2H) and Player Animator 1.0.2-rc1+1.20 (project gedNE4y2).
     implementation fg.deobf("maven.modrinth:8BmcQJ2H:${geckolib_modrinth_version}")
     implementation fg.deobf("maven.modrinth:gedNE4y2:${playeranimator_modrinth_version}")
+    // Same optional TaCZ jar inspected and used by the Stage 1 core; presentation API only.
+    compileOnly fg.deobf("maven.modrinth:SzzJttH8:AzCBJlex")
 }
 
 tasks.named('processResources', ProcessResources).configure {

@@ -62,8 +62,8 @@ CRAWLER = [
 FIST_R, FIST_L = [-6, 12.5, 0], [6, 12.5, 0]
 SURVIVOR = [
     bone("body", None, [0, 0, 0]),
-    # "torso" here is the upper-body lean. It pivots where Player Animator's "body" part pivots
-    # (0.7 blocks = 11.2 px above the feet) and is exported as that part; see player_anims.export().
+    # Authoring upper-body lean. The exporter compensates this 11.2 px pivot to Player Animator's
+    # actual 0.7-real-block pivot before model scaling; see player_anims.to_player_animator().
     bone("torso", "body", [0, 11.2, 0], [cube([-4, 12, -2], [8, 12, 4], [16, 16])]),
     bone("head", "torso", [0, 24, 0], [cube([-4, 24, -4], [8, 8, 8], [0, 0])]),
     bone("rightArm", "torso", [-5, 22, 0], [cube([-8, 12, -2], [4, 12, 4], [40, 16])]),

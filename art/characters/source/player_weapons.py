@@ -2,10 +2,10 @@
 
 Weapon families, each with a hold and two attacks matched to how the weapon is really used:
   knife      one hand, forward grip low guard; quick slash; overhand downward stab
-  machete    one hand, blade up by the shoulder; diagonal cut; overhead chop
+  machete    one hand, relaxed blade-down carry; diagonal cut; overhead chop
   hatchet    one hand, carried low; short overhand chop; full overhand chop
   katana     two hands, chudan (hilt at the navel, tip at throat height); diagonal kesa cut; overhead cut
-  two-handed (bat, axe, hammer) on the shoulder; horizontal swing; overhead chop (axe geometry)
+  two-handed (bat, axe, hammer) low diagonal carry; horizontal swing; overhead chop
 
 Layering, so these combine with locomotion, injuries and TaCZ:
   hold_<family>       keys arms, items and head only (no body lean, no legs), loops above locomotion
@@ -17,7 +17,10 @@ sprint 1.3x, crouch 0.3x.
 """
 import math
 import copy
-from lib import Anim, S, C, TAU, pos
+from functools import cache
+import numpy as np
+import fk
+from lib import Anim, S, C, TAU, pos, bb_euler
 import player_anims as pa
 import player_more as pm
 
@@ -55,6 +58,17 @@ def swing(name, weapon, length, poses, two=False, sounds=(), commit=None, strike
     """poses: [(t, body dict, target, axis, edge)]; body dict may include body_pos/torso/head/legs."""
     b = Builder(name, length, weapon=weapon)
     b.pose(0.0, **STAND)
+    carry, _ = relaxed_hold(weapon)
+    for part, channels in carry.tracks.items():
+        for channel in channels:
+            b.a.key(0, part, **({"rot": carry.value(part, channel, 0)} if channel == "rotation" else {"pos": carry.value(part, channel, 0)}))
+    for part in b.prev:
+        value = carry.value(part, "rotation", 0)
+        if value is not None:
+            b.prev[part] = np.array(value, float)
+    # The hips start loading before the hands lift. This keeps the attack from looking like an arm-only swipe.
+    first_t, first_pose, *_ = poses[0]
+    b.pose(round(first_t * 0.5, 3), **{k: [v * 0.65 for v in values] for k, values in first_pose.items()})
     for t, body, target, axis, edge in poses:
         b.pose(t, **body)
         if two:
@@ -67,7 +81,74 @@ def swing(name, weapon, length, poses, two=False, sounds=(), commit=None, strike
         b.a.event(strike, "strike")
     for t, snd in sounds:
         b.a.sound(t, snd)
+    # Set the body before contact and let the arm follow; preserve the authored contact time and weapon target.
+    if strike is not None:
+        body = next(body for t, body, *_ in poses if abs(t - strike) < 0.001)
+        b.pose(round(strike - 0.045, 3), **body)
+    for part, channels in carry.tracks.items():
+        for channel in channels:
+            value = carry.value(part, channel, 0)
+            b.a.key(length, part, **({"rot": value} if channel == "rotation" else {"pos": value}))
+    for channels in b.a.tracks.values():
+        keys = channels.get("rotation", {})
+        times = sorted(keys)
+        if times:
+            values = np.rad2deg(np.unwrap(np.deg2rad([keys[t] for t in times]), axis=0))
+            for t, value in zip(times, values):
+                keys[t] = [round(float(v), 2) for v in value]
     return b
+
+
+@cache
+def relaxed_hold(weapon):
+    """Construct the carry from the shoulder and fist, then orient the weapon around that fixed grip.
+
+    A low blade does not need an IK target that drags the elbow through the chest. Two-hand carries solve only
+    the support hand to a point on the actual handle. Shoulder protraction gives rigid vanilla arms clearance.
+    """
+    a = Anim(3.2, False)  # Do not wrap t=length to the unfinished first key while constructing the loop.
+    two = weapon in ("axe", "bat", "katana")
+    for i in range(9):
+        t = i * 0.4
+        phase = TAU * t / a.length
+        breath, shift = S(phase), S(phase * 2)
+        right = [-62 + 1.2 * breath, -31 + 0.8 * shift, 14 + 0.6 * breath] if two else [6 + 1.6 * breath, 2 + shift, 13 + 0.7 * breath]
+        if weapon == "katana":
+            right = [-68 + 1.2 * breath, -45 + .8 * shift, 14 + .6 * breath]
+        a.pose(t, rightArm=right, leftArm=[-5 + 1.1 * breath, 0, -13 - 0.6 * breath],
+               rightArm_pos=[-1, 0.08 * breath, -2 if two else -0.2],
+               leftArm_pos=[1, -0.08 * breath, -2 if two else -0.2],
+               head=[1.2 * breath, 1.1 * shift, 0.5 * breath], rightItem=[0, 0, 0])
+        W = fk.worlds(pa.SR, [a], t)
+        axis = U(0.15, -0.97, -0.18) if not two else U(0.0, 0.42, -0.91)
+        if weapon in ("axe", "bat"):
+            axis = U(0.32, -0.65, -0.69)  # low diagonal carry, head clear of the legs
+        z = -axis
+        hint = U(0, 0, 1) if not two else U(0, 1, 0)
+        x = np.cross(hint, z); x /= np.linalg.norm(x)
+        y = np.cross(z, x)
+        wrist = bb_euler(W["rightItem"][:3, :3].T @ np.column_stack((x, y, z)))
+        a.key(t, "rightItem", rot=wrist)
+    # Same grip on every key; support hand can slide only within the physical handle.
+    report = []
+    if two:
+        b = Builder("hold_" + weapon, a.length, loop=True, weapon=weapon)
+        b.a = a
+        for i in range(9):
+            t = i * .4
+            W = fk.worlds(pa.SR, [a], t)
+            grip = (W["rightItem"] @ np.array([0, 0, 3.5, 1]))[:3]
+            b.solve_left(t, grip, reg=0.00001)
+        report = b.report
+        # Leave a little numerical clearance at the support shoulder (rigid vanilla arm, no elbow).
+        for values in a.tracks["leftArm"]["position"].values():
+            values[0] += .08
+            values[2] -= .04
+    for channels in a.tracks.values():
+        for keys in channels.values():
+            keys[a.length] = list(keys[0.0])
+    a.loop = True
+    return a, report
 
 
 # Strike heights (player model px, three.js: x right, y up, z back): a standing walker's head and chest ~1.5 blocks out.
@@ -82,7 +163,6 @@ def families():
         rep.extend(b.report)
 
     # ---------------------------------------------------------------- knife
-    add(hold("hold_knife", "knife", 3.0, breathe(3.0, P(4, 15, -7), U(0.2, 0.3, -0.93), U(0, -1, 0))), dict(weapon="knife"))
     add(swing("swing_knife", "knife", 0.45, [
         (0.08, dict(torso=[2, 16, 0], head=[4, -6, 0], body_pos=[0, -0.2, 0.4]), P(8, 20, -6), U(0.6, 0.2, -0.78), U(0, -1, 0)),
         (0.18, dict(torso=[6, -14, 0], head=[6, 4, 0], body_pos=[0, -0.5, -1.4], leftLeg=[-14, 0, 0], rightLeg=[8, 0, 0]),
@@ -99,7 +179,6 @@ def families():
     ], sounds=((0.2, "holdfast_core:swing.light"),), commit=0.16, strike=0.3), dict(weapon="knife", impacts=[]))
 
     # ---------------------------------------------------------------- machete
-    add(hold("hold_machete", "machete", 3.0, breathe(3.0, P(7, 24, -3), U(0.15, 0.95, -0.25), U(0, 0.2, -0.98))), dict(weapon="machete"))
     add(swing("swing_machete", "machete", 0.6, [
         (0.12, dict(torso=[-2, 20, 0], head=[2, -8, 0], body_pos=[0, 0, 0.6]), P(10, 34, 2), U(0.3, 0.8, 0.5), U(-0.3, 0.5, -0.8)),
         (0.25, dict(torso=[10, -16, 0], head=[8, 2, 0], body_pos=[0, -0.8, -1.6], leftLeg=[-16, 0, 0], rightLeg=[10, 0, 0]),
@@ -116,7 +195,6 @@ def families():
     ], sounds=((0.3, "holdfast_core:swing.heavy"),), commit=0.22, strike=0.38), dict(weapon="machete", impacts=[]))
 
     # ---------------------------------------------------------------- hatchet
-    add(hold("hold_hatchet", "hatchet", 3.0, breathe(3.0, P(6, 10, -5), U(0.15, -0.15, -0.97), U(0, -1, 0))), dict(weapon="hatchet"))
     add(swing("swing_hatchet", "hatchet", 0.5, [
         (0.1, dict(torso=[-4, 12, 0], head=[0, -4, 0], body_pos=[0, 0.1, 0.5]), P(8, 36, 0), U(0.2, 0.7, 0.68), U(0, 0.7, -0.7)),
         (0.22, dict(torso=[12, -6, 0], head=[8, 0, 0], body_pos=[0, -0.9, -1.6], leftLeg=[-14, 0, 0], rightLeg=[8, 0, 0]),
@@ -135,7 +213,6 @@ def families():
     # ---------------------------------------------------------------- katana (two hands)
     # mid-blade marker 18 px along a blade rising 27 deg from hands at the navel (y 15, z -6)
     kamae = (P(1, 23, -22), U(0, 0.45, -0.89), U(0, -0.89, -0.45))
-    add(hold("hold_katana", "katana", 3.2, breathe(3.2, *kamae), two=True), dict(weapon="katana"))
     add(swing("swing_katana", "katana", 0.65, [
         (0.14, dict(torso=[-4, 18, 0], head=[2, -8, 0], body_pos=[0, 0.1, 0.6]), P(8, 40, 4), U(0.35, 0.75, 0.55), U(-0.3, 0.6, -0.75)),
         (0.28, dict(torso=[12, -14, 0], head=[8, 2, 0], body_pos=[0, -1.0, -2.0], leftLeg=[-18, 0, 0], rightLeg=[10, 0, 0]),
@@ -153,7 +230,6 @@ def families():
 
     # ---------------------------------------------------------------- two-handed: axe and hammer (bat clips exist)
     shoulder = (pa.from_hands((-1, 16, -4), (0.2, 0.85, 0.48)), U(0.2, 0.85, 0.48), U(0, -0.5, 0.86))
-    add(hold("hold_axe", "axe", 3.2, breathe(3.2, *shoulder), two=True), dict(weapon="axe"))
     add(swing("swing_axe", "axe", 0.75, [
         (0.12, dict(torso=[0, 28, 0], head=[4, -12, 0], body_pos=[0, -0.4, 0.5]), pa.from_hands((2, 17, -4), (0.5, 0.55, 0.66)),
          U(0.5, 0.55, 0.66), U(0, -0.8, 0.6)),
@@ -170,6 +246,31 @@ def families():
         (0.62, dict(body_pos=[0, -1.8, -2.4], torso=[24, 0, 0]), P(0, 10, -18), U(0, -0.85, -0.5), U(0, -0.5, 0.85)),
         (1.0, dict(**STAND), *shoulder),
     ], two=True, sounds=((0.36, "holdfast_core:swing.heavy"),), commit=0.3, strike=0.46), dict(weapon="axe", impacts=[]))
+    for heavy, length, wind, contact in ((False, .65, .12, .25), (True, .9, .22, .38)):
+        add(swing("swing_bat" + ("_heavy" if heavy else ""), "bat", length, [
+            (wind, dict(torso=[-3, 30, -4], body_pos=[0, -.3, .8], head=[2, -12, 0]),
+             pa.from_hands((2, 18, -4), (.5, .55, .66)), U(.5, .55, .66), None),
+            (contact, dict(torso=[10, -18, 4], body_pos=[0, -.9, -1.8], head=[-2, 7, -2], leftLeg=[-18, 0, 0], rightLeg=[10, 0, 0]),
+             P(-2, 27, -25), U(-.35, 0, -.94), None),
+            (contact + .14, dict(torso=[14, -48, 6], body_pos=[0, -1, -1.4], head=[-4, 15, -3]),
+             P(-16, 21, -5), U(-.97, -.1, .2), None),
+            (length, dict(**STAND), P(5, 9, -17), U(.32, -.65, -.69), None),
+        ], two=True, sounds=((contact - .08, "holdfast_core:swing.heavy" if heavy else "holdfast_core:swing.light"),),
+            commit=wind, strike=contact), dict(weapon="bat", impacts=[]))
+    for weapon in ("knife", "machete", "hatchet", "katana", "axe", "bat"):
+        carry, report = relaxed_hold(weapon)
+        out["hold_" + weapon] = (carry, dict(weapon=weapon, impacts=[]))
+        rep.extend(report)
+    # Empty-hand attacks also replace the vanilla swing, including attacks into the air.
+    for heavy, length, contact in ((False, .45, .16), (True, .65, .26)):
+        a = Anim(length, False)
+        a.pose(0, **STAND, rightArm=[-12, 0, 12], leftArm=[-12, 0, -12], rightItem=[0, 0, 0])
+        a.pose(contact * .55, torso=[-3, 18, -2], body_pos=[0, -.25, .5], rightArm=[18, 8, 18], leftArm=[-38, 0, -12])
+        a.pose(contact, torso=[10, -14, 2], body_pos=[0, -.6, -1], rightArm=[-92, -6, 8], leftArm=[-30, 0, -14])
+        a.pose(contact + .08, torso=[12, -20, 3], rightArm=[-96, -8, 8])
+        a.pose(length, **STAND, rightArm=[-12, 0, 12], leftArm=[-12, 0, -12])
+        a.event(contact, "strike").sound(contact - .05, "holdfast_core:swing.light")
+        out["swing_unarmed" + ("_heavy" if heavy else "")] = (a, dict(impacts=[]))
     return out, rep
 
 
@@ -184,13 +285,29 @@ def locomotion():
     def gait(name, a_leg, arm, lean, bob, length_hint):
         L, a_r, a_l = pm.fit_cycle(name, a_leg, a_leg)
 
-        def f(u):
+        # Contact, down, passing, up; then the opposite leg. The stance foot stays grounded while the swing
+        # foot clears it. Rigid Minecraft legs cannot bend at the knee, so clearance comes from hip/leg offsets.
+        a = Anim(L, False)
+        leg = (-1, -.62, 0, .67, 1, .62, 0, -.67, -1)
+        for i, v in enumerate(leg):
+            u, t = i / 8, L * i / 8
             p = TAU * u
-            s, c = S(p), C(p)
-            return dict(body_pos=[0, -bob * abs(c), 0], torso=[lean, -3 * s, 0], head=[2 - lean * 0.5, 2 * s, 0],
-                        rightLeg=[-a_r * s, 0, 0], leftLeg=[a_l * s, 0, 0],
-                        rightArm=[arm * s, 0, 4], leftArm=[-arm * s, 0, -4], rightItem=[0, 0, 0])
-        a, info = pm.cycle(name, L, 12, f, dict(impacts=[]))
+            sway = S(p)
+            right_lift = max(0, S(p)) * (1.0 if name != "move_sprint" else 1.9)
+            left_lift = max(0, -S(p)) * (1.0 if name != "move_sprint" else 1.9)
+            a.pose(t, body_pos=[.3 * sway, 0, .12 * S(p * 2)],
+                   torso=[lean + .8 * S(p * 2), -3.5 * sway, 1.2 * sway],
+                   head=[-lean * .55 - .5 * S(p * 2), 2.8 * sway, -.8 * sway],
+                   rightLeg=[a_r * v, 1.5 * sway, .8 * sway], leftLeg=[-a_l * v, 1.5 * sway, .8 * sway],
+                   rightLeg_pos=[0, right_lift, 0], leftLeg_pos=[0, left_lift, 0],
+                   rightArm=[-arm * C(p - .18), 2.5 * sway, 10 + 1.5 * S(p - .3)],
+                   leftArm=[arm * C(p - .18), 2.5 * sway, -10 + 1.5 * S(p - .3)], rightItem=[0, 0, 0])
+            stance = "leftLeg" if u < .5 else "rightLeg"
+            W = fk.worlds(pa.SR, [a], t)
+            floor = fk.point(W, stance, (0, -12, 0))[1]
+            a.pose(t, body_pos=[.3 * sway, -floor, .12 * S(p * 2)])
+        a.loop = True
+        info = dict(impacts=[])
         out[name] = (a, info)
 
     gait("move_walk", 32, 24, 2, 0.5, 0.75)
@@ -210,9 +327,34 @@ def locomotion():
            rightArm=[-20, 0, 14], leftArm=[-20, 0, -14])
     a.pose(0.8, **STAND, rightArm=[-6, 0, 4], leftArm=[-6, 0, -4], rightItem=[0, 0, 0])
     out["move_jump"] = (a, dict(impacts=[(0.6, 1.2)]))
+    a = Anim(1, True)
+    for t in (0, .5, 1):
+        k = S(TAU * t)
+        a.pose(t, body_pos=[0, 0, 0], torso=[6, 0, .5 * k], head=[-4, 0, -.4 * k],
+               rightLeg=[-12 + 2 * k, 0, 0], leftLeg=[8 - 2 * k, 0, 0],
+               rightArm=[-22 + k, 0, 18], leftArm=[-22 - k, 0, -18], rightItem=[0, 0, 0])
+    out["move_fall"] = (a, dict(impacts=[]))
+    a = Anim(.3, False)
+    for t, k in ((0, .3), (.08, 1), (.18, .35), (.3, 0)):
+        a.pose(t, body_pos=[0, -1.2 * k, .2 * k], torso=[10 * k, 0, 0], head=[-5 * k, 0, 0],
+               rightLeg=[-8 * k, 0, 0], leftLeg=[-8 * k, 0, 0],
+               rightArm=[-14 * k, 0, 10 + 5 * k], leftArm=[-14 * k, 0, -10 - 5 * k], rightItem=[0, 0, 0])
+    out["move_land"] = (a, dict(impacts=[]))
+
+    for name, crouch in (("move_idle", False), ("move_crouch", True)):
+        a = Anim(3.2, True)
+        for i in range(9):
+            t, p = i * .4, TAU * i / 8
+            a.pose(t, body_pos=[.12 * S(p), -.1 * (1 - C(p)), 0],
+                   torso=[(4 if crouch else 0) + .5 * S(p), .6 * S(p), .35 * S(p)],
+                   head=[-.6 * S(p), .8 * S(p * 2), -.3 * S(p)],
+                   rightLeg=[-3 if crouch else 0, 0, 0], leftLeg=[-3 if crouch else 0, 0, 0],
+                   rightArm=[-5 + S(p), 0, 11 + .5 * S(p)], leftArm=[-5 - S(p), 0, -11 - .5 * S(p)],
+                   rightItem=[0, 0, 0])
+        out[name] = (a, dict(impacts=[]))
 
     # TaCZ-safe variants: legs and body translation only (no lean, head, arms or items), like the injury _gun walks.
-    for name in ("move_walk", "move_sprint", "move_crouch_walk", "move_jump"):
+    for name in ("move_walk", "move_sprint", "move_crouch_walk", "move_jump", "move_idle", "move_crouch", "move_fall", "move_land"):
         g, info = out[name]
         gg = copy.deepcopy(g)
         for part in ("torso", "head", "rightArm", "leftArm", "rightItem", "leftItem"):
@@ -231,6 +373,24 @@ def build():
 
 
 if __name__ == "__main__":
+    import sys, os, shutil, json
+    if "--refresh-movement-carries" in sys.argv:
+        # Fast source regeneration while iterating on carries/gaits; executions and native gun poses stay intact.
+        # The normal make_all.sh still rebuilds everything from scratch.
+        from lib import OUT, write_json
+        out, speeds = locomotion()
+        for weapon in ("knife", "machete", "hatchet", "katana", "axe", "bat"):
+            a, _ = relaxed_hold(weapon)
+            out["hold_" + weapon] = (a, dict(weapon=weapon, impacts=[]))
+        pa.export(out, merge_keys=True)
+        root = os.path.join(os.path.dirname(__file__), "..")
+        target = os.path.join(root, "export", "assets", "holdfast")
+        for name in out:
+            for folder, suffix in (("player_animation", ".json"), ("player_animation_extras", ".extras.json")):
+                shutil.copy2(os.path.join(OUT, folder, name + suffix), os.path.join(target, folder, name + suffix))
+        shutil.copy2(os.path.join(OUT, "player_keys.animation.json"), os.path.join(root, "preview", "rig", "player_keys.animation.json"))
+        print(f"Refreshed {len(out)} movement/carry clips from editable source.")
+        sys.exit(0)
     o, r, s = build()
     print(len(o), "clips;", s)
     print("\n".join(r))

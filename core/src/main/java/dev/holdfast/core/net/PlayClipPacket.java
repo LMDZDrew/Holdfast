@@ -12,7 +12,10 @@ import java.util.function.Supplier;
  * (grabs, executions) carry the partner walker so both start on the same client frame; the walker's own clip is
  * in its synced entity data.
  */
-public record PlayClipPacket(int playerId, String clip, int partnerId, boolean ownsArms) {
+public record PlayClipPacket(int playerId, String clip, int partnerId, boolean ownsArms, String partnerClip, int partnerNonce) {
+    public PlayClipPacket(int playerId, String clip, int partnerId, boolean ownsArms) {
+        this(playerId, clip, partnerId, ownsArms, "", -1);
+    }
     public static PlayClipPacket stop(int playerId) {
         return new PlayClipPacket(playerId, "", -1, false);
     }
@@ -22,10 +25,12 @@ public record PlayClipPacket(int playerId, String clip, int partnerId, boolean o
         b.writeUtf(m.clip);
         b.writeVarInt(m.partnerId + 1);
         b.writeBoolean(m.ownsArms);
+        b.writeUtf(m.partnerClip);
+        b.writeVarInt(m.partnerNonce + 1);
     }
 
     static PlayClipPacket decode(FriendlyByteBuf b) {
-        return new PlayClipPacket(b.readVarInt(), b.readUtf(), b.readVarInt() - 1, b.readBoolean());
+        return new PlayClipPacket(b.readVarInt(), b.readUtf(), b.readVarInt() - 1, b.readBoolean(), b.readUtf(), b.readVarInt() - 1);
     }
 
     static void handle(PlayClipPacket m, Supplier<NetworkEvent.Context> ctx) {

@@ -1,0 +1,255 @@
+{
+ "format_version": "1.8.0",
+ "holdfast_meta": {
+  "weapon": "bat",
+  "vanilla_pose": null,
+  "pa_native": false
+ },
+ "animations": {
+  "swing_bat": {
+   "loop": false,
+   "animation_length": 0.65,
+   "bones": {
+    "camera": {
+     "rotation": {
+      "0.0": {
+       "post": [
+        0.0,
+        0.0,
+        0.0
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.05": {
+       "post": [
+        -0.09,
+        5.47,
+        -0.96
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.1": {
+       "post": [
+        -0.05,
+        10.33,
+        -1.45
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.15": {
+       "post": [
+        1.11,
+        5.03,
+        -1.29
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.2": {
+       "post": [
+        4.66,
+        -5.14,
+        2.12
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.25": {
+       "post": [
+        4.9,
+        -5.65,
+        2.4
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.3": {
+       "post": [
+        5.99,
+        -10.13,
+        3.86
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.35": {
+       "post": [
+        7.39,
+        -15.72,
+        5.88
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.4": {
+       "post": [
+        7.27,
+        -17.19,
+        5.98
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.45": {
+       "post": [
+        6.01,
+        -15.09,
+        4.63
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.5": {
+       "post": [
+        4.18,
+        -11.36,
+        2.81
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.55": {
+       "post": [
+        2.33,
+        -6.93,
+        1.24
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.6": {
+       "post": [
+        0.86,
+        -2.79,
+        0.33
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.65": {
+       "post": [
+        0.0,
+        0.0,
+        0.0
+       ],
+       "lerp_mode": "linear"
+      }
+     },
+     "position": {
+      "0.0": {
+       "post": [
+        0.0,
+        0.0,
+        0.0
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.05": {
+       "post": [
+        -0.33,
+        -0.16,
+        0.7
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.1": {
+       "post": [
+        -0.44,
+        -0.24,
+        1.44
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.15": {
+       "post": [
+        -0.35,
+        -0.46,
+        -0.2
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.2": {
+       "post": [
+        1.19,
+        -1.0,
+        -3.26
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.25": {
+       "post": [
+        1.32,
+        -1.04,
+        -3.4
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.3": {
+       "post": [
+        2.0,
+        -1.24,
+        -3.48
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.35": {
+       "post": [
+        2.91,
+        -1.51,
+        -3.32
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.4": {
+       "post": [
+        2.97,
+        -1.44,
+        -2.96
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.45": {
+       "post": [
+        2.37,
+        -1.13,
+        -2.65
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.5": {
+       "post": [
+        1.52,
+        -0.74,
+        -2.12
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.55": {
+       "post": [
+        0.73,
+        -0.39,
+        -1.36
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.6": {
+       "post": [
+        0.22,
+        -0.14,
+        -0.57
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.65": {
+       "post": [
+        0.0,
+        0.0,
+        0.0
+       ],
+       "lerp_mode": "linear"
+      }
+     }
+    }
+   },
+   "sound_effects": {
+    "0.17": {
+     "effect": "holdfast_core:swing.light"
+    }
+   },
+   "timeline": {
+    "0.12": "commit",
+    "0.25": "strike"
+   }
+  }
+ }
+}

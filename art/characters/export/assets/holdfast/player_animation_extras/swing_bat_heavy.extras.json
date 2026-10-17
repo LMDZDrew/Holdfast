@@ -1,0 +1,335 @@
+{
+ "format_version": "1.8.0",
+ "holdfast_meta": {
+  "weapon": "bat",
+  "vanilla_pose": null,
+  "pa_native": false
+ },
+ "animations": {
+  "swing_bat_heavy": {
+   "loop": false,
+   "animation_length": 0.9,
+   "bones": {
+    "camera": {
+     "rotation": {
+      "0.0": {
+       "post": [
+        0.0,
+        0.0,
+        0.0
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.05": {
+       "post": [
+        -0.1,
+        2.66,
+        -0.5
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.1": {
+       "post": [
+        -0.07,
+        5.95,
+        -1.03
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.15": {
+       "post": [
+        -0.08,
+        8.75,
+        -1.34
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.2": {
+       "post": [
+        0.01,
+        10.52,
+        -1.5
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.25": {
+       "post": [
+        0.74,
+        6.69,
+        -1.47
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.3": {
+       "post": [
+        3.17,
+        -1.63,
+        0.45
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.35": {
+       "post": [
+        5.34,
+        -6.29,
+        2.92
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.4": {
+       "post": [
+        5.19,
+        -6.96,
+        2.8
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.45": {
+       "post": [
+        6.61,
+        -12.54,
+        4.73
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.5": {
+       "post": [
+        7.6,
+        -17.04,
+        6.26
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.55": {
+       "post": [
+        7.08,
+        -16.93,
+        5.78
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.6": {
+       "post": [
+        6.18,
+        -15.4,
+        4.81
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.65": {
+       "post": [
+        4.99,
+        -13.07,
+        3.58
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.7": {
+       "post": [
+        3.68,
+        -10.22,
+        2.34
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.75": {
+       "post": [
+        2.42,
+        -7.17,
+        1.31
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.8": {
+       "post": [
+        1.34,
+        -4.21,
+        0.59
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.85": {
+       "post": [
+        0.52,
+        -1.71,
+        0.18
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.9": {
+       "post": [
+        0.0,
+        0.0,
+        0.0
+       ],
+       "lerp_mode": "linear"
+      }
+     },
+     "position": {
+      "0.0": {
+       "post": [
+        0.0,
+        0.0,
+        0.0
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.05": {
+       "post": [
+        -0.18,
+        -0.08,
+        0.34
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.1": {
+       "post": [
+        -0.35,
+        -0.18,
+        0.75
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.15": {
+       "post": [
+        -0.43,
+        -0.22,
+        1.19
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.2": {
+       "post": [
+        -0.45,
+        -0.25,
+        1.42
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.25": {
+       "post": [
+        -0.43,
+        -0.4,
+        0.29
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.3": {
+       "post": [
+        0.45,
+        -0.75,
+        -2.22
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.35": {
+       "post": [
+        1.54,
+        -1.13,
+        -3.71
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.4": {
+       "post": [
+        1.5,
+        -1.09,
+        -3.43
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.45": {
+       "post": [
+        2.39,
+        -1.36,
+        -3.47
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.5": {
+       "post": [
+        3.08,
+        -1.54,
+        -3.17
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.55": {
+       "post": [
+        2.88,
+        -1.39,
+        -2.91
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.6": {
+       "post": [
+        2.45,
+        -1.17,
+        -2.69
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.65": {
+       "post": [
+        1.89,
+        -0.91,
+        -2.37
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.7": {
+       "post": [
+        1.29,
+        -0.64,
+        -1.93
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.75": {
+       "post": [
+        0.76,
+        -0.41,
+        -1.4
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.8": {
+       "post": [
+        0.37,
+        -0.22,
+        -0.85
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.85": {
+       "post": [
+        0.12,
+        -0.08,
+        -0.35
+       ],
+       "lerp_mode": "linear"
+      },
+      "0.9": {
+       "post": [
+        0.0,
+        0.0,
+        0.0
+       ],
+       "lerp_mode": "linear"
+      }
+     }
+    }
+   },
+   "sound_effects": {
+    "0.3": {
+     "effect": "holdfast_core:swing.heavy"
+    }
+   },
+   "timeline": {
+    "0.22": "commit",
+    "0.38": "strike"
+   }
+  }
+ }
+}

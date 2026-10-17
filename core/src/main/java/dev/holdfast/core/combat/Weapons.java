@@ -39,9 +39,9 @@ public final class Weapons {
         if (stack.is(KATANAS)) return WeaponClass.KATANA;
         if (stack.is(BATS)) return WeaponClass.BAT;
         if (stack.is(HAMMERS)) return WeaponClass.HAMMER;
-        // Vanilla stand-ins so a vanilla world is playable: swords cut like machetes, axes chop.
+        // Vanilla stand-ins use the matching dedicated animation family: swords/katana and short axes/hatchets.
         if (stack.getItem() instanceof AxeItem) return WeaponClass.HATCHET;
-        if (stack.getItem() instanceof SwordItem) return WeaponClass.MACHETE;
+        if (stack.getItem() instanceof SwordItem) return WeaponClass.KATANA;
         return WeaponClass.NONE;
     }
 

@@ -1,6 +1,7 @@
 """Write testmod/animtest/.../Clips.java from the exported files, so the test mod's command suggestions,
 pair presets and expected lengths can't drift from the exports."""
 import glob, json, os
+import walker_anims as wa
 
 HERE = os.path.dirname(__file__)
 A = os.path.join(HERE, "..", "export", "assets", "holdfast")
@@ -62,6 +63,9 @@ def mp(name, d):
 mp("WALKER", wk)
 mp("CRAWLER", ck)
 mp("PLAYER", player)
+L.append("    /** Cosmetic harness shot timing, from the same authored table as core execution ticks. */")
+L.append("    public static final Map<String, Integer> PISTOL_SHOT_TICKS = Map.of(")
+L.append(f'        "exec_pistol", {round(wa.EXECS["pistol"]["impact"] * 20)}, "exec_pistol_ground", {round(wa.EXECS["pistol_ground"]["impact"] * 20)});')
 speed = json.load(open(os.path.join(RIG, "player_move_speeds.json")))
 L.append("    /** injury movement clip -> speed as a fraction of vanilla walking (4.317 blocks/s) its footsteps match */")
 L.append("    public static final Map<String, Double> MOVE_SPEED = Map.ofEntries(")

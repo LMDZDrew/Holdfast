@@ -70,6 +70,11 @@ public class WalkerEntity extends PathfinderMob implements GeoEntity {
     // client bookkeeping
     private final int[] seenNonce = {-1, -1, -1};
     private final String[] seenClip = {"", "", ""};
+    private String localClip;
+    private int localNonce = -1;
+
+    /** Paired presentation begins on the same client packet as the player's clip. Later data sync must not restart it. */
+    public void startLocally(String clip, int nonce) { localClip = clip; localNonce = nonce; }
 
     public WalkerEntity(EntityType<? extends WalkerEntity> type, Level level) {
         super(type, level);
@@ -136,11 +141,12 @@ public class WalkerEntity extends PathfinderMob implements GeoEntity {
     }
 
     public String fullClip() {
+        if (level().isClientSide && localClip != null && localNonce >= entityData.get(CLIP_NONCE)) return localClip;
         return entityData.get(FULL_CLIP);
     }
 
     public int clipNonce() {
-        return entityData.get(CLIP_NONCE);
+        return level().isClientSide ? Math.max(localNonce, entityData.get(CLIP_NONCE)) : entityData.get(CLIP_NONCE);
     }
 
     /** Server: play a full-body clip for {@code ticks}, holding the AI still. Empty clip returns to the layers. */
@@ -395,6 +401,7 @@ public class WalkerEntity extends PathfinderMob implements GeoEntity {
         String clip = layerClip(layer);
         if (clip.isEmpty()) return PlayState.STOP;
         String prefix = posture() == Posture.CRAWLER ? "animation.holdfast.crawler." : "animation.holdfast.walker.";
+        state.getController().setTransitionLength(fullClip().isEmpty() ? 4 : 0);
         int nonce = clipNonce();
         if (nonce != seenNonce[layer] || !clip.equals(seenClip[layer])) {
             seenNonce[layer] = nonce;
