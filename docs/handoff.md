@@ -142,3 +142,18 @@ Branch/commit; files changed; behavior observed; exact tests and commands; unres
 Andrew reports ordinary walker deaths fall but float above ground, unlike `/hfa` executions. Hatchet carry is incorrect, but its swing is fine. Ordinary walker hits apply on click; he requires authoritative resolution at weapon contact. First-person animations look better than third person, but weapons become unstable during animations; exact affected items/views were not specified. Blood/particles and walker noises received negative feedback and are explicitly deferred for later. These observations do not pass the rest of the test sheet.
 
 Detailed continuation prompt: **`docs/claude_stage1_runtime_handoff.md`**. Start a separate Claude branch from `codex/stage1-animation-quality` at `42a963d` (plus this documentation update), fix corpse grounding, server contact timing, then weapon instability/hatchet carry. Finish feasible implementation and automated checks before requesting one consolidated review. This handoff adds documentation only; no runtime fixes or new builds were performed. Existing installed hashes remain the prior core `A718C40A…` and harness `63E968EB…`; current user-session logs were not inspected for this report. Keep draft PRs unmerged and stay in Stage 1.
+
+## Claude runtime corrections — 2026-10-17
+
+**Branch and commits:** `claude/stage1-runtime-corrections` from `dda9869`: `5295d0b` (corpses), `717ee8b` and `2b5e008` (melee at contact, swing gating, pose-jump trace), `d76a7fe` (weapon motion and hatchet carry), plus a docs commit. PR #1 and #2 untouched.
+
+**Implemented and automatically verified:**
+- Corpses keep their feet and fall under gravity. GameTests reproduce the old 0.725-block float and pass with the fix.
+- Ordinary melee resolves on the server at the clip's generated contact tick, with a validated view ray, block occlusion, a single resolution per swing and cancellation. Covered by 7 GameTests and 6 JUnit tests; a mutation that resolves on the click fails 6 of the melee tests.
+- Held weapons are baked along the shortest rotation, the hatchet has a ready carry, and the charge-hold loop seam is closed. `check_weapon_motion.py` passes 22 of 22 clips; the old export failed 9.
+
+In total, 26 JUnit tests and 22 GameTests pass, and both builds pass.
+
+**Not verified:** nothing has been seen in game. The jars are built (core `46AC40EB…`, harness `73E66410…`) but **not deployed**. The server still runs the earlier jars, and the network protocol is now version 3, so both sides need the new core jar.
+
+**Next safe task:** `docs/codex_stage1_runtime_followup.md`. Deploy both jars together, have Andrew run the top section of `stage1_bulk_test.md`, and use the `pose jump` log lines for any remaining instability.

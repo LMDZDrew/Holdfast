@@ -1,5 +1,18 @@
 # Stage 1 bulk test sheet (for Andrew)
 
+## Next review: Claude runtime corrections (2026-10-17, branch `claude/stage1-runtime-corrections`)
+
+Andrew's last review reported floating corpses, hits registering on the click, a wrong hatchet carry and weapons "spazzing" during animations. Blood and walker sounds are deferred, so skip them. Use `/hfa stop` first so the automatic core layers are in control. Report by number; "fine" is a valid answer.
+
+1. **Corpses on the ground.** `/holdfast walker upright`, `/holdfast walker prone` and `/holdfast walker crawler` (a prone walker wakes when you come close). Kill each with an ordinary head hit (knife or machete), plus one V-key execution. Each corpse should lie on the ground, not float. Leave the area, come back, and relog once: the corpses should still be lying and should not replay their fall. Any corpse that floated before this build should drop to the ground when its chunk loads.
+2. **Hit at contact.** With the knife, machete, hatchet and fire axe, hit a standing walker's head and body. The flesh sound, blood and stagger or kill should come when the blade visibly lands, not on the click. Then click while the walker is just out of reach, or step back as you click: that should be a miss. Hitting through a wall or fence should do nothing.
+3. **Charged bat.** Hold right-click with the bat for a full second, then release it at a walker's head: the heavy swing should kill when it lands. Release with nothing in front of you: the overswing. Release early: a light swing and a stagger.
+4. **Hatchet carry.** Hold the hatchet standing, walking, sprinting and crouching, in both views. The new carry is low at your side, head forward and a little up, bit down. Then swing it a few times (the swing itself is unchanged).
+5. **Weapon steadiness.** For each melee weapon, in both views: idle, walk, sprint, crouch-walk, jump; one swing; several swings clicked as fast as you can; switch hotbar slots mid-swing; hold right-click with the bat. Say which weapon, action and view still looks unsteady. Then send `logs/latest.log` from the Prism instance: every `[holdfast] pose jump` line names the clip and layer that moved.
+6. **TaCZ regression.** Hold a pistol, then a rifle: third-person hold, first-person ADS, fire and reload. Nothing in these fixes touches TaCZ.
+
+Not covered by these fixes, and still open from earlier sheets: standing knife execution contact (`/hfa freeze`), section 4's grabs, bites, executions and persistence, the separate TaCZ pistol/rifle Gate 0 rows, and real-player reconnect.
+
 The original sections 1-3 were reviewed on 2026-10-17; exact feedback is in `codex_stage1_animation_feedback.md`. Section 4 has not yet been run. The current Codex revision is on `codex/stage1-animation-quality`; its build and installed jar hashes are recorded in `testing.md`.
 
 ## Consolidated review for the Codex revision
