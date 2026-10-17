@@ -2,7 +2,7 @@
 
 Everything below was built and statically checked on 2026-10-17 but **not run in game**. Work through it in one sitting and note anything that looks wrong by section number. Branch `claude/stage1-combat-and-animation`.
 
-## 0. Install (Claude or Codex does this before the session)
+## 0. Install (done 2026-10-17: core `C530725F…`, harness `B1903C7D…` in both mods folders; redo after any rebuild)
 
 - Build both mods: `testmod\animtest\gradlew.bat build` and `core\gradlew.bat build` (Java 17).
 - Copy **both** jars — `testmod/animtest/build/libs/holdfast_animtest-0.1.0.jar` and `core/build/libs/holdfast_core-0.1.0.jar` — into `C:\HoldfastGate0\holdfast-gate0\server\mods` and the Prism "Holdfast Gate0" mods folder, next to GeckoLib, Player Animator and TaCZ.
