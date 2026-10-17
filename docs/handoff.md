@@ -88,6 +88,8 @@ Retest the new first-person limp cue and ADS, then author handgun executions aga
 
 **Next:** Continue from the exact installed TaCZ 1.1.8-hotfix2 pistol `hold_upper`/`aim_upper` poses inspected in the default gun pack. Author standing and appropriate ground handgun pairs in editable source, then regenerate exports and build the harness. The future core server S7 gate must accept only TaCZ index `type: pistol`; the harness must not claim server gameplay authority. Then re-test ground knife, standing machete, ground axe/machete/bat, and temple `react_knife`; finish Gate 0 step 2 with separate pistol/rifle shot, reload and ADS observations with and without Holdfast clips. Stay in Stage 1; do not begin world generation.
 
+**Server status:** At Andrew's request, the Gate 0 dedicated server was stopped cleanly at 22:59:10 on 2026-10-16. Its log confirms player/world saves and all chunks saved; process 33808 exited. Restart it for the next in-game test.
+
 ## Handoff format for future work
 
 Branch/commit; files changed; behavior observed; exact tests and commands; unresolved issues; next safe task. Separate proposed behavior from verified behavior.
