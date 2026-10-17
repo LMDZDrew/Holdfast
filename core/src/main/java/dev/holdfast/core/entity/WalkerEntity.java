@@ -65,6 +65,7 @@ public class WalkerEntity extends PathfinderMob implements GeoEntity {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     /** Server: ticks left on the current full-body clip; AI holds still while it plays. */
     private int fullClipTicks;
+    private int nextVocalTick;
     /** Server: ticks of stagger left; no lunges or grabs. */
     private int staggerTicks;
     // client bookkeeping
@@ -201,7 +202,14 @@ public class WalkerEntity extends PathfinderMob implements GeoEntity {
             entityData.set(FULL_CLIP, "");
             entityData.set(CLIP_NONCE, entityData.get(CLIP_NONCE) + 1);
         }
-        if (!isCorpse() && !dormant() && tickCount % 80 == random.nextInt(80) && random.nextFloat() < 0.6F) {
+        if (!isCorpse() && !dormant() && tickCount >= nextVocalTick) {
+            // The external ambient pool contains clips up to 7.45 seconds long. Bound cadence so an individual
+            // walker cannot stack repeated long groans on itself; stagger the first call after spawning/loading.
+            if (nextVocalTick == 0) {
+                nextVocalTick = tickCount + 20 + random.nextInt(120);
+                return;
+            }
+            nextVocalTick = tickCount + (getTarget() == null ? 180 + random.nextInt(180) : 100 + random.nextInt(80));
             playSound(getTarget() != null ? CoreSounds.WALKER_SNARL.get() : CoreSounds.WALKER_GROAN.get(), 0.9F, 0.85F + random.nextFloat() * 0.3F);
         }
     }

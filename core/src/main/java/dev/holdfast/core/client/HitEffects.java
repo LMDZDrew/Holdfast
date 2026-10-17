@@ -39,6 +39,10 @@ public final class HitEffects {
         RandomSource r = mc.level.random;
         float pitch = 0.88F + r.nextFloat() * 0.24F;
         mc.level.playLocalSound(m.x(), m.y(), m.z(), CoreSounds.contact(m.contact(), skull), SoundSource.PLAYERS, 1.0F, pitch, false);
+        if (net.minecraftforge.fml.ModList.get().isLoaded("extragore")) {
+            ExtraGoreEffects.play(m);
+            return; // One emitter: do not stack the former dust/block particles over Extra Gore.
+        }
         int n;
         double spread, push;
         switch (m.contact()) {

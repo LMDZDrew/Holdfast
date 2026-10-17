@@ -34,6 +34,11 @@ minecraft {
 sourceSets.main.resources { srcDir '../art/characters/export' }
 
 repositories {
+    maven {
+        name = 'CurseMaven'
+        url = 'https://www.cursemaven.com'
+        content { includeGroup 'curse.maven' }
+    }
     // Not exclusiveContent: ForgeGradle serves remapped copies of these coordinates from its own local repo.
     maven {
         name = 'Modrinth'
@@ -49,6 +54,8 @@ dependencies {
     implementation fg.deobf("maven.modrinth:gedNE4y2:${playeranimator_modrinth_version}")
     // TaCZ is optional at runtime: the core only touches it through dev.holdfast.core.compat.tacz, guarded by ModList.
     compileOnly fg.deobf("maven.modrinth:SzzJttH8:${tacz_modrinth_version}")
+    // Optional client presentation bridge; exact API inspected from this published file.
+    compileOnly fg.deobf('curse.maven:extra-gore-937006:8608443')
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.2'

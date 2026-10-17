@@ -155,9 +155,9 @@ public final class Clips {
         Map.entry("swing_hatchet_heavy", 0.75),
         Map.entry("swing_katana", 0.65),
         Map.entry("swing_katana_heavy", 0.85),
-        Map.entry("swing_knife", 0.45),
+        Map.entry("swing_knife", 0.55),
         Map.entry("swing_knife_heavy", 0.7),
-        Map.entry("swing_machete", 0.6),
+        Map.entry("swing_machete", 0.75),
         Map.entry("swing_machete_heavy", 0.8),
         Map.entry("swing_unarmed", 0.45),
         Map.entry("swing_unarmed_heavy", 0.65)

@@ -47,7 +47,30 @@ public final class HoldfastCommand {
                                 .suggests((c, b) -> SharedSuggestionProvider.suggest(Arrays.stream(InjuryRules.Movement.values()).map(Enum::name), b))
                                 .executes(HoldfastCommand::injury)))
                 .then(Commands.literal("condition").executes(HoldfastCommand::condition))
+                .then(Commands.literal("presentation")
+                        .then(Commands.argument("contact", StringArgumentType.word())
+                                .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[]{"blunt", "slash", "stab", "gunshot"}, b))
+                                .executes(HoldfastCommand::presentation)))
                 .then(Commands.literal("cure").executes(HoldfastCommand::cure)));
+    }
+
+    /** Operator-only visual/audio probe, no hit, victim, damage, durability or saved state. */
+    private static int presentation(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        ServerPlayer p = c.getSource().getPlayerOrException();
+        dev.holdfast.core.rules.WeaponClass.Contact family;
+        try {
+            family = dev.holdfast.core.rules.WeaponClass.Contact.valueOf(StringArgumentType.getString(c, "contact").toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException e) {
+            c.getSource().sendFailure(Component.literal("expected blunt, slash, stab or gunshot"));
+            return 0;
+        }
+        var direction = p.getLookAngle();
+        var point = p.getEyePosition().add(direction.scale(1.4));
+        dev.holdfast.core.net.CoreNet.CHANNEL.send(net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> p),
+                dev.holdfast.core.net.HitFeedbackPacket.of(-1, point, direction, family,
+                        dev.holdfast.core.rules.BodyRegion.TORSO, dev.holdfast.core.rules.WalkerStrikeRules.Outcome.STAGGER));
+        c.getSource().sendSuccess(() -> Component.literal("presentation probe " + family + " (cosmetic only)"), false);
+        return 1;
     }
 
     private static int spawn(CommandContext<CommandSourceStack> c, Posture posture) throws CommandSyntaxException {

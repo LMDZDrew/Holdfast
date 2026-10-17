@@ -179,13 +179,14 @@ def families():
         rep.extend(b.report)
 
     # ---------------------------------------------------------------- knife
-    add(swing("swing_knife", "knife", 0.45, [
-        (0.08, dict(torso=[2, 16, 0], head=[4, -6, 0], body_pos=[0, -0.2, 0.4]), P(8, 20, -6), U(0.6, 0.2, -0.78), U(0, -1, 0)),
-        (0.18, dict(torso=[6, -14, 0], head=[6, 4, 0], body_pos=[0, -0.5, -1.4], leftLeg=[-14, 0, 0], rightLeg=[8, 0, 0]),
+    # Give the blade-down carry time to load: the former 0.08 s wind-up turned 108 degrees in one tick.
+    add(swing("swing_knife", "knife", 0.55, [
+        (0.14, dict(torso=[2, 16, 0], head=[4, -6, 0], body_pos=[0, -0.2, 0.4]), P(8, 20, -6), U(0.6, 0.2, -0.78), U(0, -1, 0)),
+        (0.24, dict(torso=[6, -14, 0], head=[6, 4, 0], body_pos=[0, -0.5, -1.4], leftLeg=[-14, 0, 0], rightLeg=[8, 0, 0]),
          P(-2, CHEST + 3, -20), U(-0.7, 0.05, -0.7), U(0, -0.3, 0.95)),
-        (0.3, dict(torso=[4, -24, 0], head=[4, 6, 0], body_pos=[0, -0.4, -1.0]), P(-10, CHEST, -12), U(-0.9, 0, -0.3), None),
-        (0.45, dict(**STAND), P(4, 15, -7), U(0.2, 0.3, -0.93), U(0, -1, 0)),
-    ], sounds=((0.1, "holdfast_core:swing.light"),), commit=0.08, strike=0.18), dict(weapon="knife", impacts=[]))
+        (0.36, dict(torso=[4, -24, 0], head=[4, 6, 0], body_pos=[0, -0.4, -1.0]), P(-10, CHEST, -12), U(-0.9, 0, -0.3), None),
+        (0.55, dict(**STAND), P(4, 15, -7), U(0.2, 0.3, -0.93), U(0, -1, 0)),
+    ], sounds=((0.16, "holdfast_core:swing.light"),), commit=0.14, strike=0.24), dict(weapon="knife", impacts=[]))
     add(swing("swing_knife_heavy", "knife", 0.7, [
         (0.16, dict(torso=[-6, 10, 0], head=[-4, 0, 0], body_pos=[0, 0.3, 0.6]), P(6, 38, 2), U(0.1, -0.4, -0.9), U(0, 0, 1)),
         (0.3, dict(torso=[14, -6, 0], head=[10, 0, 0], body_pos=[0, -1.0, -1.8], leftLeg=[-18, 0, 0], rightLeg=[10, 0, 0]),
@@ -195,13 +196,13 @@ def families():
     ], sounds=((0.2, "holdfast_core:swing.light"),), commit=0.16, strike=0.3), dict(weapon="knife", impacts=[]))
 
     # ---------------------------------------------------------------- machete
-    add(swing("swing_machete", "machete", 0.6, [
-        (0.12, dict(torso=[-2, 20, 0], head=[2, -8, 0], body_pos=[0, 0, 0.6]), P(10, 34, 2), U(0.3, 0.8, 0.5), U(-0.3, 0.5, -0.8)),
-        (0.25, dict(torso=[10, -16, 0], head=[8, 2, 0], body_pos=[0, -0.8, -1.6], leftLeg=[-16, 0, 0], rightLeg=[10, 0, 0]),
+    add(swing("swing_machete", "machete", 0.75, [
+        (0.20, dict(torso=[-2, 20, 0], head=[2, -8, 0], body_pos=[0, 0, 0.6]), P(10, 34, 2), U(0.3, 0.8, 0.5), U(-0.3, 0.5, -0.8)),
+        (0.33, dict(torso=[10, -16, 0], head=[8, 2, 0], body_pos=[0, -0.8, -1.6], leftLeg=[-16, 0, 0], rightLeg=[10, 0, 0]),
          P(0, HEAD - 2, -22), U(-0.5, -0.3, -0.8), U(-0.6, -0.7, 0.2)),
-        (0.4, dict(torso=[14, -30, 0], head=[8, 6, 0], body_pos=[0, -0.9, -1.4]), P(-12, 14, -12), U(-0.8, -0.5, -0.3), None),
-        (0.6, dict(**STAND), P(7, 24, -3), U(0.15, 0.95, -0.25), U(0, 0.2, -0.98)),
-    ], sounds=((0.16, "holdfast_core:swing.light"),), commit=0.12, strike=0.25), dict(weapon="machete", impacts=[]))
+        (0.50, dict(torso=[14, -30, 0], head=[8, 6, 0], body_pos=[0, -0.9, -1.4]), P(-12, 14, -12), U(-0.8, -0.5, -0.3), None),
+        (0.75, dict(**STAND), P(7, 24, -3), U(0.15, 0.95, -0.25), U(0, 0.2, -0.98)),
+    ], sounds=((0.24, "holdfast_core:swing.light"),), commit=0.20, strike=0.33), dict(weapon="machete", impacts=[]))
     add(swing("swing_machete_heavy", "machete", 0.8, [
         (0.22, dict(torso=[-10, 6, 0], head=[-4, 0, 0], body_pos=[0, 0.4, 0.8]), P(5, 44, 8), U(0.05, 0.6, 0.8), U(0, 0.8, -0.6)),
         (0.38, dict(torso=[18, 0, 0], head=[12, 0, 0], body_pos=[0, -1.4, -2.2], leftLeg=[-20, 0, 0], rightLeg=[12, 0, 0]),

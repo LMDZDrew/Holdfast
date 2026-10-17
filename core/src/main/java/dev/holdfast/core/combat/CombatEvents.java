@@ -58,8 +58,9 @@ public final class CombatEvents {
 
     /** Melee with a classed weapon on anything else: vanilla damage stands, clients get the matching flesh response. */
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onLivingHurt(net.minecraftforge.event.entity.living.LivingHurtEvent event) {
+    public static void onLivingHurt(net.minecraftforge.event.entity.living.LivingDamageEvent event) {
         if (event.getEntity() instanceof WalkerEntity || event.getEntity().level().isClientSide) return;
+        if (event.getAmount() <= 0) return; // Armor/absorption may have absorbed the earlier LivingHurt amount.
         if (!(event.getSource().getDirectEntity() instanceof ServerPlayer p) || event.getSource().getEntity() != p) return;
         WeaponClass weapon = Weapons.held(p);
         if (weapon == WeaponClass.NONE || weapon.firearm()) return;

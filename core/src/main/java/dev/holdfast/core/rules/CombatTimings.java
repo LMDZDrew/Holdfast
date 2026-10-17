@@ -33,9 +33,9 @@ public final class CombatTimings {
     public record Swing(String clip, int commitTick, int contactTick, int lengthTicks) {}
 
     public static final List<Swing> SWINGS = List.of(
-        new Swing("swing_knife", 2, 4, 9),
+        new Swing("swing_knife", 3, 5, 11),
         new Swing("swing_knife_heavy", 3, 6, 14),
-        new Swing("swing_machete", 2, 5, 12),
+        new Swing("swing_machete", 4, 7, 15),
         new Swing("swing_machete_heavy", 4, 8, 16),
         new Swing("swing_hatchet", 2, 4, 10),
         new Swing("swing_hatchet_heavy", 4, 7, 15),

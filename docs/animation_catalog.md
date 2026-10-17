@@ -156,9 +156,9 @@ Times are seconds from the start of the clip. Events and sounds are **presentati
 | `swing_hatchet_heavy` | 0.75 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | hatchet | `commit` 0.20, `strike` 0.35 | 0.26 `swing.heavy` |
 | `swing_katana` | 0.65 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | katana | `commit` 0.14, `strike` 0.28 | 0.18 `swing.heavy` |
 | `swing_katana_heavy` | 0.85 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | katana | `commit` 0.24, `strike` 0.40 | 0.32 `swing.heavy` |
-| `swing_knife` | 0.45 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | knife | `commit` 0.08, `strike` 0.18 | 0.10 `swing.light` |
+| `swing_knife` | 0.55 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | knife | `commit` 0.14, `strike` 0.24 | 0.16 `swing.light` |
 | `swing_knife_heavy` | 0.70 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | knife | `commit` 0.16, `strike` 0.30 | 0.20 `swing.light` |
-| `swing_machete` | 0.60 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | machete | `commit` 0.12, `strike` 0.25 | 0.16 `swing.light` |
+| `swing_machete` | 0.75 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | machete | `commit` 0.20, `strike` 0.33 | 0.24 `swing.light` |
 | `swing_machete_heavy` | 0.80 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | machete | `commit` 0.22, `strike` 0.38 | 0.30 `swing.heavy` |
 | `swing_unarmed` | 0.45 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | `strike` 0.16 | 0.11 `swing.light` |
 | `swing_unarmed_heavy` | 0.65 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | `strike` 0.26 | 0.21 `swing.light` |

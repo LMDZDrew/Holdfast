@@ -1,5 +1,7 @@
 # Codex prompt: after Claude's Stage 1 runtime corrections (2026-10-17)
 
+**Later user update:** Andrew explicitly reopened blood/audio and authorized animation quality corrections while away. The current continuation is `codex/stage1-blood-audio`; see the newest `handoff.md`/`testing.md` entries, `presentation_integration.md`, and the updated top review batch. The deferral in the original brief below is historical.
+
 Continue Holdfast Stage 1 in `C:\Users\drewl\Holdfast` from **`claude/stage1-runtime-corrections`** (pushed). Read `AGENTS.md`, `docs/decisions.md`, `docs/claude_stage1_runtime_handoff.md` (the brief this branch answered), `docs/core_combat.md` §1a, the 2026-10-17 "Claude runtime corrections" rows in `docs/testing.md`, and the top section of `docs/stage1_bulk_test.md`. Work on your own `codex/` branch from this head. Keep PR #1 and #2 as unmerged drafts. Do not start world generation. Blood, particles and walker audio stay deferred.
 
 ## What changed (implemented, with automated evidence only; nothing seen in game yet)

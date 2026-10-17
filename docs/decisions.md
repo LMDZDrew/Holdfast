@@ -63,6 +63,13 @@ Status: accepted design unless labeled proposed. This file supersedes older word
 - Finish the combat and presentation slice in `roadmap.md` before world generation. Andrew can perform solo visual checks on a dedicated server, but has no second human tester available now.
 - Use automated server tests, scripted reconnect/state checks, and a second local client only if practical to cover multiplayer-sensitive code. Record what each method verifies and what remains untested. Human multiplayer acceptance is deferred until testers are available; it is not a prerequisite for beginning world generation.
 
+## Stage 1 presentation integration (Andrew, 2026-10-17)
+
+- Andrew reopened blood/particles and walker audio after the runtime-correction handoff. Integrate the YouTube-list candidates where they fit; the earlier deferral no longer applies to this work.
+- Use the locally installed Tissou's Zombie Pack 2.7 as the walker-audio reference/integration, preserving attribution and keeping third-party assets separate from core source. This does not establish rights to any underlying show recordings.
+- Evaluate Extra Gore 5.3 and its Bookling Gear dependency as optional client presentation. Holdfast's confirmed-hit packet remains the only emitter in this integration; no predicted click, health heuristic, particle or sound decides an outcome. Version selection remains a candidate until a client compatibility run and user review.
+- Andrew authorized animation quality checks and source corrections while away. Automated checks do not constitute his in-game acceptance.
+
 ## Explicitly deferred
 
 Character skill leveling, friendly/recruitable survivors, dynamic dismemberment, broad stealth disguises beyond Whisperer masks, advanced structural physics, and guaranteed shader FPS. They can be revisited after a representative playable prototype.

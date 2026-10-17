@@ -39,6 +39,9 @@ public final class ClientCore {
         MinecraftForge.EVENT_BUS.addListener(ClientClips::camera);
         MinecraftForge.EVENT_BUS.addListener(ClientCore::onClickInput);
         MinecraftForge.EVENT_BUS.addListener(PoseTrace::onRenderTick);
+        MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.client.event.ClientPlayerNetworkEvent.LoggingIn event) -> {
+            if (net.minecraftforge.fml.ModList.get().isLoaded("extragore")) ExtraGoreEffects.initialize();
+        });
     }
 
     private static void onRenderers(EntityRenderersEvent.RegisterRenderers event) {

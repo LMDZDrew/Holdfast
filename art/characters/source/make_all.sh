@@ -26,6 +26,10 @@ cp "$ART/build/survivor_preview.geo.json" "$ART/build/survivor_preview.png" "$AR
 python3 validate_exports.py "$A"
 python3 check_carries.py
 python3 check_locomotion.py
+python3 check_weapon_motion.py
+python3 check_pa_semantics.py
+python3 gen_core_tables.py
+python3 gen_catalog.py
 python3 pa_item.py | tail -1
 python3 gen_testmod_clips.py
 python3 gen_test_items.py
