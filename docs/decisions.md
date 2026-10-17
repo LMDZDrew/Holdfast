@@ -45,6 +45,12 @@ Status: accepted design unless labeled proposed. This file supersedes older word
 - TaCZ is the base mod for guns. Holdfast's gun-related animations (handgun executions, anything shown while a gun is held) must match TaCZ's own hold, aim and reload poses so the two read as one system. Exact TaCZ build still needs its compatibility run (roadmap Gate 0 step 2) before it is pinned.
 - Executions: knife, axe, machete and bat as authored, each against upright, prone and crawling walkers where the pose allows. A handgun can execute; a rifle or shotgun cannot. The server's execution check (S7, weapon class) enforces it. "Handgun" means a TaCZ gun whose index `type` is `pistol` (14 in TaCZ 1.1.8's default pack, revolvers included); `rifle`, `shotgun`, `smg`, `sniper`, `mg` and `rpg` cannot execute (Claude's reading of Andrew's rule, 2026-10-16; revisit if SMGs should count).
 
+## Animation and combat feedback expansion (accepted 2026-10-16, Andrew)
+
+- Add sound effects and cosmetic blood spatter for confirmed hits and shots. The server decides hits, hit regions, wounds, and deaths; clients display the corresponding effects. Animation event markers remain presentation cues, never a source of gameplay outcomes.
+- Add general player animations for crouching, sprinting, walking, and jumping. They must coexist with injury motion, equipment, and TaCZ's gun poses; firearm locomotion leaves TaCZ's arm, item, and aiming transforms in charge.
+- Add distinct melee animation families for knives; two-handed bats and axes; swords and katanas; machetes; and one-handed hatchets. Match holds, attacks, and transitions to each weapon family rather than reusing a single generic melee pose. Exact clip list and visual style remain to be authored and tested.
+
 ## Explicitly deferred
 
 Character skill leveling, friendly/recruitable survivors, dynamic dismemberment, broad stealth disguises beyond Whisperer masks, advanced structural physics, and guaranteed shader FPS. They can be revisited after a representative playable prototype.

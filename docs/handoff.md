@@ -90,6 +90,8 @@ Retest the new first-person limp cue and ADS, then author handgun executions aga
 
 **Server status:** At Andrew's request, the Gate 0 dedicated server was stopped cleanly at 22:59:10 on 2026-10-16. Its log confirms player/world saves and all chunks saved; process 33808 exited. Restart it for the next in-game test.
 
+**Added for the next Stage 1 work session (Andrew, 2026-10-16):** After the in-flight handgun execution, melee retest, and TaCZ Gate 0 checks, start sound and cosmetic blood spatter feedback for confirmed hits and shots. Then author general crouch, sprint, walk, and jump animations, followed by distinct melee sets for knives, two-handed bats and axes, swords/katanas, machetes, and one-handed hatchets. Check every movement set with empty hands, melee items, and TaCZ guns so the new layers do not revive the arm/ADS conflict. Update editable animation source, regenerate exports, build, and record actual in-game results. The new scope is recorded in `docs/decisions.md`; it remains Stage 1 and does not authorize world generation. The server remains stopped until the next test.
+
 ## Handoff format for future work
 
 Branch/commit; files changed; behavior observed; exact tests and commands; unresolved issues; next safe task. Separate proposed behavior from verified behavior.
