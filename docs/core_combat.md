@@ -1,6 +1,6 @@
 # Holdfast core: Stage 1 server-owned combat slice
 
-Status: **implemented in source; 19 JUnit tests and 6 GameTests on a headless Forge server pass (`core\gradlew.bat build runGameTestServer`). Not run with a client or player yet.** Mod id `holdfast_core`, Gradle project `core/` (Forge 1.20.1-47.4.8, same pins as Gate 0). This document is the CLAUDE.md "before implementing" statement for each shared system, and the map of where each rule lives. `animation.md` S1–S14 lists the moments; this file says how the core decides them.
+Status: **implemented in source; 19 JUnit tests and 11 GameTests (walkers, and grabs/bites/executions/injury speed with a Forge FakePlayer) on a headless Forge server pass (`core\gradlew.bat build runGameTestServer`). Not run with a client or player yet.** Mod id `holdfast_core`, Gradle project `core/` (Forge 1.20.1-47.4.8, same pins as Gate 0). This document is the CLAUDE.md "before implementing" statement for each shared system, and the map of where each rule lives. `animation.md` S1–S14 lists the moments; this file says how the core decides them.
 
 ## Principles (from `decisions.md`)
 

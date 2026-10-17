@@ -107,11 +107,11 @@ Retest the new first-person limp cue and ADS, then author handgun executions aga
 - New mod `holdfast_core` (`core/`, design per system in `docs/core_combat.md`): plain-Java rules (19 JUnit tests), generated `CombatTimings` from the clips (`gen_core_tables.py`), walker entity (GeckoLib, no damage pool, upright/prone/crawler, lunge → server grab), melee/projectile/TaCZ hit resolution (TaCZ bridge compile-only against the real jar), grabs with escape window and latency allowance, bites through bite-rated guards, infection with amputation window, executions with commit/cancel/kill ticks and the pistol-only rule, injury speed, saved condition, one context key (V), HUD, client clip selection (locomotion 95 / weapon hold 97 / action 1100), blood and contact sounds, `/holdfast` debug commands, 7 melee items and 6 bite guards.
 - Original procedural audio (`art/audio/gen_sounds.py`): walker groan/breath/snarl/lunge/bite/death and blunt/slash/stab/gunshot flesh and skull contacts, 72 variants.
 
-**Automated server evidence:** 6 GameTests pass on a headless Forge server (`core\gradlew.bat runGameTestServer`): walker damage rules, brain kills, charged blunt, vanilla damage ignored, crawler skull layout, walker save/load. The core mod loads and registers there.
+**Automated server evidence:** 11 GameTests pass on a headless Forge server (`core\gradlew.bat runGameTestServer`): walker damage rules, brain kills, charged blunt, vanilla damage ignored, crawler skull layout, walker save/load, and with a Forge FakePlayer: grab escape, blocked/breaking/penetrating bites with infection, knife execution kill tick, empty-hand refusal, injury speed. The core mod loads and registers there.
 
 **Not done / risks:** no client or player run yet; grabs, bites, executions, HUD, clips, sounds and blood are compiled only. Blunt charge: hold use, the release is the swing. First-person views of swings untested. No scripted reconnect check with a real player yet. The walker voice character is unjudged. Prone/crawler hit layout approximate. Two-handed weapons need an empty off hand. Injury walks are now broadcast to other players (`MovementPacket`); flesh/blood feedback also plays for TaCZ and melee hits on non-walkers.
 
-**Next safe task:** install both jars and run `docs/stage1_bulk_test.md` with Andrew; fix what fails in source; then extend the GameTests to grabs and executions with a mock server player, and TaCZ Gate 0 step 2's separate pistol/rifle observations.
+**Next safe task:** install both jars and run `docs/stage1_bulk_test.md` with Andrew; fix what fails in source; then a scripted real-player reconnect check, and TaCZ Gate 0 step 2's separate pistol/rifle observations.
 
 ## Handoff format for future work
 

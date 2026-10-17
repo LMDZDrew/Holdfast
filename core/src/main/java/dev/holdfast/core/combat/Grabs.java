@@ -43,10 +43,12 @@ public final class Grabs {
         final UUID victim;
         final GrabRules.Session session;
         final Vec3 victimPos;
+        final ServerPlayer ref;
 
-        Grab(WalkerEntity walker, UUID victim, GrabRules.Session session, Vec3 victimPos) {
+        Grab(WalkerEntity walker, ServerPlayer victim, GrabRules.Session session, Vec3 victimPos) {
             this.walker = walker;
-            this.victim = victim;
+            this.victim = victim.getUUID();
+            this.ref = victim;
             this.session = session;
             this.victimPos = victimPos;
         }
@@ -96,7 +98,7 @@ public final class Grabs {
         w.setYBodyRot(yaw + 180.0F);
         w.setYHeadRot(yaw + 180.0F);
         GrabRules.Session s = new GrabRules.Session(kind, CoreConfig.grabWindowTicks(), now);
-        BY_VICTIM.put(victim.getUUID(), new Grab(w, victim.getUUID(), s, victim.position()));
+        BY_VICTIM.put(victim.getUUID(), new Grab(w, victim, s, victim.position()));
         w.playFull(c.walkerSeize, 10);
         clip(victim, c.victimSeize, w);
         hold(victim, true);
@@ -130,7 +132,7 @@ public final class Grabs {
         for (Grab g : new ArrayList<>(BY_VICTIM.values())) {
             if (g.walker != w) continue;
             g.session.releaseByOther();
-            ServerPlayer p = w.getServer() == null ? null : w.getServer().getPlayerList().getPlayer(g.victim);
+            ServerPlayer p = w.getServer() == null ? null : Players.resolve(w.getServer(), g.victim, g.ref);
             if (p != null) {
                 clip(p, clips(g.session.kind).victimReleased, null);
                 end(p, g, "released");
@@ -150,7 +152,7 @@ public final class Grabs {
     public static void tick(MinecraftServer server) {
         for (Iterator<Grab> it = BY_VICTIM.values().iterator(); it.hasNext(); ) {
             Grab g = it.next();
-            ServerPlayer p = server.getPlayerList().getPlayer(g.victim);
+            ServerPlayer p = Players.resolve(server, g.victim, g.ref);
             if (p == null || !p.isAlive() || !g.walker.isAlive() || g.walker.isCorpse()) {
                 if (p != null) hold(p, false);
                 it.remove();

@@ -37,6 +37,7 @@ public final class Executions {
         final ExecutionRules.Session session;
         final Vec3 snapped;
         final WeaponClass weapon;
+        ServerPlayer ref;
 
         Active(WalkerEntity target, ExecutionRules.Session session, Vec3 snapped, WeaponClass weapon) {
             this.target = target;
@@ -87,7 +88,9 @@ public final class Executions {
         w.setYHeadRot(facing);
         w.getNavigation().stop();
         long now = p.serverLevel().getGameTime();
-        ACTIVE.put(p.getUUID(), new Active(w, new ExecutionRules.Session(clip, now), at, weapon));
+        Active active = new Active(w, new ExecutionRules.Session(clip, now), at, weapon);
+        active.ref = p;
+        ACTIVE.put(p.getUUID(), active);
         w.playFull(clip.targetClip(), clip.lengthTicks() + 40);
         Grabs.clip(p, clip.playerClip(), w);
     }
@@ -113,7 +116,7 @@ public final class Executions {
         for (Iterator<Map.Entry<UUID, Active>> it = ACTIVE.entrySet().iterator(); it.hasNext(); ) {
             Map.Entry<UUID, Active> e = it.next();
             Active a = e.getValue();
-            ServerPlayer p = server.getPlayerList().getPlayer(e.getKey());
+            ServerPlayer p = Players.resolve(server, e.getKey(), a.ref);
             if (p == null || !p.isAlive()) {
                 if (!a.target.isCorpse()) a.target.playFull("", 0);
                 it.remove();
