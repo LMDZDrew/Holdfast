@@ -62,7 +62,7 @@
 
 **Built but not yet seen in game** (harness jar `1169668B…`, deployed): arm-through-torso solver check; ground-knife fix (arm crossed the chest); machete strike into the side of the skull; `exec_axe_ground`, `exec_machete_ground`, `exec_bat_ground` from one overhead template (`player_more.OVERHEAD`) with matching walker/crawler reactions and 6 new pair presets.
 
-**TaCZ (Gate 0 step 2)**: TaCZ 1.1.8-hotfix2 added to the same modpack (Andrew: no separate TaCZ-only server). Server and client load clean. **Failures:** holding a pistol or rifle "scrunches the shoulders"; with a Player Animator clip running (`move_limp`) you cannot aim down sights. Decisions recorded: TaCZ is the gun base and gun animations must match it; only TaCZ `pistol` guns can execute.
+**TaCZ (Gate 0 step 2)**: TaCZ 1.1.8-hotfix2 added to the same modpack (Andrew: no separate TaCZ-only server). Server and client load clean. **Failures, both with `move_limp` looping (Andrew confirmed):** holding a pistol or rifle "scrunches the shoulders" in third person (arms drawn in across the chest, shoulders hunched, gun low; first person normal), and you cannot aim down sights. Cause: our clip keys `rightArm`/`leftArm` (and `rightItem`) every tick, overriding or stacking with TaCZ's arm pose. TaCZ with no clip running is untested. Decisions recorded: TaCZ is the gun base and gun animations must match it; only TaCZ `pistol` guns can execute.
 
 **Not done:** handgun execution clips (wait for the arm-ownership fix); melee re-test of the jar above; walker `react_knife` may need a sideways snap for the temple stab; ground-knife bracing hand still 7–9 px short (rigid arms); Player Animator body pivot off by ≤ 0.25 px.
 
