@@ -55,6 +55,20 @@ public final class CombatEvents {
         }
     }
 
+    /** Melee with a classed weapon on anything else: vanilla damage stands, clients get the matching flesh response. */
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onLivingHurt(net.minecraftforge.event.entity.living.LivingHurtEvent event) {
+        if (event.getEntity() instanceof WalkerEntity || event.getEntity().level().isClientSide) return;
+        if (!(event.getSource().getDirectEntity() instanceof ServerPlayer p) || event.getSource().getEntity() != p) return;
+        WeaponClass weapon = Weapons.held(p);
+        if (weapon == WeaponClass.NONE || weapon.firearm()) return;
+        var target = event.getEntity();
+        var hit = target.getBoundingBox().clip(p.getEyePosition(), p.getEyePosition().add(p.getViewVector(1.0F).scale(5.0)))
+                .orElse(target.getEyePosition());
+        boolean head = hit.y >= target.getEyeY() - 0.25;
+        Strikes.feedbackOther(target, hit, hit.subtract(p.getEyePosition()), weapon.contact, head);
+    }
+
     // ------------------------------------------------------------------ blunt charge (S10)
 
     @SubscribeEvent
@@ -66,12 +80,33 @@ public final class CombatEvents {
         }
     }
 
+    /**
+     * Releasing a charged blunt weapon IS the swing (S10): the server finds what is in reach along the player's view
+     * at release and resolves it with its own measured charge. Nothing in reach: a full charge overswings
+     * ({@code bat_charged_miss}, the player is exposed); a partial one is an ordinary swing.
+     */
     @SubscribeEvent
     public static void onUseStop(LivingEntityUseItemEvent.Stop event) {
-        if (event.getEntity() instanceof ServerPlayer p && event.getItem().getItem() instanceof MeleeWeaponItem) {
-            BluntCharge.release(p);
-            CoreNet.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> p), new PlayClipPacket(p.getId(), "bat_swing_quick", -1, true));
+        if (!(event.getEntity() instanceof ServerPlayer p) || !(event.getItem().getItem() instanceof MeleeWeaponItem m)
+                || !m.weaponClass.blunt()) return;
+        BluntCharge.release(p);
+        double charge = BluntCharge.spend(p);
+        var eye = p.getEyePosition();
+        var reach = eye.add(p.getViewVector(1.0F).scale(3.0));
+        var hit = net.minecraft.world.entity.projectile.ProjectileUtil.getEntityHitResult(p.level(), p, eye, reach,
+                p.getBoundingBox().expandTowards(p.getViewVector(1.0F).scale(3.0)).inflate(1.0), e -> e instanceof WalkerEntity w && !w.isCorpse());
+        String clip;
+        if (hit != null && hit.getEntity() instanceof WalkerEntity w) {
+            var at = Strikes.meleeHitPoint(p, w);
+            Strikes.apply(p, w, m.weaponClass, at, Strikes.region(w, at), 1.0, charge);
+            p.getMainHandItem().hurtAndBreak(1, p, x -> {});
+            clip = "bat_swing_quick";
+        } else {
+            clip = charge >= dev.holdfast.core.rules.WalkerStrikeRules.FULL_CHARGE ? "bat_charged_miss" : "bat_swing_quick";
         }
+        p.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
+        p.resetAttackStrengthTicker();
+        CoreNet.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> p), new PlayClipPacket(p.getId(), clip, -1, true));
     }
 
     // ------------------------------------------------------------------ server tick and lifecycle

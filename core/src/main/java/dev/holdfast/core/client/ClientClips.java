@@ -48,7 +48,7 @@ public final class ClientClips {
 
     private static final class Applied {
         String locomotion, hold;
-        int lastSwingTime;
+        int lastSwingTime = 99;      // "not swinging", so the first swing is caught
         boolean wasOnGround = true;
     }
 
@@ -98,8 +98,21 @@ public final class ClientClips {
         p.yBodyRotO = p.yBodyRot;
     }
 
+    /** Other players' injury walks, by entity id (MovementPacket). */
+    private static final Map<Integer, String> REMOTE_INJURY = new HashMap<>();
+
+    public static void remoteMovement(dev.holdfast.core.net.MovementPacket m) {
+        String clip = injuryClipFor(m.movement());
+        if (clip == null) REMOTE_INJURY.remove(m.playerId());
+        else REMOTE_INJURY.put(m.playerId(), clip);
+    }
+
     static void movementChanged(String movement) {
-        injuryClip = switch (movement.toUpperCase(Locale.ROOT)) {
+        injuryClip = injuryClipFor(movement);
+    }
+
+    private static String injuryClipFor(String movement) {
+        return switch (movement.toUpperCase(Locale.ROOT)) {
             case "ARM_INJURED" -> "move_arm_injured";
             case "LIMP" -> "move_limp";
             case "LIMP_SEVERE" -> "move_limp_severe";
@@ -141,8 +154,9 @@ public final class ClientClips {
         double speed = p.getDeltaMovement().horizontalDistance();
         boolean moving = speed > 0.02;
         String loco;
-        if (self && injuryClip != null) {
-            loco = injuryClip;
+        String injury = self ? injuryClip : REMOTE_INJURY.get(p.getId());
+        if (injury != null) {
+            loco = injury;
         } else if (!p.onGround() && a.wasOnGround && p.getDeltaMovement().y > 0.2) {
             loco = "move_jump";
         } else if (a.locomotion != null && a.locomotion.startsWith("move_jump") && !p.onGround()) {

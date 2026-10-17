@@ -58,11 +58,21 @@ public final class PlayerCondition {
         return movement;
     }
 
+    private boolean movementDirty = true;
+
     public void setMovement(InjuryRules.Movement m) {
         if (m != movement) {
             movement = m;
             dirty = true;
+            movementDirty = true;
         }
+    }
+
+    /** True once after the movement state changed (or after load), so trackers can be told. */
+    public boolean takeMovementDirty() {
+        boolean d = movementDirty;
+        movementDirty = false;
+        return d;
     }
 
     public Map<BodyRegion, Integer> wounds() {
@@ -119,6 +129,7 @@ public final class PlayerCondition {
             if (r != null) wounds.put(r, w.getInt(k));
         }
         dirty = true;
+        movementDirty = true;
     }
 
     private static <E extends Enum<E>> E parse(Class<E> type, String name, E fallback) {

@@ -60,6 +60,15 @@ public final class ConditionEvents {
         }
     }
 
+    /** A player who comes into view is told the other's injury walk. */
+    @SubscribeEvent
+    public static void onStartTracking(PlayerEvent.StartTracking event) {
+        if (event.getTarget() instanceof ServerPlayer target && event.getEntity() instanceof ServerPlayer watcher) {
+            CoreNet.CHANNEL.send(PacketDistributor.PLAYER.with(() -> watcher),
+                    new dev.holdfast.core.net.MovementPacket(target.getId(), ConditionCapability.of(target).movement().name()));
+        }
+    }
+
     @SubscribeEvent
     public static void onRespawn(PlayerEvent.PlayerRespawnEvent event) {
         if (event.getEntity() instanceof ServerPlayer sp) applySpeed(sp, ConditionCapability.of(sp));
@@ -79,6 +88,10 @@ public final class ConditionEvents {
         }
         if (c.takeDirty() || sp.tickCount % 100 == 0) {
             CoreNet.CHANNEL.send(PacketDistributor.PLAYER.with(() -> sp), ConditionSyncPacket.of(c));
+        }
+        if (c.takeMovementDirty()) {
+            CoreNet.CHANNEL.send(PacketDistributor.TRACKING_ENTITY.with(() -> sp),
+                    new dev.holdfast.core.net.MovementPacket(sp.getId(), c.movement().name()));
         }
     }
 

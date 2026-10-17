@@ -56,7 +56,7 @@ Give yourself weapons from the **Holdfast** creative tab (kitchen knife, machete
 |---|---|---|
 | 4.1 | Hit a walker's body several times with any melee weapon | it staggers and is knocked back, **never dies** |
 | 4.2 | Hit its head with a knife / machete / axe at full swing (wait for the attack bar) | dies at once, blood spray and a skull sound; the body stays as a corpse |
-| 4.3 | Baseball bat to the head without charging | stagger only. Hold right-click ~1 s, release, then hit the head | dies |
+| 4.3 | Baseball bat to the head with a plain left-click | stagger only. Then aim at the head, hold right-click ~1 s and release (the release is the swing) | dies. A full charge released at nothing overswings and stumbles |
 | 4.4 | Shoot a walker in the body, then the head, with a TaCZ pistol and a rifle | body: stagger only; head: dies. Separate flesh vs skull sounds from the gunfire |
 | 4.5 | Let a walker grab you (stand still in front of it) | a prompt bar with the key (default **V**); press V in time → you shove it off. Let the bar run out → bite: "Bitten (neck)" in the top-left with a decline bar and, for an arm or leg, an amputation timer |
 | 4.6 | Wear a **Riot Collar** (head slot) and let it grab you without escaping | the first bites are blocked ("didn't get through"), the grab keeps going; once the collar is used up the next bite gets through |

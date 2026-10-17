@@ -31,5 +31,7 @@ public final class CoreNet {
                 GrabPromptPacket::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CHANNEL.registerMessage(id++, ActionPacket.class, ActionPacket::encode, ActionPacket::decode,
                 ActionPacket::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        CHANNEL.registerMessage(id++, MovementPacket.class, MovementPacket::encode, MovementPacket::decode,
+                MovementPacket::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
     }
 }

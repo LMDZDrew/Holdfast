@@ -21,6 +21,16 @@ public final class TaczBridge {
 
     public static void register() {
         MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, false, EntityHurtByGunEvent.Pre.class, TaczBridge::onGunHurt);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, false, EntityHurtByGunEvent.Post.class, TaczBridge::onGunHurtOther);
+    }
+
+    /** Any other living target keeps TaCZ's own damage; clients get the gunshot flesh response (decisions.md). */
+    private static void onGunHurtOther(EntityHurtByGunEvent.Post event) {
+        if (event.getLogicalSide() != LogicalSide.SERVER || !(event.getHurtEntity() instanceof net.minecraft.world.entity.LivingEntity le)
+                || le instanceof WalkerEntity) return;
+        Vec3 hit = event.getBullet() != null ? event.getBullet().position() : le.getEyePosition();
+        Vec3 dir = event.getBullet() != null ? event.getBullet().getDeltaMovement() : Vec3.ZERO;
+        dev.holdfast.core.combat.Strikes.feedbackOther(le, hit, dir, WeaponClass.Contact.GUNSHOT, event.isHeadShot());
     }
 
     private static void onGunHurt(EntityHurtByGunEvent.Pre event) {

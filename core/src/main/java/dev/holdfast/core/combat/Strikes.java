@@ -49,6 +49,13 @@ public final class Strikes {
         return Math.max(lo, Math.min(hi, v));
     }
 
+    /** Flesh response for a hit on a living thing that isn't a walker; its damage stays vanilla's or TaCZ's. */
+    public static void feedbackOther(LivingEntity target, Vec3 hit, Vec3 direction, WeaponClass.Contact contact, boolean head) {
+        WalkerStrikeRules.Outcome shown = target.isAlive() ? WalkerStrikeRules.Outcome.STAGGER : WalkerStrikeRules.Outcome.BRAIN_KILL;
+        CoreNet.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> target),
+                HitFeedbackPacket.of(target.getId(), hit, direction, contact, head ? BodyRegion.HEAD : BodyRegion.TORSO, shown));
+    }
+
     public static WalkerStrikeRules.Outcome apply(LivingEntity attacker, WalkerEntity w, WeaponClass weapon, Vec3 hit, BodyRegion region,
                                                   double swing, double charge) {
         if (w.isCorpse()) return WalkerStrikeRules.Outcome.GLANCE;
