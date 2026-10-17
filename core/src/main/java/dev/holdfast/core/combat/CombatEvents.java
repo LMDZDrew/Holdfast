@@ -21,23 +21,24 @@ import net.minecraftforge.network.PacketDistributor;
 public final class CombatEvents {
     private CombatEvents() {}
 
-    /** Player melee: the server measures swing strength and charge itself; the client only reported the click. */
+    /**
+     * Player melee on a walker: the click only starts a server swing ({@link MeleeSwings}); contact is resolved at the
+     * clip's generated contact tick against what is in reach then. Vanilla's immediate damage is always cancelled.
+     * On anything else vanilla damage stands; other players are shown the same swing clip.
+     */
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onPlayerAttack(AttackEntityEvent event) {
-        if (!(event.getTarget() instanceof WalkerEntity w) || !(event.getEntity() instanceof ServerPlayer p)) return;
-        event.setCanceled(true);
-        if (Grabs.isGrabbed(p) || Executions.isExecuting(p)) return;
-        WeaponClass weapon = Weapons.held(p);
-        if (weapon.firearm()) return;                         // pistol-whipping is TaCZ's melee, handled by its own event
-        if (p.getMainHandItem().getItem() instanceof MeleeWeaponItem m && m.twoHanded && !p.getOffhandItem().isEmpty()) return;
-        double swing = p.getAttackStrengthScale(0.5F);
-        p.resetAttackStrengthTicker();
-        double charge = weapon.blunt() ? BluntCharge.spend(p) : 0;
-        var hit = Strikes.meleeHitPoint(p, w);
-        Strikes.apply(p, w, weapon, hit, Strikes.region(w, hit), swing, charge);
-        p.getMainHandItem().hurtAndBreak(1, p, x -> {});
-        p.causeFoodExhaustion(0.08F);                         // light: a healthy survivor can drop several walkers
-        // A teammate's hit on a walker that is grabbing someone releases them if it stuns or kills it (S6).
+        if (!(event.getEntity() instanceof ServerPlayer p)) return;
+        if (!(event.getTarget() instanceof WalkerEntity)) {
+            WeaponClass weapon = Weapons.held(p);
+            String clip = weapon.firearm() ? null : dev.holdfast.core.rules.SwingRules.clipFor(weapon,
+                    dev.holdfast.core.rules.SwingRules.heavy(p.getAttackStrengthScale(0.5F)));
+            if (clip != null) CoreNet.CHANNEL.send(PacketDistributor.TRACKING_ENTITY.with(() -> p), new PlayClipPacket(p.getId(), clip, -1, true));
+            return;
+        }
+        event.setCanceled(true);                              // pistol-whipping stays TaCZ's own melee
+        MeleeSwings.click(p);
+        // A teammate's hit on a walker that is grabbing someone releases them if it stuns or kills it (S6), at contact.
     }
 
     /** Arrows and other projectiles carry a position; anything else that would hurt a walker is ignored. */
@@ -81,9 +82,10 @@ public final class CombatEvents {
     }
 
     /**
-     * Releasing a charged blunt weapon IS the swing (S10): the server finds what is in reach along the player's view
-     * at release and resolves it with its own measured charge. Nothing in reach: a full charge overswings
-     * ({@code bat_charged_miss}, the player is exposed); a partial one is an ordinary swing.
+     * Releasing a charged blunt weapon IS the swing (S10). The server spends its own measured charge and starts a
+     * swing that resolves at the clip's contact tick. The clip is chosen from what is in reach at release: a full
+     * charge with nothing there overswings ({@code bat_charged_miss}, the player is exposed); a partial one is an
+     * ordinary swing. The swinging client can't predict that choice, so it is told too.
      */
     @SubscribeEvent
     public static void onUseStop(LivingEntityUseItemEvent.Stop event) {
@@ -91,22 +93,11 @@ public final class CombatEvents {
                 || !m.weaponClass.blunt()) return;
         BluntCharge.release(p);
         double charge = BluntCharge.spend(p);
-        var eye = p.getEyePosition();
-        var reach = eye.add(p.getViewVector(1.0F).scale(3.0));
-        var hit = net.minecraft.world.entity.projectile.ProjectileUtil.getEntityHitResult(p.level(), p, eye, reach,
-                p.getBoundingBox().expandTowards(p.getViewVector(1.0F).scale(3.0)).inflate(1.0), e -> e instanceof WalkerEntity w && !w.isCorpse());
-        String clip;
-        if (hit != null && hit.getEntity() instanceof WalkerEntity w) {
-            var at = Strikes.meleeHitPoint(p, w);
-            Strikes.apply(p, w, m.weaponClass, at, Strikes.region(w, at), 1.0, charge);
-            p.getMainHandItem().hurtAndBreak(1, p, x -> {});
-            clip = charge >= dev.holdfast.core.rules.WalkerStrikeRules.FULL_CHARGE ? "swing_bat_heavy" : "swing_bat";
+        if (MeleeSwings.release(p, m.weaponClass, charge)) {
+            CoreNet.CHANNEL.send(PacketDistributor.PLAYER.with(() -> p), new PlayClipPacket(p.getId(), MeleeSwings.clip(p), -1, true));
         } else {
-            clip = charge >= dev.holdfast.core.rules.WalkerStrikeRules.FULL_CHARGE ? "bat_charged_miss" : "swing_bat";
+            CoreNet.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> p), PlayClipPacket.stop(p.getId()));
         }
-        p.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
-        p.resetAttackStrengthTicker();
-        CoreNet.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> p), new PlayClipPacket(p.getId(), clip, -1, true));
     }
 
     // ------------------------------------------------------------------ server tick and lifecycle
@@ -116,6 +107,7 @@ public final class CombatEvents {
         if (event.phase != TickEvent.Phase.END) return;
         Grabs.tick(event.getServer());
         Executions.tick(event.getServer());
+        MeleeSwings.tick(event.getServer());
     }
 
     @SubscribeEvent
@@ -123,6 +115,7 @@ public final class CombatEvents {
         if (event.getEntity() instanceof ServerPlayer p) {
             Grabs.abandon(p);
             Executions.drop(p);
+            MeleeSwings.drop(p);
             BluntCharge.clear(p);
         }
     }

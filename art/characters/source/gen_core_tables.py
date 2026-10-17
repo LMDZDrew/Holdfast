@@ -2,7 +2,9 @@
 execution table (S7-S9), pairing distances and walker attack timers cannot drift from the exported clips.
 
 Kill ticks use the measured weapon entry (build/contact.json from measure.py) when there is one, else the authored
-impact. Run after make_all.sh and measure.py."""
+impact. Free swings (ordinary melee) take their commit and contact ("strike") ticks from the exported clips' timeline
+events, the same files clients play, so the server resolves a swing when its visual contact happens.
+Run after make_all.sh and measure.py."""
 import json, math, os
 import walker_anims as wa
 
@@ -10,6 +12,10 @@ HERE = os.path.dirname(__file__)
 BUILD = os.path.join(HERE, "..", "build")
 OUT = os.path.join(HERE, "..", "..", "..", "core", "src", "main", "java", "dev", "holdfast", "core", "rules", "CombatTimings.java")
 pair = json.load(open(os.path.join(BUILD, "pairing.json")))
+EXTRAS = os.path.join(HERE, "..", "export", "assets", "holdfast", "player_animation_extras")
+SWING_CLIPS = ("swing_knife", "swing_knife_heavy", "swing_machete", "swing_machete_heavy", "swing_hatchet",
+               "swing_hatchet_heavy", "swing_katana", "swing_katana_heavy", "swing_axe", "swing_axe_overhead",
+               "swing_bat", "swing_bat_heavy", "bat_charged_miss", "swing_unarmed", "swing_unarmed_heavy")
 contact = json.load(open(os.path.join(BUILD, "contact.json"))) if os.path.exists(os.path.join(BUILD, "contact.json")) else {}
 
 
@@ -47,6 +53,22 @@ for classes, posture, pc, tc, key, dist in ROWS:
                 f"{release}, {int(math.ceil(e['length'] * 20))}, {round(dist, 2)})")
 L.append(",\n".join(rows))
 L += ["    );", "",
+      "    /** One free swing: the clip clients play, and the server's commit and contact ticks from its timeline. */",
+      "    public record Swing(String clip, int commitTick, int contactTick, int lengthTicks) {}", "",
+      "    public static final List<Swing> SWINGS = List.of("]
+swings = []
+for name in SWING_CLIPS:
+    a = json.load(open(os.path.join(EXTRAS, name + ".extras.json")))["animations"][name]
+    events = {v: float(k) for k, v in a.get("timeline", {}).items()}
+    strike = events["strike"]
+    swings.append(f"        new Swing(\"{name}\", {tick(events.get('commit', 0.0))}, {tick(strike)}, "
+                  f"{int(math.ceil(a['animation_length'] * 20 - 1e-9))})")
+L.append(",\n".join(swings))
+L += ["    );", "",
+      "    public static Swing swing(String clip) {",
+      "        for (Swing s : SWINGS) if (s.clip().equals(clip)) return s;",
+      "        throw new IllegalArgumentException(\"no swing timing for \" + clip);",
+      "    }", "",
       "    /** Walker lunge: the server's own hit moment after the lunge starts (S1). */",
       "    public static final int LUNGE_HIT_TICK = 11, CRAWLER_LUNGE_HIT_TICK = 10;",
       "    /** Reach of a lunge or ankle grab, blocks (S1, proposed). */",
@@ -57,4 +79,4 @@ L += ["    );", "",
       "}"]
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 open(OUT, "w").write("\n".join(L) + "\n")
-print("wrote", os.path.relpath(OUT), f"({len(rows)} executions)")
+print("wrote", os.path.relpath(OUT), f"({len(rows)} executions, {len(swings)} swings)")

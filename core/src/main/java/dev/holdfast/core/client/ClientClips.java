@@ -43,8 +43,9 @@ import java.util.ArrayList;
  * <li>weapon hold 97: the held melee family's hold (arms, items, head only), over locomotion.</li>
  * <li>action 1100: server-started clips (grabs, executions, charge) and swings; owns the arms while it plays.</li>
  * </ul>
- * Locomotion and swings are chosen from what this client sees of each player (movement, the vanilla swing it already
- * receives); the owner's injury walk follows the server's synced condition.
+ * Locomotion is chosen from what this client sees of each player's movement; the owner's injury walk follows the
+ * server's synced condition. The local player's swing starts on its own click; other players' swings arrive as the
+ * server's clip packet, so the clip that plays is the one the server times contact from.
  */
 public final class ClientClips {
     private static final ResourceLocation ACTION = new ResourceLocation(HoldfastCore.MODID, "action");
@@ -58,11 +59,9 @@ public final class ClientClips {
     private static final class Applied {
         AbstractClientPlayer owner;
         String locomotion, hold;
-        int lastSwingTime = 99;      // "not swinging", so the first swing is caught
         boolean wasOnGround = true;
         double x, y, z, speed, distance;
         boolean positioned;
-        int sinceSwing = 100;
         int airTicks, landingTicks;
         final SpeedModifier rate = new SpeedModifier(1);
         boolean rateInstalled;
@@ -335,26 +334,25 @@ public final class ClientClips {
             KeyframeAnimation data = hold == null ? null : PlayerAnimationRegistry.getAnimation(new ResourceLocation(HoldfastCore.ASSETS, hold));
             blend(layer, data == null ? null : new CarryPlayer(data, a, fam.equals("axe") || fam.equals("bat") || fam.equals("katana")), 5);
         }
-        // ---- swing: vanilla already tells every client when a player starts a swing
-        if (fam != null && p.swinging && p.swingTime <= 1 && a.lastSwingTime > 1) {
-            boolean heavy = a.sinceSwing >= p.getCurrentItemAttackStrengthDelay() * 0.95F;
-            a.sinceSwing = 0;
-            String clip = switch (fam) {
-                case "bat" -> "swing_bat";
-                case "axe" -> heavy ? "swing_axe_overhead" : "swing_axe";
-                default -> "swing_" + fam + (heavy ? "_heavy" : "");
-            };
-            ModifierLayer<IAnimation> layer = layer(p, ACTION);
-            if (layer != null && (layer.getAnimation() == null || !layer.getAnimation().isActive())) {
-                KeyframeAnimationPlayer kp = player(clip, FirstPersonMode.THIRD_PERSON_MODEL);
-                if (kp != null) {
-                    blend(layer, kp, 2);
-                    ACTION_NAMES.put(p.getId(), clip);
-                }
-            }
-        }
-        a.lastSwingTime = p.swinging ? p.swingTime : 99;
-        a.sinceSwing++;
+    }
+
+    /**
+     * The local player's left click (an attack on an entity or into the air). Plays the clip the server will time
+     * contact from ({@link dev.holdfast.core.rules.SwingRules#clipFor}); other players see the server's clip packet.
+     * Returns false when no swing starts (gun, item use, a swing already playing), so no air-swing request is sent.
+     */
+    static boolean localSwing(AbstractClientPlayer p, double attackStrength) {
+        if (holdingGun(p) || p.isUsingItem() || inspecting(p)) return false;
+        var weapon = Weapons.held(p);
+        if (weapon.firearm()) return false;
+        String clip = dev.holdfast.core.rules.SwingRules.clipFor(weapon, dev.holdfast.core.rules.SwingRules.heavy(attackStrength));
+        ModifierLayer<IAnimation> layer = layer(p, ACTION);
+        if (clip == null || layer == null || (layer.getAnimation() != null && layer.getAnimation().isActive())) return false;
+        KeyframeAnimationPlayer kp = player(clip, FirstPersonMode.THIRD_PERSON_MODEL);
+        if (kp == null) return false;
+        blend(layer, kp, 2);
+        ACTION_NAMES.put(p.getId(), clip);
+        return true;
     }
 
     /** Same source-generated cosmetic camera cue as the harness, including the firearm-safe injury track. */

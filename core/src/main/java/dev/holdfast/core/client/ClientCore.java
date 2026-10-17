@@ -37,6 +37,7 @@ public final class ClientCore {
         modBus.addListener((FMLClientSetupEvent e) -> e.enqueueWork(ClientClips::registerLayers));
         MinecraftForge.EVENT_BUS.addListener(ClientCore::onClientTick);
         MinecraftForge.EVENT_BUS.addListener(ClientClips::camera);
+        MinecraftForge.EVENT_BUS.addListener(ClientCore::onClickInput);
     }
 
     private static void onRenderers(EntityRenderersEvent.RegisterRenderers event) {
@@ -56,6 +57,21 @@ public final class ClientCore {
             Entity looked = mc.hitResult instanceof EntityHitResult eh ? eh.getEntity() : null;
             CoreNet.CHANNEL.sendToServer(new ActionPacket(looked == null ? -1 : looked.getId()));
         }
+    }
+
+    /**
+     * Left click, before vanilla spends the attack strength: start the local swing clip now (the server's contact tick
+     * comes from the same clip) and, for a click into the air, ask the server to start the swing. Clicks on a block
+     * are mining, not attacks; clicks during an active swing are ignored, as the server refuses them.
+     */
+    private static void onClickInput(net.minecraftforge.client.event.InputEvent.InteractionKeyMappingTriggered event) {
+        Minecraft mc = Minecraft.getInstance();
+        if (!event.isAttack() || event.getHand() != net.minecraft.world.InteractionHand.MAIN_HAND || mc.player == null
+                || mc.player.isSpectator()) return;
+        var type = mc.hitResult == null ? net.minecraft.world.phys.HitResult.Type.MISS : mc.hitResult.getType();
+        if (type == net.minecraft.world.phys.HitResult.Type.BLOCK) return;
+        if (!ClientClips.localSwing(mc.player, mc.player.getAttackStrengthScale(0.5F))) return;
+        if (type == net.minecraft.world.phys.HitResult.Type.MISS) CoreNet.CHANNEL.sendToServer(new dev.holdfast.core.net.SwingPacket());
     }
 
     private static void onOverlays(RegisterGuiOverlaysEvent event) {

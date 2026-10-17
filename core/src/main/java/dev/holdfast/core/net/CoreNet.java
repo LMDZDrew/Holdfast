@@ -10,10 +10,10 @@ import java.util.Optional;
 
 /**
  * Server-to-client packets announce decided results (condition, clips, hit feedback, grab prompt); client-to-server
- * packets are requests the server validates (escape, execute, cancel). No client packet carries an outcome.
+ * packets are requests the server validates (escape, execute, cancel, swing into the air). No client packet carries an outcome.
  */
 public final class CoreNet {
-    private static final String VERSION = "2";
+    private static final String VERSION = "3";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(HoldfastCore.MODID, "main"), () -> VERSION, VERSION::equals, VERSION::equals);
 
@@ -33,6 +33,8 @@ public final class CoreNet {
                 ActionPacket::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
         CHANNEL.registerMessage(id++, MovementPacket.class, MovementPacket::encode, MovementPacket::decode,
                 MovementPacket::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(id++, SwingPacket.class, SwingPacket::encode, SwingPacket::decode,
+                SwingPacket::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
         CHANNEL.registerMessage(id++, GunShotPacket.class, GunShotPacket::encode, GunShotPacket::decode,
                 GunShotPacket::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
     }

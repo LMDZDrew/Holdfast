@@ -29,6 +29,32 @@ public final class CombatTimings {
         new Exec(List.of(WeaponClass.PISTOL), Posture.PRONE, "exec_pistol_ground", "react_pistol_ground_prone", 4, 9, 11, 24, 31.08)
     );
 
+    /** One free swing: the clip clients play, and the server's commit and contact ticks from its timeline. */
+    public record Swing(String clip, int commitTick, int contactTick, int lengthTicks) {}
+
+    public static final List<Swing> SWINGS = List.of(
+        new Swing("swing_knife", 2, 4, 9),
+        new Swing("swing_knife_heavy", 3, 6, 14),
+        new Swing("swing_machete", 2, 5, 12),
+        new Swing("swing_machete_heavy", 4, 8, 16),
+        new Swing("swing_hatchet", 2, 4, 10),
+        new Swing("swing_hatchet_heavy", 4, 7, 15),
+        new Swing("swing_katana", 3, 6, 13),
+        new Swing("swing_katana_heavy", 5, 8, 17),
+        new Swing("swing_axe", 2, 6, 15),
+        new Swing("swing_axe_overhead", 6, 9, 20),
+        new Swing("swing_bat", 2, 5, 13),
+        new Swing("swing_bat_heavy", 4, 8, 18),
+        new Swing("bat_charged_miss", 1, 4, 30),
+        new Swing("swing_unarmed", 0, 3, 9),
+        new Swing("swing_unarmed_heavy", 0, 5, 13)
+    );
+
+    public static Swing swing(String clip) {
+        for (Swing s : SWINGS) if (s.clip().equals(clip)) return s;
+        throw new IllegalArgumentException("no swing timing for " + clip);
+    }
+
     /** Walker lunge: the server's own hit moment after the lunge starts (S1). */
     public static final int LUNGE_HIT_TICK = 11, CRAWLER_LUNGE_HIT_TICK = 10;
     /** Reach of a lunge or ankle grab, blocks (S1, proposed). */
