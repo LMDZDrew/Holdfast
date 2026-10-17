@@ -53,6 +53,11 @@ Status: accepted design unless labeled proposed. This file supersedes older word
 - Add general player animations for crouching, sprinting, walking, and jumping. They must coexist with injury motion, equipment, and TaCZ's gun poses; firearm locomotion leaves TaCZ's arm, item, and aiming transforms in charge.
 - Add distinct melee animation families for knives; two-handed bats and axes; swords and katanas; machetes; and one-handed hatchets. Match holds, attacks, and transitions to each weapon family rather than reusing a single generic melee pose. Exact clip list and visual style remain to be authored and tested.
 
+## Holdfast animations replace vanilla's (accepted 2026-10-17, Andrew)
+
+- Player animations play from real input and state, not test commands: left-click attacks play the held weapon family's swing; walking, sprinting, crouching, jumping and idle play Holdfast locomotion; a held melee weapon plays its hold. They replace vanilla's limb animation, follow actual movement speed, blend between states, and are visible to every player.
+- TaCZ keeps ownership of arms, items and ADS while a gun is held (legs-only locomotion variants); injury walks replace normal locomotion when injured. The `/hfa` harness remains a test tool.
+
 ## Stage 1 validation with one human tester (accepted 2026-10-16, Andrew)
 
 - Finish the combat and presentation slice in `roadmap.md` before world generation. Andrew can perform solo visual checks on a dedicated server, but has no second human tester available now.

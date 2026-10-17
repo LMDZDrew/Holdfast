@@ -115,7 +115,7 @@ Retest the new first-person limp cue and ADS, then author handgun executions aga
 
 ## Andrew's first in-game review of the build-out — 2026-10-17 (Claude)
 
-Branch `claude/stage1-combat-and-animation`. Andrew ran bulk test sections 1-3; results, his exact words, causes, and an ordered task list for Codex are in **`docs/codex_stage1_animation_feedback.md`**. In short: pistol executions pass (need TaCZ's per-gun shot sound); axe/bat/machete executions pass; standing knife lands short again; every hold is stiff and unnatural (axe clips through the body); swings and locomotion work but are stiff and minimal; `_gun` locomotion passes. No new sounds heard because the new audio lives in `holdfast_core`, whose section 4 wasn't run. Nothing was fixed after the review, at Andrew's request.
+Branch `claude/stage1-combat-and-animation`. Andrew ran bulk test sections 1-3; results, his exact words, causes, and an ordered task list for Codex are in **`docs/codex_stage1_animation_feedback.md`**. In short: pistol executions pass (need TaCZ's per-gun shot sound); axe/bat/machete executions pass; standing knife lands short again; every hold is stiff and unnatural (axe clips through the body); swings and locomotion work but are stiff and minimal; `_gun` locomotion passes. No new sounds heard because the new audio lives in `holdfast_core`, whose section 4 wasn't run. Nothing was fixed after the review, at Andrew's request. Andrew also decided that Holdfast animations replace vanilla's (left click plays real swings; walk/sprint/crouch/jump play Holdfast locomotion; see `decisions.md` and the feedback handoff).
 
 ## Handoff format for future work
 
