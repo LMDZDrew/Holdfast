@@ -77,6 +77,10 @@ public final class CombatEvents {
     public static void onUseStart(LivingEntityUseItemEvent.Start event) {
         if (event.getEntity() instanceof ServerPlayer p && Weapons.of(event.getItem()).blunt()
                 && event.getItem().getItem() instanceof MeleeWeaponItem) {
+            if(Executions.isExecuting(p) || Grabs.isGrabbed(p) || !MeleeSwings.clip(p).isEmpty()) {
+                event.setCanceled(true);
+                return;
+            }
             BluntCharge.start(p);
             CoreNet.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> p), new PlayClipPacket(p.getId(), "bat_charge_hold", -1, true));
         }
@@ -92,6 +96,10 @@ public final class CombatEvents {
     public static void onUseStop(LivingEntityUseItemEvent.Stop event) {
         if (!(event.getEntity() instanceof ServerPlayer p) || !(event.getItem().getItem() instanceof MeleeWeaponItem m)
                 || !m.weaponClass.blunt()) return;
+        if(Executions.isExecuting(p) || Grabs.isGrabbed(p)) {
+            BluntCharge.clear(p);
+            return; // releasing the charge used to start an execution must not send a stop over its paired clip
+        }
         BluntCharge.release(p);
         double charge = BluntCharge.spend(p);
         if (MeleeSwings.release(p, m.weaponClass, charge)) {

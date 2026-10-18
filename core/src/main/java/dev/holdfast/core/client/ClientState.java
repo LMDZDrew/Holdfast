@@ -15,6 +15,11 @@ public final class ClientState {
 
     private ClientState() {}
 
+    static void resetTransient() {
+        promptWindow=0;promptStartClientTick=-1;promptGround=false;
+        lastResult="";resultUntil=0;
+    }
+
     public static void condition(ConditionSyncPacket m) {
         condition = m;
         // Rehydrate the animation state even when a reconnect sends the same saved injury as the last session.

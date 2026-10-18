@@ -121,7 +121,9 @@ def knife_ground():
     Hm, Wm = b.walker(e["commit"])
     down = pa.hd(Hm, (0, -1, 0))
     b.solve_weapon(e["commit"], pa.hp(Hm, (0, 8, 0)) - down * 9, axis=down)
-    b.solve_left(e["commit"], fk.point(Wm, "torso", (0, 10, 2.5)) + P(-3, 0, 0))   # brace on its near side
+    # The free arm cannot reach a ground brace from this rigid-arm crouch (9-12 px short). Counterbalance at
+    # the player's side instead of leaving a hand suspended in front of an unreachable support surface.
+    b.pose(e['commit'],leftArm=[-28,0,-8])
     b.pose(I - 0.07, body_pos=[4, -3.9, -0.2], torso=[38, -2, 0], head=[40, 0, 0])
     Hm, Wm = b.walker(I - 0.07)
     down = pa.hd(Hm, (0, -1, 0))
@@ -131,7 +133,7 @@ def knife_ground():
     b.pose(I, body_pos=[4, -2.3, -0.6], torso=[20, -4, 0], head=[40, 0, 0])
     Hm, Wm = b.walker(I)
     b.solve_weapon(I, pa.hp(Hm, (0, 2.5, 0)), axis=pa.hd(Hm, (0, -1, 0)), reg=0.00002, w_axis=200)
-    b.solve_left(I, fk.point(Wm, "torso", (0, 10, 2.5)) + P(-3, 0, 0))
+    b.pose(I,leftArm=[-18,0,-6])
     b.pose(0.66, body_pos=[4, -2.3, -0.6], torso=[20, -4, 0])
     Hm, Wm = b.walker(0.66)
     b.solve_weapon(0.66, pa.hp(Hm, (0, 2.5, 0)), axis=pa.hd(Hm, (0, -1, 0)), reg=0.00002, w_axis=200)

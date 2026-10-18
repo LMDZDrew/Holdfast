@@ -18,6 +18,32 @@ import java.nio.charset.StandardCharsets;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AnimationRuntimeTest {
+    @Test void everyExportPlaysWithFiniteTransformsInInstalledLibrary() throws Exception {
+        var folder=java.nio.file.Path.of(AnimationRuntimeTest.class.getResource("/assets/holdfast/player_animation").toURI());
+        int checked=0;
+        try(var paths=java.nio.file.Files.list(folder)) {
+            for(var path:paths.filter(p -> p.toString().endsWith(".json")).sorted().toList()) {
+                String name=path.getFileName().toString().replace(".json","");
+                var data=clip(name);var player=new KeyframeAnimationPlayer(data);
+                for(int tick=0;tick<=Math.min(data.endTick+3,400);tick++) {
+                    for(int frame=0;frame<4;frame++) {
+                        float partial=frame/4f;player.setupAnim(partial);
+                        for(String part:new String[]{"body","torso","head","rightArm","leftArm","rightLeg","leftLeg","rightItem","leftItem"})
+                            for(var type:new TransformType[]{TransformType.POSITION,TransformType.ROTATION}) {
+                                Vec3f value=player.get3DTransform(part,type,partial,Vec3f.ZERO);
+                                assertTrue(Float.isFinite(value.getX()) && Float.isFinite(value.getY()) && Float.isFinite(value.getZ()),
+                                        name+" "+part+" "+type+" at "+tick);
+                            }
+                    }
+                    player.tick();
+                }
+                checked++;
+            }
+        }
+        assertTrue(checked>=82,"animation coverage lost exports");
+        System.out.println("Player Animator finite playback: "+checked+" exported clips");
+    }
+
     @Test void ordinaryClicksDoNotSwivelTheTorsoInPlayerAnimator() throws Exception {
         for(var timing:dev.holdfast.core.rules.CombatTimings.SWINGS) {
             if(!timing.clip().startsWith("swing_")) continue; // charged overswing is a separate action

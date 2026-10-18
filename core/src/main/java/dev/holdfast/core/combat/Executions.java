@@ -37,16 +37,23 @@ public final class Executions {
         final ExecutionRules.Session session;
         final Vec3 snapped;
         final WeaponClass weapon;
+        final net.minecraft.world.item.ItemStack held;
+        final int slot;
+        final Vec3 playerSnapped;
+        boolean killed;
         /** The walker reaction this approach plays (front, left, right or rear variant). */
         String targetClip;
         net.minecraft.world.item.ItemStack gun = net.minecraft.world.item.ItemStack.EMPTY;
         ServerPlayer ref;
 
-        Active(WalkerEntity target, ExecutionRules.Session session, Vec3 snapped, WeaponClass weapon) {
+        Active(WalkerEntity target, ExecutionRules.Session session, Vec3 snapped, WeaponClass weapon,ServerPlayer player) {
             this.target = target;
             this.session = session;
             this.snapped = snapped;
             this.weapon = weapon;
+            this.held=player.getMainHandItem();
+            this.slot=player.getInventory().selected;
+            this.playerSnapped=player.position();
         }
     }
 
@@ -113,7 +120,7 @@ public final class Executions {
         w.setYHeadRot(facing);
         w.getNavigation().stop();
         long now = p.serverLevel().getGameTime();
-        Active active = new Active(w, new ExecutionRules.Session(clip, now), w.position(), weapon);
+        Active active = new Active(w, new ExecutionRules.Session(clip, now), w.position(), weapon,p);
         active.ref = p;
         active.targetClip = al.targetClip();
         if (weapon == WeaponClass.PISTOL) active.gun = p.getMainHandItem().copy();
@@ -127,8 +134,8 @@ public final class Executions {
         return net.minecraftforge.fml.ModList.get().isLoaded("tacz") ? dev.holdfast.core.compat.tacz.TaczGuns.rounds(stack) : 0;
     }
 
-    private static void consumeRound(net.minecraft.world.item.ItemStack stack) {
-        if (net.minecraftforge.fml.ModList.get().isLoaded("tacz")) dev.holdfast.core.compat.tacz.TaczGuns.consumeRound(stack);
+    private static boolean consumeRound(net.minecraft.world.item.ItemStack stack) {
+        return net.minecraftforge.fml.ModList.get().isLoaded("tacz") && dev.holdfast.core.compat.tacz.TaczGuns.consumeRound(stack);
     }
 
     /** Last refusal / approach per player, for GameTests and the debug command. */
@@ -199,13 +206,25 @@ public final class Executions {
         if (a != null && !a.target.isCorpse()) a.target.playFull("", 0);
     }
 
+    private static void abort(ServerPlayer p,Active a) {
+        if(!a.target.isCorpse() && a.target.fullClip().equals(a.targetClip)) a.target.playFull("",0);
+        CoreNet.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> p),PlayClipPacket.stop(p.getId()));
+    }
+
     public static void tick(MinecraftServer server) {
         for (Iterator<Map.Entry<UUID, Active>> it = ACTIVE.entrySet().iterator(); it.hasNext(); ) {
             Map.Entry<UUID, Active> e = it.next();
             Active a = e.getValue();
             ServerPlayer p = Players.resolve(server, e.getKey(), a.ref);
-            if (p == null || !p.isAlive()) {
+            if (p == null || p!=a.ref || !p.isAlive()) {
                 if (!a.target.isCorpse()) a.target.playFull("", 0);
+                it.remove();
+                continue;
+            }
+            if(!a.killed && (p.serverLevel()!=a.target.level() || p.getInventory().selected!=a.slot
+                    || p.getMainHandItem()!=a.held || Weapons.held(p)!=a.weapon
+                    || p.position().distanceTo(a.playerSnapped)>IN_PLACE)) {
+                abort(p,a);
                 it.remove();
                 continue;
             }
@@ -214,15 +233,19 @@ public final class Executions {
             switch (a.session.tick(now, inPlace)) {
                 case KILL -> {
                     // the shot spends its round at the kill tick, from the gun still in hand
-                    if (a.weapon == WeaponClass.PISTOL) consumeRound(p.getMainHandItem());
+                    if (a.weapon == WeaponClass.PISTOL && !consumeRound(a.held)) {
+                        abort(p,a);it.remove();continue; // ammo changed after the start: no free execution
+                    }
+                    a.killed=true;
                     if (!a.gun.isEmpty()) CoreNet.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> p),
                             new dev.holdfast.core.net.GunShotPacket(p.getId(), a.gun));
                     HitFeedbackPacket contact=contactFeedback(a.target,a.weapon,a.targetClip);
                     a.target.brainKill(a.targetClip, 0);
                     Strikes.feedback(a.target,contact);
-                    p.getMainHandItem().hurtAndBreak(1, p, x -> {});
+                    a.held.hurtAndBreak(1, p, x -> {});
                 }
-                case FAILED_TARGET_MOVED, CANCELLED, DONE -> it.remove();
+                case FAILED_TARGET_MOVED, CANCELLED -> { abort(p,a);it.remove(); }
+                case DONE -> it.remove();
                 case RUNNING -> { }
             }
         }

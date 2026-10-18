@@ -176,6 +176,49 @@ public final class PlayerGameTests {
         h.succeed();
     }
 
+    private static void interruptedExecution(GameTestHelper h,int interruption) {
+        ServerPlayer p=player(h);WalkerEntity w=walker(h);
+        ItemStack original=new ItemStack(CoreItems.KNIFE.get());
+        p.setItemInHand(InteractionHand.MAIN_HAND,original);
+        Executions.request(p,w);
+        h.assertTrue(Executions.isExecuting(p),"execution refused before interruption");
+        h.runAfterDelay(1,() -> {
+            if(interruption==0) p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(CoreItems.FIRE_AXE.get()));
+            else if(interruption==1) p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(CoreItems.KNIFE.get()));
+            else if(interruption==2) p.moveTo(p.getX()+3,p.getY(),p.getZ(),p.getYRot(),p.getXRot());
+            else w.setPos(w.getX()+2,w.getY(),w.getZ());
+        });
+        h.runAfterDelay(14,() -> {
+            h.assertFalse(w.isCorpse(),"interrupted execution killed");
+            h.assertFalse(Executions.isExecuting(p),"interrupted execution retained ownership");
+            h.assertTrue(original.getDamageValue()==0,"interrupted execution spent durability");
+            h.assertFalse(w.fullClip().equals("react_knife"),"failed execution kept death reaction");
+            h.succeed();
+        });
+    }
+
+    @GameTest(template="arena",timeoutTicks=40)
+    public static void executionWeaponSwitchAborts(GameTestHelper h) { interruptedExecution(h,0); }
+    @GameTest(template="arena",timeoutTicks=40)
+    public static void executionSameItemReplacementAborts(GameTestHelper h) { interruptedExecution(h,1); }
+    @GameTest(template="arena",timeoutTicks=40)
+    public static void executionPlayerLeavingAborts(GameTestHelper h) { interruptedExecution(h,2); }
+    @GameTest(template="arena",timeoutTicks=40)
+    public static void executionTargetLeavingClearsReaction(GameTestHelper h) { interruptedExecution(h,3); }
+
+    @GameTest(template="arena",timeoutTicks=40)
+    public static void executionPreventsOverlappingCharge(GameTestHelper h) {
+        ServerPlayer p=player(h);WalkerEntity w=walker(h);
+        p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(CoreItems.KNIFE.get()));
+        Executions.request(p,w);
+        h.assertTrue(Executions.isExecuting(p),"execution refused");
+        var event=new net.minecraftforge.event.entity.living.LivingEntityUseItemEvent.Start(p,new ItemStack(CoreItems.BASEBALL_BAT.get()),72000);
+        dev.holdfast.core.combat.CombatEvents.onUseStart(event);
+        h.assertTrue(event.isCanceled(),"charge could replace the paired execution");
+        Executions.drop(p);
+        h.succeed();
+    }
+
     @GameTest(template = "arena", timeoutTicks = 40)
     public static void injurySetsTheServerSpeed(GameTestHelper h) {
         ServerPlayer p = player(h);
