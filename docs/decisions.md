@@ -2,6 +2,13 @@
 
 Status: accepted design unless labeled proposed. This file supersedes older wording in `design.md` and the original Word document.
 
+## Dawn-build follow-up and movement-pack clarification (Andrew, 2026-10-18)
+
+- Andrew reports unstable normal-walking camera motion and no katana execution contact; investigate actual runtime alignment and closer pairing rather than relying on earlier software measurements.
+- Swooshes are accepted. Make the sledgehammer convey more weight. Hold left click is the requested universal weapon-charge input; preserve server-measured charge/contact/outcomes and accepted TaCZ gun behavior while resolving input ownership.
+- Exaggerate blood on every confirmed impact, including bullets. This supersedes the earlier modest gunshot-blood direction; origins remain impact-site based and effects retain finite capacity/lifetime.
+- Evaluate the named **Fresh Animations resource pack**, specifically its official Player Extension, for replacement player locomotion. This is not a request to author new locomotion clips. EMF/ETF and pack versions remain candidates pending dependency checks and actual compatibility testing with Holdfast, Player Animator, First Person Model and TaCZ. Preserve combat/injury/gun animation ownership.
+
 ## Third stance/execution review (Andrew, 2026-10-17)
 
 - Blood particles must visibly originate at the weapon/bullet impact site on the walker. Server feedback supplies a surface entry, incoming direction, and a separate gunshot exit where available. Execution contacts follow the authored skull pose; free melee remains a regional ray approximation, not animated mesh collision.

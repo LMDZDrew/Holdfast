@@ -1,5 +1,15 @@
 # Test record
 
+## Fresh Animations clarification / latest review intake — 2026-10-18
+
+Environment: Windows PowerShell in `C:/Users/drewl/Holdfast`; starting clean branch `codex/stage1-dawn-corrections` at `701ad8e`; created scoped `codex/stage1-movement-charge-review`. Documentation/research only in this intake; no code build, export generation, runtime probe, mod installation or jar replacement. Previous installed hashes below remain historical deployment evidence, not newly verified live hashes.
+
+Actual latest user observations: normal walking camera "spazzes out"; katana makes "zero contact" (suggestion: closer execution range); "i like the wooshes"; sledgehammer should convey more weight; wants hold-left-click charging, exaggerated blood even for bullets, replacement movement. Follow-up explicitly identifies **Fresh Animations as the resource pack dependent on ETF and related mods**. This does not accept other unmentioned dawn features.
+
+Commands/research: `git status --short --branch`; `git switch -c codex/stage1-movement-charge-review`; read current decisions/handoff/audit and relevant client/combat sources. Firecrawl developer search plus official Modrinth project-page scrapes; scrapes returned page metadata with little body, so read project bodies directly with `Invoke-RestMethod https://api.modrinth.com/v2/project/fa-player-extension`, corresponding `/version?game_versions=%5B%221.20.1%22%5D`, and `/v2/project/fresh-animations`. Official Player Extension body explicitly requires both EMF/ETF and lists player locomotion plus attack and first-person hand animation. Returned1.1.0/1.0.0 versions list1.20.1;1.1.0's empty API dependency array does not override its explicit documentation. No dependency selected or downloaded. Compatibility and animation arbitration remain untested.
+
+Read Prism `minecraft/logs/latest.log` with `rg -n 'Extra Gore contact|WARN|ERROR'`: log timestamps07:20–07:23 show slash bursts72/72, kill120/120, gun10/10 or18/18 admitted. These samples suggest low configured burst size rather than admission loss in those events; they do not prove visible blood quality or exclude later capacity loss. This log includes the existing FPM mixin `minVersion` error and a missing TaCZ sound warning. No walking/camera reproduction or katana visual observation was performed by Codex here. Remaining work is explicitly queued in the newest handoff.
+
 ## Scheduled dawn corrections — 2026-10-18, final deployment 04:42 Eastern
 
 **Branch / code:** `codex/stage1-dawn-corrections`, implementation **`f963514`**, from pushed `46cd32b`. The scheduled session started at 04:05. Existing uncommitted decision/handoff notes were this chat's future-physics/Tellus planning and were preserved. PR #1/#2 were not modified or merged. No world generation, ragdoll, dismemberment or persistent-pool implementation was started.
