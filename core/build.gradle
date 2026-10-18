@@ -73,10 +73,19 @@ if (project.hasProperty('presentationProbe') || project.hasProperty('presentatio
             runtimeOnly fg.deobf('maven.modrinth:H5XMjpHi:iwodXe68')
             runtimeOnly fg.deobf('curse.maven:extra-gore-937006:8608443')
             runtimeOnly fg.deobf('probe.local:bookling:3.15')
+            if (project.hasProperty('freshPresentationProbe')) {
+                runtimeOnly fg.deobf('maven.modrinth:4I1XuqiY:mQR6L8Qe')
+                runtimeOnly fg.deobf('maven.modrinth:BVzZfTc1:EAHEZRbp')
+                runtimeOnly fg.deobf('maven.modrinth:entity-player-compat:3Yn7rcNT')
+                runtimeOnly fg.deobf('maven.modrinth:emf-compat-core:O02HXwIg')
+                runtimeOnly fg.deobf('maven.modrinth:emf-compat-tacz:bG7U0hqM')
+            }
         }
         minecraft.runs.client {
             workingDirectory project.file('build/presentation-probe/client')
-            property 'holdfast.probe', project.file('build/test-evidence/2026-10-18-dawn/client-probe').absolutePath
+            property 'holdfast.probe', project.file(project.hasProperty('freshPresentationProbe')
+                    ? 'build/test-evidence/2026-10-18-fresh/client-probe'
+                    : 'build/test-evidence/2026-10-18-dawn/client-probe').absolutePath
             args '--server', 'localhost', '--port', '25566', '--username', 'HoldfastProbe'
         }
     } else {

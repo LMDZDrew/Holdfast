@@ -25,11 +25,13 @@ public final class ClientPresentationProbe {
     private static int waiting;
     private static dev.holdfast.core.entity.WalkerEntity voiceWalker;
     private static int swingSounds, impactSounds;
+    private static float walkingCameraDelta;
     private static File evidence() { return new File(System.getProperty("holdfast.probe")); }
 
     @SubscribeEvent public static void tick(TickEvent.ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.END || System.getProperty("holdfast.probe") == null) return;
         var mc = Minecraft.getInstance();
+        mc.options.pauseOnLostFocus = false;
         if (mc.player == null || mc.level == null) {
             if (++waiting % 100 == 0) HoldfastCore.LOG.info("[holdfast-probe] waiting screen {} overlay {}", mc.screen, mc.getOverlay());
             if (!joining && mc.screen != null && mc.getOverlay() == null) {
@@ -40,6 +42,11 @@ public final class ClientPresentationProbe {
             return;
         }
         tick++;
+        if (mc.screen instanceof net.minecraft.client.gui.screens.PauseScreen) mc.setScreen(null);
+        if (tick == 1 && mc.getSingleplayerServer() != null) mc.getSingleplayerServer().execute(() -> {
+            var player=mc.getSingleplayerServer().getPlayerList().getPlayer(mc.player.getUUID());
+            if(player!=null) player.setGameMode(net.minecraft.world.level.GameType.CREATIVE);
+        });
         mc.options.bobView().set(false);
         if (tick == 20) phase("body-empty", ItemStack.EMPTY, CameraType.FIRST_PERSON, 85);
         if (tick == 40) shot();
@@ -68,7 +75,14 @@ public final class ClientPresentationProbe {
             phase("body-tacz-pistol", gun, CameraType.FIRST_PERSON, 85);
         }
         if (tick == 215) shot();
+        if (tick == 205) com.tacz.guns.api.entity.IGunOperator.fromLivingEntity(mc.player).aim(true);
+        if (tick == 225) {
+            HoldfastCore.LOG.info("[holdfast-probe] TaCZ aim progress {}",com.tacz.guns.api.entity.IGunOperator.fromLivingEntity(mc.player).getSynAimingProgress());
+            phase("fresh-tacz-ads-third", mc.player.getMainHandItem().copy(), CameraType.THIRD_PERSON_BACK, 15);
+        }
+        if (tick == 235) shot();
         if (tick == 240) {
+            com.tacz.guns.api.entity.IGunOperator.fromLivingEntity(mc.player).aim(false);
             dev.tr7zw.firstperson.api.FirstPersonAPI.setEnabled(false);
             phase("fallback-without-body", new ItemStack(CoreItems.KNIFE.get()), CameraType.FIRST_PERSON, 65);
         }
@@ -97,10 +111,68 @@ public final class ClientPresentationProbe {
             if (swingSounds!=1 || impactSounds!=0) throw new IllegalStateException("Miss audio duplicated or emitted impact: "+swingSounds+"/"+impactSounds);
             HoldfastCore.LOG.info("[holdfast-probe] corpse voice stopped; miss swing events {} impact events {}",swingSounds,impactSounds);
         }
-        if (tick == 370) {
+        if (tick == 360 && net.minecraftforge.fml.ModList.get().isLoaded("entity_model_features")) {
+            if (!FreshMovement.active()) throw new IllegalStateException("Fresh stack is loaded but movement ownership did not activate");
+            phase("fresh-walk-third", ItemStack.EMPTY, CameraType.THIRD_PERSON_BACK, 20);
+            mc.options.keyUp.setDown(true);
+        }
+        if (tick == 390 && FreshMovement.active()) {
+            if (!ClientClips.describe(mc.player).contains("locomotion null")) throw new IllegalStateException("Holdfast still owns ordinary gait");
+            shot();
+            phase("fresh-walk-first", ItemStack.EMPTY, CameraType.FIRST_PERSON, 75);
+        }
+        if (tick == 420 && FreshMovement.active()) {
+            shot();
+            HoldfastCore.LOG.info("[holdfast-probe] fresh moving camera maximum angular delta {} degrees",walkingCameraDelta);
+            mc.options.keyUp.setDown(false);
+            phase("fresh-sprint-third", ItemStack.EMPTY, CameraType.THIRD_PERSON_BACK, 20);
+            mc.options.keyUp.setDown(true);
+            mc.options.keySprint.setDown(true);
+        }
+        if (tick == 450 && FreshMovement.active()) {
+            shot();
+            mc.options.keySprint.setDown(false);
+            phase("fresh-jump-third", ItemStack.EMPTY, CameraType.THIRD_PERSON_BACK, 20);
+            mc.options.keyJump.setDown(true);
+        }
+        if (tick == 455 && FreshMovement.active()) shot();
+        if (tick == 460) mc.options.keyJump.setDown(false);
+        if (tick == 480 && FreshMovement.active()) {
+            mc.options.keyUp.setDown(false);
+            phase("fresh-katana-action", new ItemStack(CoreItems.KATANA.get()), CameraType.THIRD_PERSON_BACK, 20);
+            ClientClips.play(new PlayClipPacket(mc.player.getId(), "swing_katana_heavy", -1, true));
+        }
+        if (tick == 488 && FreshMovement.active()) shot();
+        if (tick == 520 && FreshMovement.active()) {
+            phase("fresh-injury-override", new ItemStack(CoreItems.KNIFE.get()), CameraType.THIRD_PERSON_BACK, 20);
+            mc.options.keyUp.setDown(true);
+        }
+        if (tick >= 520 && tick < 550 && FreshMovement.active()) ClientClips.movementChanged("LIMP");
+        if (tick == 545 && FreshMovement.active()) {
+            if(!ClientClips.describe(mc.player).contains("move_limp")) throw new IllegalStateException("Fresh masked injury override");
+            shot();
+        }
+        if (tick == 550) ClientClips.movementChanged("NORMAL");
+        if (tick == 560 && FreshMovement.active()) {
+            phase("fresh-crouch-walk", ItemStack.EMPTY, CameraType.THIRD_PERSON_BACK, 20);
+            mc.options.keyShift.setDown(true);
+        }
+        if (tick == 590 && FreshMovement.active()) shot();
+        if (tick == 630) {
+            mc.options.keyUp.setDown(false);
+            mc.options.keySprint.setDown(false);
+            mc.options.keyJump.setDown(false);
+            mc.options.keyShift.setDown(false);
             HoldfastCore.LOG.info("[holdfast-probe] finished isolated render smoke; this is not user acceptance");
             mc.stop();
         }
+    }
+    @SubscribeEvent public static void camera(net.minecraftforge.client.event.ViewportEvent.ComputeCameraAngles event) {
+        var mc=Minecraft.getInstance();
+        if(tick<390 || tick>=420 || mc.player==null || !FreshMovement.active()) return;
+        float delta=Math.max(Math.abs(event.getPitch()-mc.player.getXRot()), Math.abs(event.getRoll()));
+        if(!Float.isFinite(delta)) throw new IllegalStateException("Non-finite walking camera");
+        walkingCameraDelta=Math.max(walkingCameraDelta,delta);
     }
 
     private static void phase(String name, ItemStack held, CameraType camera, float pitch) {

@@ -321,6 +321,9 @@ public final class ClientClips {
         } else {
             loco = p.isSprinting() ? "move_sprint" : "move_walk";
         }
+        // Fresh owns normal movement only. PA/EPC still owns the authored injury, carry and action parts.
+        // Resource reload/removing the pack automatically returns to Holdfast's existing locomotion.
+        if (FreshMovement.active() && !(injury != null && injury.equals(loco))) loco = null;
         a.wasOnGround = p.onGround();
         boolean noGunVariant = loco != null && (loco.startsWith("move_crutch") || loco.equals("move_crawl_legless"));
         if (loco != null && freeArms && !noGunVariant) loco += "_gun";
