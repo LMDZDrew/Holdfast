@@ -1,5 +1,30 @@
 # Assistant handoff
 
+## Side task — Rick's Colt Python gun pack, 2026-10-18 (Claude)
+
+Branch **`claude/ricks-python`**, worktree `C:/Users/drewl/Holdfast-python`, from `97748d4`. This does not supersede the CURRENT STOP below; Codex's checkout, branch and uncommitted `core/build.gradle` were not touched.
+
+- **What exists:** `art/guns/ricks_python/` builds a TaCZ gun pack, `holdfast:ricks_python` ("Rick's Colt Python", type `pistol`), from Andrew's model ZIP plus the installed TaCZ jar. Neither input is committed.
+  - Stats are copied from `tacz:rhino357`. Its animations, state machine and sounds are referenced unchanged.
+  - The geometry is the Python voxelized into boxes on the Rhino's rig. The reload rig is shifted together onto the Python cylinder; hammer, trigger and latch pins are measured on the Python mesh.
+  - Finish: nickel and walnut, as Andrew asked. See the README and the new section in `decisions.md`.
+  - At his later request ("smoother rather than tiny little particles"), the geometry is now about 600 rotated boxes from `box_fit.py`, no longer voxels; probe 5 checked it in TaCZ.
+  - Scale is 0.51 units/cm, TaCZ's pistol scale, so it reads as a real 6" Python.
+  - Hotbar and HUD images are Blender renders of the original mesh (`render_icons.py`), checked in probe 6.
+  - Iron sights: nickel rear sight with its real notch and the real ramp front sight, matching Andrew's photo; `iron_view` on the blade top.
+  - Texture: a 1024×1024 per-face atlas baked by `bake.py`. Walnut comes from the source grip texture; nickel is baked polished shading.
+  - The cylinder shows six empty chambers after ejection.
+  - Probe 7 checked both.
+- **Tests:** four opt-in isolated dev-client runs, `-PgunPackProbe` with `core/tools/gunprobe`, excluded from release builds. TaCZ loads and indexes the gun, and it reloads, aims and fires. Details are in `testing.md`.
+- **Andrew's verdict:** "looks great animation wise" (probe 1). The texture and then the geometry were replaced; he has not seen the smooth nickel/walnut version in game.
+- **Open items:**
+  - Install on Gate 0 and Prism, only with Andrew's go-ahead.
+  - Dedicated-server and multiplayer check.
+  - One-per-world uniqueness, repair cost and loot rules.
+  - Confirm the model's licence before any distribution.
+  - Review the attachment positions.
+  - Check whether execution placement suits the longer barrel.
+
 ## CURRENT STOP — bounded exaggerated blood, 2026-10-18, 08:04 Eastern
 
 **Supersedes previous core deployment below.** User asked for another small task within remaining usage. Scoped **`codex/stage1-blood-bursts`**, from pushed Fresh HEAD `bbc14a9`; implementation **`4ef55a8`**, following docs commit records this stop. Work deliberately limited to the pending blood request. Do not restart from the old Fresh branch and lose this follow-up.

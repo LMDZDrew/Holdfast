@@ -1,5 +1,95 @@
 # Test record
 
+## Rick's Colt Python gun pack — 2026-10-18, Claude (`claude/ricks-python`, from `97748d4`)
+
+**Request:** Andrew supplied `gameready-colt-python-revolver.zip` and asked for it to be its own weapon: "give it the same properties and noise as TacZ's existing .357 magnum", with the hammer and reload animations matching that gun. He asked that the first pass "just exist and work". After the first in-game screenshots he said the animation "looks great" but the texture was "very bad", and asked for "a smooth, shiny nickel texture with a nice wooden handle".
+
+**Environment:** Windows 11. Python 3.14.7 in a scratch venv with numpy 2.5.4, scipy and Pillow 13.0.0. Temurin 17.0.20.1, Gradle 8.8, Forge 1.20.1-47.4.8, TaCZ 1.1.8-hotfix2 (Modrinth `AzCBJlex`, jar SHA-256 `2cbb89f4…7f10c2`). Model ZIP SHA-256 `14ad3721…6f21c2f` (FBX plus 4K PBR maps; no licence file).
+
+**Static/build**
+- **Inspection.** Decompiling TaCZ's `BedrockModelPOJO` and `CubesItem` showed that guns load cubes only, with no polygon meshes. The FBX holds 15 separately named parts, about 5k polygons.
+- **Rig.** I read the Rhino's 64-bone rig and its 11 animations. The reload drives `cylinder_crane` (88° about z), `cy_base` (−60° per cock), `ejector` (+0.81 z), `cylinder_release` (−30° x), `hammer` (−62.5° x), `trigger` (+25° x), and six ejected rounds with bullet bones. The speed loader is modelled at 1/10 scale and scaled ×10.
+- **Build.** `PYTHONUTF8=1 python art/guns/ricks_python/build_ricks_python.py MODEL_ZIP TACZ_JAR art/guns/ricks_python/build`
+  - Final pack: 1,993 boxes, geometry 329,473 bytes, ZIP 25,731 bytes, SHA-256 `2061bfb73127001f12f9ea30297783bf62530c65398bcb76bab356b97bbbe931`.
+  - Placement: scale 0.418 units/cm, reload-rig shift (0, −0.155, −0.741), chamber radius 0.516 (Rhino 0.53).
+  - The data JSON compared equal to the Rhino's after removing comments. The display keeps `tacz:rhino357`'s animation, state machine, player animation and sounds by reference.
+- **Preview renderer** (`preview_geo.py`). It first used painter's sorting, which drew false holes in 3/4 views; I replaced it with a z-buffer. Its convention reproduces the Rhino reload, with the speed loader meeting the swung-out cylinder.
+  - The Python follows the same frames (`build/preview_rhino_vs_python.png`): hammer cock, trigger, 60° index, crane swing to the gun's left, ejection, loader and insert.
+  - The first build mirrored nothing. I added the x-mirror after the render showed TaCZ's gun-left is +x.
+- **Size iterations.** The first build had 13,167 boxes from the albedo palette. Coarser voxels, colour smoothing and per-part fine voxels brought it to 2,743. The nickel/walnut finish brought it to 1,980. Carving the steel frame out of the walnut grip gave 1,993.
+
+**Isolated developer client** (`core/build/gun-probe/client`, a copy of the probe world; never Andrew's Prism instance or Gate 0)
+- Command, from `core` with `JAVA_HOME` set: `.\gradlew.bat runClient -PgunPackProbe=2026-10-18-python/client-probeN --no-daemon`. Logs: `core/build/test-evidence/2026-10-18-python/probe-clientN.log`. Screenshots: `client-probeN/screenshots/` (ignored).
+- **Every run:** `GunPackFinder: holdfast_ricks_python.zip, Main namespace: holdfast`. Both `holdfast:ricks_python` and `tacz:rhino357` reported `common index true client index true type pistol`. Each gun was equipped, reloaded from empty, and fired with `shoot SUCCESS`. Each run ended `BUILD SUCCESSFUL` (1m22s, 57s, 1m2s).
+- **Probe 1** (albedo texture): Andrew watched it and accepted the animation, but rejected the texture.
+- **Probe 2** (nickel/walnut): a pale flicker appeared on the walnut in first person. The cause was frame (`body`) cells filling the same cells as the grip, so coplanar faces z-fought.
+- **Probe 3:** the frame was carved from the grip's cells (84 boxes removed), and the grip renders clean.
+- **ADS:** probes 1–3 called `aim(true)` without holding `AimKey`, and the screenshot showed hip fire. Probe 4 also holds the key: both guns logged `aim true progress 1.0`, and the Python's sight picture sits centred like the Rhino's.
+- **Limits.** These are developer screenshots in a mapped dev client with the default probe skin. They are not Andrew's in-game acceptance.
+  - Not yet checked:
+    - Dedicated-server load
+    - Multiplayer sync
+    - Third-person animation detail
+    - Inspect animation
+    - Exact iron-sight alignment at full resolution
+    - Attachments, which keep the Rhino's allowed list against my estimated scope and laser positions
+  - Execution eligibility for this pistol was not exercised.
+
+**Smooth-surface rebuild** (same day). Andrew: "i want to work on making the surface smoother rather than tiny little particles."
+- **Change.** I replaced voxelization with `art/guns/ricks_python/box_fit.py`, which fits rotated rectangles to each part's side outline. The grip uses bevelled crossed slabs and the steel frame is cut out under it. Round parts are polygon prisms; the cylinder is a 12-gon with darker flutes. The texture is 128 units, with nickel tones by face direction and procedural walnut grain.
+- **Checks before building.** TaCZ's default guns use rotated cubes on every axis: about 7.2k x-rotated and 8.9k z-rotated cubes in the default pack, and the Rhino is 479 cubes. A prototype on the main parts gave about 190 boxes, with flat parts rotated about x.
+- **Build.** About 18 s. 549 boxes in total; the extractor star had produced no boxes until `min_len` was lowered to 0.02. Pack SHA-256 `7d11ac93e44db3f041532a5fdc58b9ccce0e0d75c516d10b17ebdb298bca389f`. This build is deterministic: walnut UV offsets use CRC32, not Python's `hash`.
+- **Probe 5** (`-PgunPackProbe=2026-10-18-python/client-probe5`), with inspect screenshots added. Both guns reported `index true`, `aim true progress 1.0` and `shoot SUCCESS`, and the run ended `BUILD SUCCESSFUL in 1m 16s`. Close-ups are in `smooth_closeups.png`.
+  - TaCZ renders large smooth nickel slabs, the 12-gon cylinder, a dark muzzle bore and walnut grain.
+  - The voxel staircase and speckle are gone.
+  - The grip's chamfered slabs still show steps at the bottom of the grip.
+  - Andrew has not reviewed this version in game.
+
+**Scale and icons** (same day). Andrew sent a Denix replica photo: the Python should be "rick's colt python's size" ("the barrel is a bit larger on the actual one"), and the hotbar should be "a tacz style representation with an accurate model".
+- **Scale survey.** Default TaCZ pistols measured as model length over real length: Glock 17 0.587, CZ75 0.625, M1911 0.515, Desert Eagle 0.486, P320 0.477, B93R 0.52, Rhino 0.507, Taurus 500 0.501 units/cm. The Rhino-cylinder fit had given the Python 0.418, about 18% small.
+- **Rescale.** The pack now uses `SCALE = 0.51`. The chamber radius is now 0.629; 596 boxes. The Rhino-vs-Python preview still shows the speed loader centred on the swung-out cylinder.
+- **Icons.** `render_icons.py` uses headless Blender 5.2.2 (`--background --factory-startup`, Cycles, CPU, 96 samples, about 12 s). It renders the original FBX in nickel with the source walnut albedo and normal map. The build reduces it to a 64×64 slot icon and a 1299×433 grey HUD image. The icon angle was corrected twice to match TaCZ's: first the muzzle direction, then a steeper 3/4 view so the gun fills the icon.
+- **Probe 6.** Both guns reported `index true`, `aim true progress 1.0` and `shoot SUCCESS`, and the run ended `BUILD SUCCESSFUL in 1m 18s`. Pack SHA-256 `1973e9fe026fd121d68f5d7d5e7b4f5e7d004e4c4103a6780262f0392d31200a`. Screenshots in `scaled_closeups.png`.
+  - At rest in first person, the Python sits at a size comparable to the Rhino's.
+  - The hotbar shows the new icon.
+  - ADS stays centred.
+
+**Iron sights and empty chambers** (same day). Andrew: "theres no reticle when you aimed down sight, its just a slab of texture" and "there were no empty round slots" during reload.
+- **Sight cause.** In the probe-6 ADS crop, the rear sight was one solid outline slab. Its top (3.16 cm on the source) sits above the front blade (3.12 cm), so it hid everything. The front blade, only about 0.1 units above the rib, fell under the fitter's minimum box size and was never built.
+- **Sight fix.** The rear sight is now three black boxes with the source notch: half-width 0.28 cm, floor measured from the mesh. The front blade is an explicit box, widened to ±0.11 cm, with a black face toward the shooter. `iron_view` sits 0.01 below the blade top.
+- **Chamber cause.** The cylinder is a solid 12-gon. The extractor star (a 6-gon of the source radius) covered the chamber ring, and the cylinder had no rear chamber marks.
+- **Chamber fix.**
+  - The star is cut down to sit inside the chamber ring.
+  - Six dark chamber discs sit just outside the prism's actual rear face. A first build hid them inside the prism, whose end is quantized up to 0.03 units past the true rear.
+  - The cartridge rims still cover the discs until ejection; an assert enforces it.
+- **Preview** (`build/chambers_rear.png`): rims while loaded, six black chambers after ejection, then the loader inserting.
+- **Probe 7.** Both guns reported `index true`, `aim true progress 1.0` and `shoot SUCCESS`, and the run ended `BUILD SUCCESSFUL in 1m 20s`. 615 boxes. Pack SHA-256 `fbe5e305a5e7acd93f9147cd5664f01ff55c54cff51e16f96d44548a535dd813`. Crops in `sights_chambers_ingame.png`.
+  - ADS shows the notched black rear sight with the front blade in the notch.
+  - At 1.9 s into the empty reload, the swung-out cylinder shows six empty black chambers.
+  - The window was 854×480 this run, so the sight picture is small. Its readability at Andrew's resolution needs his look.
+
+**Photo-accurate sights and baked texture** (same day). Andrew: "make the reticle the same as the actual image i sent you, i want it to be as accurate as possible. i want the texture to be a bit more high quality as well" and "in the actual image, the reticle is nickel."
+- **UV convention.** I read it from TaCZ 1.1.8 bytecode with `javap -c`: `BedrockModel.convertOrigin` keeps x and z and flips y; `BedrockCubePerFace` and `BedrockPolygon` fix the corner order; `FaceUVsItem$1` holds the switch map. JSON `west` is the +x face and `down` the bottom face. The per-face u/v directions are recorded in `art/guns/ricks_python/bake.py`.
+- **Sights.**
+  - The rear sight is nickel, built from the source's own notch: half-width 0.28 cm, floor measured from the mesh.
+  - The front sight is the source's ramp profile, fitted at real width (±0.07 cm) and 0.006-unit resolution: 10 boxes.
+  - Both are nickel, as in the reference photo. The earlier black rear sight and widened blade were removed.
+- **Texture.** `bake.py` gives every visible box face its own patch at 32 px per model unit, in a 1024×1024 atlas (1,019 rows used). Faces covered by other boxes in the same bone get 2 px patches.
+  - Walnut texels take the source albedo at the nearest point on the grip mesh: real grain, checkering-panel borders and medallion. The KD-tree is built per source part.
+  - Nickel texels are baked polished shading: a horizon reflection on the sides, bright tops, dark undersides, the source's occlusion, the source's albedo detail (screws, slots) and a darker one-pixel edge.
+  - The build takes about 42 s. 624 boxes. Pack SHA-256 `07d953e47fb0ca2e84192025d2da3c864add05cb8944c65791604269e510b534`.
+- **Probe 8.** The Python reported `index true`, `aim true progress 1.0` and `shoot SUCCESS`, and the run ended `BUILD SUCCESSFUL in 1m 12s`. Crops in `baked_ingame.png`.
+  - ADS shows the nickel notch with the nickel ramp in it.
+  - The metal shows the baked gradients the right way up, which confirms the UV orientation.
+  - The grip shows the source wood.
+  - Empty chambers still appear during reload.
+  - The reference Rhino logged `aim true progress 0.0` this run. It reached 1.0 in probes 4–7, so this looks like probe timing on TaCZ's own gun, not a pack change; not investigated.
+  - Readability at Andrew's resolution needs his look.
+
+**Ordinary build:** `.\gradlew.bat build --no-daemon`, without the probe flag, finished `BUILD SUCCESSFUL in 13s`. `holdfast_core-0.1.0.jar` contains no `GunPackProbe` class. Log: `release-build.log`.
+
+**Not installed** on the Gate 0 server or the Prism instance. To try it, put the ZIP in `tacz/` on both, with Minecraft and the server stopped.
+
 ## Low-usage blood follow-up — 2026-10-18, installed08:04 Eastern
 
 **Authorization:** user asked "could you get something else done as well? something that wont put you over usage?"; selected his pending exaggerated-blood request. No new user in-game observations or acceptance. Branch `codex/stage1-blood-bursts` from `bbc14a9`, implementation `4ef55a8`; subsequent docs commit records stop. Started at16% remaining; kept a buffer above his5% stopping floor. Exact same Windows11 Home10.0.26200 /Temurin17.0.20.1+1 /Gradle8.8 /Python3.14.7 /Forge47.4.8 environment as Fresh entry below. No dependency/version change.

@@ -122,6 +122,13 @@ Status: accepted design unless labeled proposed. This file supersedes older word
 - The katana needs its own execution; it borrowed the one-handed machete chop and looked odd.
 - **Walkers despawn to limit lag.** This supersedes design §12's "corpses persist as the ended state" for Stage 1. Living walkers despawn after a while with no player in range; corpses despawn some minutes after death, never in sight of a player. Exact times are configurable; defaults are provisional (`core_combat.md`, "Despawning").
 
+## Rick's Colt Python (Andrew, 2026-10-18)
+
+- Rick's Python is its own TaCZ gun, `holdfast:ricks_python`, shown as "Rick's Colt Python". Its properties and noise are TaCZ's `.357` Rhino (`tacz:rhino357`). Hammer and reload animations must match the Rhino's, so the gun plays TaCZ's `rhino357` animations unchanged.
+- The model is Andrew's supplied Colt Python model, converted to TaCZ box geometry (`art/guns/ricks_python`). Finish: smooth, shiny nickel with walnut grips; the source's own texture was rejected. Surfaces must be smooth (few large rotated boxes like TaCZ's own guns), not fine voxels. Size must read as Rick's real 6" Python at TaCZ's pistol scale. The hotbar icon is a TaCZ-style render of the accurate model. Iron sights match his reference photo: nickel, real notch and ramp. The texture is a high-resolution per-face bake.
+- This first pass only has to exist and work. The design's one-unique-instance-per-world rule, repair cost and loot rules for iconic weapons are not implemented yet, and there is no crafting recipe.
+- The source model's licence is unverified. Keep the built pack private until it is confirmed.
+
 ## Explicitly deferred
 
 Character skill leveling, friendly/recruitable survivors, broad stealth disguises beyond Whisperer masks, advanced structural physics, and guaranteed shader FPS. They can be revisited after a representative playable prototype. Dynamic dismemberment is now scheduled for the mechanics phase after animation acceptance, as specified above.
