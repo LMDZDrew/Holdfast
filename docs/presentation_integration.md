@@ -1,5 +1,9 @@
 # Stage 1 blood and walker audio
 
+## Exaggerated blood follow-up — 2026-10-18
+
+Supersedes dawn burst values below: ordinary/brain kill blunt260/380, slash300/420, stab220/340, gunshot240/360. Extra Gore droplets double in scale to0.09–0.20, spray more strongly/widely, live80–160ticks and retain ground merging. Holdfast tracks at most1,200 own particles (or the lower configured capacity), retiring older droplets before a fresh impact; global maximum remains capped at1,800. Login/logout/world-change cleanup prevents retaining old worlds. Glancing confirmed melee contacts now emit blood while retaining their existing quiet impact sound; misses still have no feedback emitter. Entry/exit origins, damage authority, accepted audio and animation assets are unchanged. Counts/factory admission checked in an isolated renderer probe; Andrew's appearance/performance review is pending. No persistent pools/dismemberment added. See latest `testing.md` for current jar hash and exact limits.
+
 ## Latest client movement integration — 2026-10-18
 
 Fresh Animations plus its Player Extension and EMF/ETF/EPC/TaCZ bridges are now installed as a reversible client trial. Core yields ordinary locomotion while preserving injury/action/carry ownership; all existing blood/audio/gun assets remain unchanged. See `fresh_animations.md` and newest `testing.md` for versions, actual production-format client evidence, limitations and rollback. Andrew's request for exaggerated blood including bullets remains pending; the dawn counts below are still the implemented values.

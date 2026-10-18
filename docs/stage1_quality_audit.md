@@ -1,5 +1,9 @@
 # Stage 1 quality audit — 2026-10-18
 
+## Blood burst follow-up
+
+Scoped `codex/stage1-blood-bursts` from `bbc14a9`: exaggerated all-family bursts including bullets, larger/faster Extra Gore droplets, finite lifetimes and a1,200-owned-particle queue that retires old drops to admit new impacts. Updated profile requirement test;62 unit tests/build complete. Actual isolated Extra Gore renderer admitted260/260 blunt,300/300 slash,220/220 stab,240/240 gun bursts; repeated gun bursts stayed within tracked1,200cap. Synthetic presentation packets were used, so this is particle rendering/admission evidence, not new server-contact geometry proof or Andrew's acceptance. All274 core assets unchanged; Fresh installation retained. Remaining camera acceptance, katana spacing, hammer weight and universal charge work remains queued.
+
 ## Fresh installation follow-up
 
 Branch `codex/stage1-movement-charge-review`: optional ordinary locomotion handoff to selected Fresh Player Extension; PA injury/carry/action ownership retained. Exact candidate stack was exercised in production-format Prism with Forge47.4.8, existing FPM/PA/TaCZ/audio/gore and harness. Developer probes assert ordinary gait yield and injury priority, inspect first/third-person rendering and reach TaCZ aim active/progress1.0;62 unit/49 GameTests remain green. Existing274 core assets match dawn byte-for-byte. No user acceptance claimed. Sustained mouse-input pistol/rifle ADS/reload, all paired clips/skins/armor and performance remain pending. See newest testing entry for failed fixtures and corrected runs. Katana spacing, hammer weight, left-click charge and exaggerated blood are still pending user-requested work.

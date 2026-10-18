@@ -2,6 +2,8 @@
 
 ## Latest installation note — 2026-10-18
 
+**Blood follow-up supersedes the core hash below:** both sides now use `C700A3367FC72DE982C1EE0F75A9DE5F5C9A5269079E68540B7156C7F31693AA`, protocol5. Exaggerated blood now includes bullets; the older modest-gun-blood review wording is historical. Fresh/harness/audio unchanged. Pending katana/hammer/charge corrections still precede the next combined user test request.
+
 Fresh client trial is installed; current core SHA256 is `AAC479B88D3174E16D6ACAF33331DEE2A30330038D5669CDA3DE03C85DDDC01A`, protocol5, harness unchanged. See `fresh_animations.md` and newest `testing.md`. Earlier batches below remain historical review context. Hold the next combined request until pending katana/hammer/charge/blood corrections are finished; do not ask for repeated partial tests. No new user acceptance has been reported for Fresh.
 
 ## Current review: scheduled dawn corrections — 2026-10-18
