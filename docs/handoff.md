@@ -1,5 +1,9 @@
 # Assistant handoff
 
+## Andrew's third review / Codex handoff — 2026-10-17 (Claude)
+
+He reports four things on core `CF97AE6F` / harness `CE0DB3BF`: the katana ("sword") and knife executions don't go deep enough; the resting fire axe is still wrong (how is unspecified); and blood should come from where the weapon or bullet actually hits. He asked for no fixes, only a handoff. The detailed prompt is **`docs/codex_stage1_review3_handoff.md`**: measured current depths, the likely causes (end-of-handle grip on the axe; fixed or bounding-box blood points), source locations, tests and the review batch. Nothing else he tested is passed by this review. No code changed in this commit.
+
 ## Current stop: Andrew's second stance/execution notes — 2026-10-17 (Claude)
 
 **Branch/code:** `claude/stage1-stances-executions`, implementation **`44fca32`** plus docs.
