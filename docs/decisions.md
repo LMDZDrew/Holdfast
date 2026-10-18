@@ -4,6 +4,8 @@ Status: accepted design unless labeled proposed. This file supersedes older word
 
 ## Dawn-build follow-up and movement-pack clarification (Andrew, 2026-10-18)
 
+- After the exaggerated-blood installation, Andrew says blood "does look great"; preserve the accepted appearance. He rejects knife execution (no contact, reads as hitting) and specifies a fluid stab into the side of the head. This supersedes any older hooked/punch-like knife execution direction. Charged/wound-up bat also appears buggy and misses contact. Katana remains unfixed/rejected. Next pass prioritizes actual paired weapon-to-head alignment across these families; source-only contact measurements are insufficient acceptance.
+
 - Andrew subsequently authorized installing what is compatible. Fresh Player Extension plus EMF/ETF and separate PA/TaCZ bridges are now a reversible client trial: selected pack owns ordinary movement, while Holdfast retains injury/carry/action parts and the gun bridge preserves TaCZ parts. Adoption/visual satisfaction remains pending; disabling the pack restores core gait. See `fresh_animations.md` for actual version-specific runtime evidence and remaining gaps.
 
 - Andrew reports unstable normal-walking camera motion and no katana execution contact; investigate actual runtime alignment and closer pairing rather than relying on earlier software measurements.

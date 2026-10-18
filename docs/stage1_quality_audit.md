@@ -1,5 +1,9 @@
 # Stage 1 quality audit — 2026-10-18
 
+## Latest user review: executions rejected, blood accepted
+
+Andrew accepts exaggerated blood appearance, rejects knife execution (misses, looks like hitting; wants one fluid side-of-head stab), and reports buggy/noncontact wound-up bat. Katana remains unfixed. Prior static contact metrics do not accept these animations. Reproduce knife, paired/free charged bat and katana in actual runtime, isolating shared alignment/transform ownership and comparing optional Fresh/EPC state. Preserve blood/accepted gun/axe/audio assets. Exact report/evidence and next source pipeline steps are at the top of handoff/testing; no implementation change made during low-usage feedback intake.
+
 ## Blood burst follow-up
 
 Scoped `codex/stage1-blood-bursts` from `bbc14a9`: exaggerated all-family bursts including bullets, larger/faster Extra Gore droplets, finite lifetimes and a1,200-owned-particle queue that retires old drops to admit new impacts. Updated profile requirement test;62 unit tests/build complete. Actual isolated Extra Gore renderer admitted260/260 blunt,300/300 slash,220/220 stab,240/240 gun bursts; repeated gun bursts stayed within tracked1,200cap. Synthetic presentation packets were used, so this is particle rendering/admission evidence, not new server-contact geometry proof or Andrew's acceptance. All274 core assets unchanged; Fresh installation retained. Remaining camera acceptance, katana spacing, hammer weight and universal charge work remains queued.

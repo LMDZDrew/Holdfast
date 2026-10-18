@@ -1,5 +1,15 @@
 # Test record
 
+## Actual review after blood deployment — 2026-10-18
+
+User report on the latest test session: "knife execution is messed up, it doesnt even touch the walker, looks more like were hitting it instead of stabbing, the animation should be a fluid stab to the side of the head. wound up bat seems to make no contact as well, and just looks buggy. blood does look great however. i assume you did nothing with the katana."
+
+**Record:** blood appearance accepted. Knife and wound-up bat visual/contact behavior rejected; precise bat path (paired charged execution versus free charged swing) not established, so reproduce both. Katana not changed/fixed by the preceding Fresh/blood passes; explicitly confirmed to Andrew. Nothing unmentioned is newly accepted. No claim that source geometry/timing checks prove real contact.
+
+Environment/installed hashes remain the08:04 blood deployment below: both installed core jars rehashed as `C700A3367FC72DE982C1EE0F75A9DE5F5C9A5269079E68540B7156C7F31693AA`; no jar replacement, source edit, build or runtime reproduction in this feedback intake. Actual user feedback is the in-game visual evidence. Copied client/server latest logs and installed-hash manifest to ignored `core/build/test-evidence/2026-10-18-execution-review/`. Existing client log08:08–08:09 includes STAB head brain-kill340/340, SLASH420/420 and BLUNT380/380 admitted particles. Those logs do not verify physical weapon contact or identify the exact clip/approach.
+
+Commands: `git status --short --branch`, current handoff/decisions/testing reads; source inspection with `rg` /`Get-Content` for `knife()`, `bat_charged()`, EXECS and `Executions` placement; `Copy-Item` log snapshots, `Get-FileHash` both installed core jars. Current knife has old hooked-load wording and rootZ-2.5 at0.22s to-9.7 at0.27s; this conflicts with the requested fluid presentation but does not establish the shared renderer-contact cause. Need real paired execution reproduction, source/runtime transform/spacing comparison and optional Fresh/EPC on/off isolation. The katana defect predates Fresh installation. No blind range/clip edits made within the8%-remaining intake budget; user5% floor preserved. See newest handoff for concrete next instructions.
+
 ## Low-usage blood follow-up — 2026-10-18, installed08:04 Eastern
 
 **Authorization:** user asked "could you get something else done as well? something that wont put you over usage?"; selected his pending exaggerated-blood request. No new user in-game observations or acceptance. Branch `codex/stage1-blood-bursts` from `bbc14a9`, implementation `4ef55a8`; subsequent docs commit records stop. Started at16% remaining; kept a buffer above his5% stopping floor. Exact same Windows11 Home10.0.26200 /Temurin17.0.20.1+1 /Gradle8.8 /Python3.14.7 /Forge47.4.8 environment as Fresh entry below. No dependency/version change.
