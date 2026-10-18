@@ -4,14 +4,10 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BloodProfileTest {
-    @Test void meleeIsSubstantialAndGunshotsModestWithFinitePerHitBudget() {
+    @Test void allContactsIncludingBulletsAreExaggeratedButBounded() {
         for (var family : WeaponClass.Contact.values()) {
             int hit = BloodProfile.count(family, false), kill = BloodProfile.count(family, true);
-            assertTrue(hit > 0 && kill > hit && kill <= 120);
-            if (family != WeaponClass.Contact.GUNSHOT) {
-                assertTrue(hit >= 48);
-                assertTrue(hit > BloodProfile.count(WeaponClass.Contact.GUNSHOT, true) * 2);
-            } else assertTrue(kill <= 18);
+            assertTrue(hit >= 220 && kill > hit && kill <= BloodProfile.MAX_BURST);
         }
     }
 }

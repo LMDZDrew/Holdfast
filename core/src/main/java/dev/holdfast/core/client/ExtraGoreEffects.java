@@ -17,9 +17,11 @@ import net.minecraftforge.common.MinecraftForge;
 public final class ExtraGoreEffects {
     private static boolean initialized;
     private static int diagnosticBursts;
+    private static final java.util.ArrayDeque<com.eruannie_9.extragore.particle.ParticleBlood> OWNED = new java.util.ArrayDeque<>();
+    private static net.minecraft.client.multiplayer.ClientLevel ownerLevel;
     private static final BloodEntityConfig.Values BLOOD = new BloodEntityConfig.Values(
             "default", 0x650B0C, BloodStyle.HEAVY, BloodAmalgamationPolicy.GROUND,
-            BloodBrightnessMode.WORLD, 0.045F, 0.10F, 400, 700, 18, 0.12F, 0.65F);
+            BloodBrightnessMode.WORLD, 0.09F, 0.20F, 80, 160, 18, 0.12F, 0.65F);
 
     private ExtraGoreEffects() {}
 
@@ -41,6 +43,13 @@ public final class ExtraGoreEffects {
                 || mc.player.distanceToSqr(hit.x(), hit.y(), hit.z()) > 48 * 48) return;
         boolean kill = hit.outcome() == WalkerStrikeRules.Outcome.BRAIN_KILL;
         int count = dev.holdfast.core.rules.BloodProfile.count(hit.contact(), kill);
+        if (ownerLevel != mc.level) { clear(); ownerLevel = mc.level; }
+        OWNED.removeIf(p -> !p.isAlive());
+        int budget = Math.max(1, Math.min(1200, com.eruannie_9.extragore.ModConfigurationClient.MAXIMUM_BLOOD_PARTICLES.get()));
+        count = Math.min(count, budget);
+        // Retire older Holdfast droplets first so rapid confirmed contacts still get a fresh burst.
+        // ParticleBlood.remove() unregisters capacity immediately in the inspected 5.3 implementation.
+        while (OWNED.size() + count > budget) OWNED.removeFirst().remove();
         Vec3 forward = new Vec3(hit.dx(), hit.dy(), hit.dz());
         if (forward.lengthSqr() < 1e-6) forward = new Vec3(0, 0, 1);
         forward = forward.normalize();
@@ -54,25 +63,32 @@ public final class ExtraGoreEffects {
             Vec3 origin = exit ? new Vec3(hit.exitX(), hit.exitY(), hit.exitZ()) : new Vec3(hit.x(), hit.y(), hit.z());
             Vec3 flow = exit ? forward : forward.scale(-1); // outward entry spatter; exit continues along the trajectory
             double force = switch (hit.contact()) {
-                case BLUNT -> 0.055;
-                case SLASH -> 0.11;
-                case STAB -> 0.14;
-                case GUNSHOT -> 0.23;
+                case BLUNT -> 0.14;
+                case SLASH -> 0.22;
+                case STAB -> 0.24;
+                case GUNSHOT -> 0.32;
             };
-            double width = hit.contact() == dev.holdfast.core.rules.WeaponClass.Contact.SLASH ? 0.18 : 0.06;
+            double width = hit.contact() == dev.holdfast.core.rules.WeaponClass.Contact.SLASH ? 0.36 : 0.20;
             Vec3 velocity = flow.scale(force * (0.4 + random.nextDouble()))
                     .add(side.scale((random.nextDouble() - 0.5) * width))
-                    .add(0, 0.015 + random.nextDouble() * 0.07, 0);
+                    .add(0, 0.035 + random.nextDouble() * 0.13, 0);
             var particle = ParticleBloodFactory.createParticle(mc.level,
                     origin.x, origin.y, origin.z, velocity.x, velocity.y, velocity.z,
                     i % 2, BLOOD, BLOOD.scaleMin(), BLOOD.scaleMax());
             if (particle != null) {
                 mc.particleEngine.add(particle);
+                OWNED.addLast(particle);
                 accepted++;
             }
         }
         if (diagnosticBursts++ < 12) HoldfastCore.LOG.info("[holdfast] Extra Gore contact {} {} {}: {}/{} particles at {},{},{}; exit {} {},{},{}",
                 hit.contact(), hit.region(), hit.outcome(), accepted, count, hit.x(), hit.y(), hit.z(),
                 hit.hasExit(), hit.exitX(), hit.exitY(), hit.exitZ());
+    }
+
+    public static void clear() {
+        OWNED.forEach(com.eruannie_9.extragore.particle.ParticleBlood::remove);
+        OWNED.clear();
+        ownerLevel = null;
     }
 }

@@ -120,6 +120,16 @@ public final class ClientPresentationProbe {
             if (swingSounds!=1 || impactSounds!=0) throw new IllegalStateException("Miss audio duplicated or emitted impact: "+swingSounds+"/"+impactSounds);
             HoldfastCore.LOG.info("[holdfast-probe] corpse voice stopped; miss swing events {} impact events {}",swingSounds,impactSounds);
         }
+        if (Boolean.getBoolean("holdfast.bloodProbe")) {
+            if (tick >= 350 && tick <= 510 && (tick-350)%40 == 0) {
+                var contacts=dev.holdfast.core.rules.WeaponClass.Contact.values();
+                var contact=contacts[Math.min(3,(tick-350)/40)];
+                phase("blood-"+contact+"-"+tick, ItemStack.EMPTY, CameraType.FIRST_PERSON, 5);
+                blood(contact, tick==510);
+            }
+            if (tick >= 355 && tick <= 515 && (tick-355)%40 == 0) shot();
+            if (tick >= 550 && tick <= 580 && tick%3 == 0) blood(dev.holdfast.core.rules.WeaponClass.Contact.GUNSHOT,false);
+        }
         if (tick == 360 && net.minecraftforge.fml.ModList.get().isLoaded("entity_model_features")) {
             if (!FreshMovement.active()) throw new IllegalStateException("Fresh stack is loaded but movement ownership did not activate");
             phase("fresh-walk-third", ItemStack.EMPTY, CameraType.THIRD_PERSON_BACK, 20);
@@ -175,6 +185,20 @@ public final class ClientPresentationProbe {
             HoldfastCore.LOG.info("[holdfast-probe] finished isolated render smoke; this is not user acceptance");
             mc.stop();
         }
+    }
+    private static void blood(dev.holdfast.core.rules.WeaponClass.Contact contact, boolean glance) {
+        var mc=Minecraft.getInstance();
+        var origin=mc.player.getEyePosition().add(mc.player.getLookAngle().scale(2));
+        var hit=dev.holdfast.core.net.HitFeedbackPacket.of(-1,origin,mc.player.getLookAngle(),contact,
+                dev.holdfast.core.rules.BodyRegion.TORSO,glance?dev.holdfast.core.rules.WalkerStrikeRules.Outcome.GLANCE:dev.holdfast.core.rules.WalkerStrikeRules.Outcome.STAGGER);
+        if(contact==dev.holdfast.core.rules.WeaponClass.Contact.GUNSHOT) hit=hit.withExit(origin.add(mc.player.getLookAngle().scale(.4)));
+        HitEffects.play(hit);
+        try {
+            var field=ExtraGoreEffects.class.getDeclaredField("OWNED"); field.setAccessible(true);
+            var owned=(java.util.Collection<?>)field.get(null);
+            if(owned.isEmpty() || owned.size()>1200) throw new IllegalStateException("Blood ownership budget: "+owned.size());
+            HoldfastCore.LOG.info("[holdfast-probe] blood {} glance {} live owned {}",contact,glance,owned.size());
+        } catch(ReflectiveOperationException e) {throw new RuntimeException(e);}
     }
     @SubscribeEvent public static void camera(net.minecraftforge.client.event.ViewportEvent.ComputeCameraAngles event) {
         var mc=Minecraft.getInstance();

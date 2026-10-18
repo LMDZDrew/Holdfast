@@ -17,7 +17,7 @@ import org.joml.Vector3f;
 /**
  * Cosmetic response to a server-confirmed contact: a flesh or skull sound for the contact family (separate from the
  * swing or gunfire), and a blood spatter shaped by it. Blunt: a short dark burst; slash: a spray across the swing;
- * stab: a tight squirt; gunshot: a small entry puff and an exit spray along the shot. Brain kills add a heavier
+ * stab: a tight squirt; gunshot: an exaggerated entry burst and an exit spray along the shot. Brain kills add a heavier
  * spray. Nothing here affects gameplay.
  */
 public final class HitEffects {
@@ -34,11 +34,11 @@ public final class HitEffects {
         boolean skull = m.region() == BodyRegion.HEAD && kill;
         if (m.outcome() == WalkerStrikeRules.Outcome.GLANCE && m.contact() != WeaponClass.Contact.GUNSHOT) {
             mc.level.playLocalSound(m.x(), m.y(), m.z(), CoreSounds.IMPACT_BLUNT.get(), SoundSource.PLAYERS, 0.4F, 1.3F, false);
-            return;
+        } else {
+            float pitch = 0.88F + mc.level.random.nextFloat() * 0.24F;
+            mc.level.playLocalSound(m.x(), m.y(), m.z(), CoreSounds.contact(m.contact(), skull), SoundSource.PLAYERS, 1.0F, pitch, false);
         }
         RandomSource r = mc.level.random;
-        float pitch = 0.88F + r.nextFloat() * 0.24F;
-        mc.level.playLocalSound(m.x(), m.y(), m.z(), CoreSounds.contact(m.contact(), skull), SoundSource.PLAYERS, 1.0F, pitch, false);
         if (net.minecraftforge.fml.ModList.get().isLoaded("extragore")) {
             ExtraGoreEffects.play(m);
             return; // One emitter: do not stack the former dust/block particles over Extra Gore.

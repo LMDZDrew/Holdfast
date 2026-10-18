@@ -85,7 +85,9 @@ if (project.hasProperty('presentationProbe') || project.hasProperty('presentatio
             workingDirectory project.file('build/presentation-probe/client')
             property 'holdfast.probe', project.file(project.hasProperty('freshPresentationProbe')
                     ? 'build/test-evidence/2026-10-18-fresh/client-probe'
+                    : project.hasProperty('bloodPresentationProbe') ? 'build/test-evidence/2026-10-18-blood/client-probe'
                     : 'build/test-evidence/2026-10-18-dawn/client-probe').absolutePath
+            if (project.hasProperty('bloodPresentationProbe')) property 'holdfast.bloodProbe', 'true'
             args '--server', 'localhost', '--port', '25566', '--username', 'HoldfastProbe'
         }
     } else {
