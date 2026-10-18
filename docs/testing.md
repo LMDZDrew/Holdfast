@@ -1,5 +1,77 @@
 # Test record
 
+## Scheduled dawn corrections — 2026-10-18, final deployment 04:42 Eastern
+
+**Branch / code:** `codex/stage1-dawn-corrections`, implementation **`f963514`**, from pushed `46cd32b`. The scheduled session started at 04:05. Existing uncommitted decision/handoff notes were this chat's future-physics/Tellus planning and were preserved. PR #1/#2 were not modified or merged. No world generation, ragdoll, dismemberment or persistent-pool implementation was started.
+
+### Andrew's actual preceding-build review
+
+These observations concern the previously installed core **`BB114406…`** / harness **`A38034CE…`**, not acceptance of this revision:
+
+- "dead walkers still make noises."
+- Katana: "A little bit deeper, it looks alot better though."
+- "axes look great" and "pistol ammo is good."
+- Not enough blood: significant blunt/stab/slash blood requested, modest gunshot blood.
+- New grab QTE looks much better, but walker grabs, retreats, then starts the grab/QTE again; wants one fluid initiation.
+- First person shows shoulders with an invisible torso; wants to see the body looking down and evaluate First Person Model.
+- New requests: readable wound-up punches; one pre-contact swoosh per accepted weapon swing, including misses, with no impact audio/blood for misses. Three named MP3s supplied; knife also applies to hatchet, sword also to machete. Keep the rejected `axe_hit.mp3` ding excluded.
+
+**No new in-game acceptance by Andrew has occurred.** The render/audio smoke below was agent-run in an isolated local world, not his review or the full Gate 0 client checklist.
+
+### Environment, commands and checks
+
+Verified Windows **11 Home 10.0.26200**; Temurin **17.0.20.1+1**, `JAVA_HOME=C:/Program Files/Eclipse Adoptium/jdk-17.0.20.101-hotspot`; Gradle **8.8**; Minecraft **1.20.1**, Forge **47.4.8**, GeckoLib **4.8.4**, Player Animator **1.0.2-rc1+1.20**, TaCZ **1.1.8-hotfix2**. Client: Extra Gore **5.3**, Bookling **3.15**, existing Tissou audio-only and isolated impact packs; new optional First Person Model **2.4.8** and swoosh-only pack. Punchy and Not Enough Animations are not installed. Python **3.14.7** at `C:/Users/drewl/AppData/Roaming/uv/python/cpython-3.14.7-windows-x86_64-none/python.exe`; animation `PYTHONPATH=C:/Users/drewl/Holdfast/art/characters/.deps`, `PYTHONUTF8=1`; audio `PYTHONPATH=C:/Users/drewl/Holdfast/core/build/audio-check-deps` (existing numpy/soundfile dependencies). Git Bash `C:/Program Files/Git/bin/bash.exe` with the previously documented explicit-interpreter `python3` function.
+
+Evidence directory **`core/build/test-evidence/2026-10-18-dawn/`**, ignored local artifacts. Commands from repository root unless stated:
+
+| Command / check | Result and evidence |
+|---|---|
+| `python art/characters/source/refresh_dawn.py` | Source solvers/export regenerated katana standing/ground, upright player catch and two unarmed clips; retained unchanged grab companion clips. `source-refresh.log`, `katana-refine.log`. No generated clip edits. |
+| `bash art/characters/source/make_all.sh --finish` | Final **pass**, `export-finish2.log`: 82 player clips, 73 walker/16 crawler, 26 weapon-motion checks, PA semantics and all export/carry/locomotion checks; 28 execution approach pairs and 36 surface contacts. Standing katana initial 100 ms minimum insertion **6.93 px**, ground cut **4.28 px** (preceding 6.75/4.24); no early clipping. |
+| `python core/tools/audit-character-exports.py` | **89 clips /1,869 FK frames pass**, finite transforms and loop seams; `walker-audit.log`. Software checks do not accept rendered appearance. |
+| `core/gradlew.bat build runGameTestServer --no-daemon` | Final **62 JUnit /all 49 required GameTests pass**, **35 s**, `core-final-checks.log`. Preceding successful run: `core-checks.log` (44 s). Runtime test samples all 82 PA exports. New tests cover voice refusal/reload, continuous upright/crawler grip with nearly expired lunge, old swing cancellation, offhand execution refusal, delayed punch contact; packet tests cover qualified stops and entity-owned voice identity. |
+| `core/gradlew.bat build --no-daemon` | Prior packaging run **11 s**, `core-release-build.log`; superseded by final full build after the last seize-timer correction. |
+| `testmod/animtest/gradlew.bat build --no-daemon` (that directory) | Final **pass, 11 s**, `harness-release-build.log`; earlier package superseded after pixel-identical PNG restoration. |
+| `python core/build/test-evidence/2026-10-18-dawn/verify-jars.py` | **173 shared exported files match BOTH jars**, 28 protected gun assets and eight accepted axe carry/swing assets byte-identical to original installation; **zero developer-probe classes** in release jars. `jar-verification.json`, baseline from `before/server`. |
+| Audio and PNG preservation | **72 existing core Ogg samples byte-identical**; six regenerated PNGs restored after decoded-pixel equality, no texture change. `asset-preservation.json`. Existing impact/Tissou packs untouched. |
+| `python art/audio/gen_sounds.py --refresh-swing-aliases` | New fallback event definitions/subtitles only; accepted Ogg samples not re-encoded. |
+| `python art/audio/build_impact_pack.py C:/Users/drewl/Downloads core/build/test-evidence/2026-10-18-dawn/Holdfast-Swooshes-1.zip --recipe art/audio/swoosh_cuts.json --preview-dir core/build/test-evidence/2026-10-18-dawn/swoosh-previews` | Three proper subranges, decoded/finite/frame-rate/peak checks pass. `swoosh-build.log`, ZIP provenance, WAV previews. No entire MP3 or `axe_hit.mp3` included; listening acceptance pending. |
+
+Swoosh extraction: mono **48 kHz**, DC removal, reduce-only **-6 dBFS** pre-encode peak ceiling, **1/25 ms** edge ramps. Vorbis decoded peaks differ slightly from the pre-encode ceiling; all remain below the .95 validation limit. Originals unchanged; no recordings committed.
+
+| Source | Cut / duration | Decoded peak / RMS dBFS | Source SHA-256 |
+|---|---|---|---|
+| `knife swoosh.mp3` | .12–.60 / .480 s | .4854 / -23.61 | `DE1C98771D2B957EA3AFBFDF2B9E222651939EE30EB43FEDBF79904F44B80C58` |
+| `sword swoosh.mp3` | .08–.48 / .400 s | .4825 / -21.63 | `67E78E8412CA4CB1E0AA1414537F5C26BEBFAE722972BB4D9AD8C86A2DAC990E` |
+| `blunt force woosh.mp3` | .01–.245 / .235 s | .5101 / -18.88 | `4DD5D6B2DEEA0A150A4E15D3F02CD567DA0BFE6E3E70CF56C77D46BB47B79144` |
+
+### First Person Model research and actual client smoke
+
+Read [official source](https://github.com/tr7zw/FirstPersonModel), official Modrinth API metadata, published binary manifests/APIs and bytecode; saved `fpm-versions.json`, `fpm-trial-version.json`, `fpm248-pa-bytecode.txt`, `fpm248-logic.txt`. API query: `https://api.modrinth.com/v2/project/first-person-model/version?loaders=%5B%22forge%22%5D&game_versions=%5B%221.20.1%22%5D`. Candidate **2.4.8**, version **`iwodXe68`**, 126,470 bytes, no required dependency in that metadata. SHA-512 matched official `f2bcd626c3b634959d1dc375c9ef4df379b137a8f8f7120553e08fec87199bb1f8c690bd0395f6c1fa49d5610f1fbb58ac952dc8d75bb7fc985759c5c5113e8a`. Latest 2.7.3 was inspected but not installed: its PA handler returns the offset unchanged and metadata requires NEA. Those research downloads remain in ignored evidence.
+
+`core/gradlew.bat runClient -PpresentationProbe --no-daemon` opts into **tools/probe** source and trial runtime dependencies, isolated at `core/build/presentation-probe/client`; ordinary builds exclude the probe. A separate loopback-only offline userdev server on port25566 created a flat test fixture, without touching Gate 0. After a login timeout it was gracefully signaled, **all dimensions saved 04:28:40**, and its test world copied into isolated client saves for an integrated run. This test fixture is not worldgen development.
+
+Final **`probe-client8.log`: BUILD SUCCESSFUL, 53 s**, with the exact client stack above and all three audio packs. Inspected `client-probe/screenshots/`: torso visible looking down empty-handed/knife/TaCZ pistol; knife swing, grab brace, katana third person, FPM disabled/restored. At tick102 a missed knife swing emitted **one `swing.knife` event**, **zero impact events**. At **04:34:03** a playing walker voice was active before corpse state and inactive afterward; assertions passed. Probe stopped normally **04:34:05**, integrated world saved all dimensions. It drove cosmetic clips and a real miss request, not real paired combat against AI. FPM's render flag is already false at Forge's Post callback; inspected screenshots and part visibility establish the limited body observation. No animation fluidity, all-weapon, ADS/reload, dedicated login, FPS, listening or multiplayer acceptance is inferred.
+
+**Failed attempts retained:** `dawn-compile.log`: wrong tickable-sound constructor argument, corrected (`dawn-compile2.log` passed). `export-finish.log`: larger katana thrust exited skull and failed variant/entry gates; reduced/re-solved. `dawn-unit.log`: stale unarmed timing after failed generation; final tables/tests pass. Client probes1/2 remained in initial menus; probe3 used IPv6 localhost against IPv4-only fixture and was refused; probe4 caught a private ClientLevel API at compile time; probe5 timed out in userdev dedicated handshake. Probes6/7 used fixture ID1900001 while entity retained ID27, so voice lookup/assertion failed; explicit entity ID fixed probe8. Dedicated timeout remains unresolved; successful run was integrated. FPM's missing-mixin-minVersion diagnostic and a TaCZ missing raise-sound warning appeared in dev logs without preventing final smoke; no production gun-audio pass claimed. First jar verifier caught the harness's pre-restoration PNG compression bytes; rebuilt harness and final check passes.
+
+### Final deployed artifacts and server
+
+| Artifact | Bytes | SHA-256 |
+|---|---:|---|
+| Core, BOTH sides | 1,203,376 | `2A35A5B49AD6AF074D61422676B4B977757A62F87C9EF91CBB26E608BDCB2873` |
+| Harness, BOTH sides | 381,248 | `9FA2CDB7193720BEE79DD14AE8F33529FA27D8C549A550D9EBBF49C512B09C57` |
+| First Person Model, client only | 126,470 | `63937DAF6FB817F1F65FA83D60EDE1E5E26D76F898A0A8290DD6DEB42D8D6882` |
+| `Holdfast-Swooshes-1.zip`, client only | 20,592 | `80F4AF13EFA49B4347416CDC1BF625BD70F15619037A4470E6F197D59915B11F` |
+
+Server: `C:/HoldfastGate0/holdfast-gate0/server`; Prism: `C:/Users/drewl/AppData/Roaming/PrismLauncher/instances/Holdfast Gate0/minecraft`. **Core protocol5**, matching core mandatory. `final-installed-hashes.json` lists all six paths. `before/` preserves old server/client jars, logs and Prism options; no prior FPM config existed. FPM config copied from successful trial: enabled, dynamic hand switching off, model hands except native TaCZ gun hands. Existing pack order preserved with swoosh ZIP appended. Existing impact/Tissou ZIPs unchanged. FPM never installed on dedicated server; no Punchy/NEA jar copied.
+
+Before each stop: verified no Minecraft client and localhost status **0 players**. Existing `stop-server.ps1 -ServerProcessId PID` ran in separate hidden PowerShell (AttachConsole/CTRL_C), then verified saved/exited, never force-killed Gate 0. Original PID36120 **all dimensions saved 04:38:22.103**; intermediate PID30248 **Done 04:39:11.492 (2.925 s)**. After the final seize-timer regression, backed up intermediate core9219680B, PID30248 saved all dimensions **04:42:31.291** and exited. Replaced final core both sides and verified every artifact. Hidden Java restart, server cwd: **`@user_jvm_args.txt @libraries/net/minecraftforge/forge/1.20.1-47.4.8/win_args.txt nogui`**. Final PID **28788**, **Done 04:42:51.013 (3.269 s)**, port25565 listening, status0 players. Stderr0 bytes, no ERROR-level entry in final latest.log snapshot. Dedicated startup is not client login acceptance.
+
+Current logs: server `logs/latest.log`, `logs/debug.log`, `logs/codex-dawn-final-stdout.log`, `logs/codex-dawn-final-stderr.log`. Evidence: `final-stop.log`, `final-server-latest.log`, `final-server-debug.log`, final stdout/stderr/status snapshots, `jar-verification.json`, `final-installed-hashes.json`.
+
+**Remaining:** Andrew's single seven-item top batch in `stage1_bulk_test.md`: especially production dedicated login/body framing/ADS, actual AI grab continuity, blood amount/location and listening approval. High-latency cue order, dense-fight particles, all-weapon clipping and remaining jump/reconnect/despawn/Gate0 checks are unaccepted. Regional contacts remain approximate; non-walker click timing and non-TaCZ projectile precision remain earlier gaps. Full permadeath/archival/persistence is not completed by these checks. Physics/dismemberment/pools are planned after animation acceptance, then GUI/general mechanics; Tellus remains a future worldgen candidate only.
+
 ## Final broad audit and deployment — 2026-10-18 (supersedes the deployment below)
 
 **Code:** `codex/stage1-review3-corrections`, **`a2c0968`** after `a24755b`; same Windows11/Java17.0.20.1/Gradle8.8/Forge47.4.8/PA1.0.2-rc1/TaCZ1.1.8-hotfix2/Python3.14.7 environment detailed below. Andrew requested broader quality checks through the remaining usage and authorized useful mod additions. No new mod was needed/added. No new in-game observation has been reported.

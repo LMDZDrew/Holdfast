@@ -1,5 +1,55 @@
 # Assistant handoff
 
+## CURRENT STOP — scheduled dawn corrections, 2026-10-18
+
+**This stop supersedes earlier deployment/status claims below.** Branch **`codex/stage1-dawn-corrections`**, code **`f963514`**, based on `codex/stage1-review3-corrections` **`46cd32b`**. Following documentation commit records this stop. Start from this branch's HEAD on an appropriate scoped branch, preserving concurrent changes. Read `decisions.md`, the newest `testing.md`, `stage1_quality_audit.md`, `presentation_integration.md`, relevant animation/combat docs and the **seven-item top batch** in `stage1_bulk_test.md`. Older review prompts/counts are historical.
+
+### Actual user feedback and implemented changes
+
+Andrew accepted **axe appearance and pistol ammunition** on the preceding BB114406/A38034CE installation. Katana and QTE looked better but needed refinement; corpses still vocalized, melee blood was too sparse, grab initiation reached/retreated/restarted, and first-person torso was invisible. He supplied three swoosh recordings and requested more realistic punch preparation. **He has not reviewed the new installation.** Exact words are in newest testing entry.
+
+1. **Voices:** one entity-owned tickable voice per walker; stops on corpse/dead/silent/unload and refuses new corpse vocals after reload. Brain kills no longer start the external pack's long death pool. Existing recordings/impact audio unchanged. New `WalkerVocalPacket`, **protocol5**.
+2. **Blood:** shared bounded profiles, ordinary/brain kill counts: blunt64/110, slash72/120, stab48/85, gun10/18. Preserves server-supplied entry/exit surfaces and renderer capacity1800. This is not persistent pools or a measured horde-performance pass.
+3. **Katana and punches:** source-solvers slightly deepen standing/ground katana. Unarmed preparation contacts at generated ticks6/8, length12/16, no ordinary torso yaw/roll. No weapon geometry changes. All protected gun assets and accepted axe carries/swings remain byte-identical.
+4. **One grab initiation:** upright AI uses `grab_seize` once, validates grip at source 0.4 s/tick8, begins QTE/player catch then joins hold. Crawler continues its lunge instead of restarting reach; prone duplicate start removed. Pair alignment faces the real attacker and never retreats a close walker. `continueFull(12)` prevents timeout-to-gait before hold without changing nonce; cancels horizontal residual motion. Holds loop; configured escape window/bite authority unchanged. Real fluidity awaits Andrew.
+5. **Swooshes:** `art/audio/swoosh_cuts.json`, short named-source excerpts: knife/hatchet; sword/katana/machete; blunt bat/hammer/staff/long axe. Server schedules one cue three ticks before contact (minimum one after swing start), including misses; no local duplicate or hit audio/blood on miss. Pistol/rifle audio remains TaCZ's. Preserve accepted impacts and exclude `axe_hit.mp3`. New local swoosh pack only; source MP3s/third-party assets uncommitted.
+6. **Audit leads:** old pending swings cannot send a generic stop over a newly owned grab/execution; qualified stop packets also ignore a differently named new clip. Execution entry mirrors two-handed occupied-offhand refusal and rejects busy/spectator players. No claim that all latency/order cases are accepted.
+7. **Body candidate:** optional client **First Person Model2.4.8**, actual local/integrated smoke and torso screenshots. Holdfast `BodyAwarePlayer` yields PA first-person render ownership only when FPM is eligible; poses/timing stay PA's. FPM disabled -> existing PA fallback. Native TaCZ hands preserved through tested config: dynamicModefalse, vanillaHandsModeOFF, autoVanillaHands includes tacz gun. Harness inspections opt out. Latest2.7.3 inspected but not installed (requires NEA, no-op PA offset handler). Neither NEA nor Punchy adopted. Production dedicated login, ADS/reload, all-weapon clipping and user acceptance remain pending.
+
+### Verification and installation
+
+**62 JUnit /49 required GameTests pass** (`core-final-checks.log`, 35 s); all82 PA exports sampled by runtime tests; all89 walker/crawler exports pass finite/seam audit; 28 execution pairs pass, 36 surface contacts regenerated. Katana initial100ms minimum6.93px standing/4.28px ground, no early clipping (previous6.75/4.24). Both packages match all173 shared assets; 28 gun/eight accepted axe assets and72 original Ogg samples preserved; six pixel-identical PNGs restored. Probe class excluded from release jars. Final harness build11s. Source/packaging checks do not accept animation appearance.
+
+Actual **isolated integrated-client probe8** passed53s: inspected empty/knife/pistol torso, knife swing/grab/katana third person and FPM off/on; a real missed knife swing emitted one swoosh/zero impacts; an active voice stopped on corpse state. It exited and saved normally04:34:05. An earlier userdev **dedicated** login timed out; not resolved or hidden. Voice fixture initially had a wrong entity ID; fixed. All failures and limits recorded in `testing.md`. This is not Andrew's visual/listening review or a full multiplayer run.
+
+**Final installed SHA-256:**
+
+- Core BOTH server/Prism: **`2A35A5B49AD6AF074D61422676B4B977757A62F87C9EF91CBB26E608BDCB2873`** (1,203,376 bytes).
+- Harness BOTH: **`9FA2CDB7193720BEE79DD14AE8F33529FA27D8C549A550D9EBBF49C512B09C57`** (381,248 bytes).
+- FPM client only: **`63937DAF6FB817F1F65FA83D60EDE1E5E26D76F898A0A8290DD6DEB42D8D6882`**.
+- Swoosh ZIP client only: **`80F4AF13EFA49B4347416CDC1BF625BD70F15619037A4470E6F197D59915B11F`**.
+
+Server **PID28788** (snapshot), port25565, **Done04:42:51.013 (3.269s)**, final status0 players, stderr0/no ERROR-level latest.log entries. Original server saved04:38:22.103; intermediate installation saved04:42:31.291 before final core replacement. Both stops graceful, no force-kill; both client jars installed while closed. Server `C:/HoldfastGate0/holdfast-gate0/server`; Prism `C:/Users/drewl/AppData/Roaming/PrismLauncher/instances/Holdfast Gate0/minecraft`. Both sides require **core protocol5**. Current logs: server `logs/latest.log`, `logs/debug.log`, `logs/codex-dawn-final-stdout.log`, `logs/codex-dawn-final-stderr.log`. Existing resource pack order preserved, new swoosh appended; F/F/Y controls preserved.
+
+Evidence/backups: ignored **`core/build/test-evidence/2026-10-18-dawn/`**, `before/server`, `before/client`, final installed manifest, startup/stop/status snapshots, metadata/bytecode, audio provenance/previews, client logs/screenshots. Restore both old code jars together for a protocol4 rollback; never mix protocols. FPM alone can be removed with Minecraft closed for PA fallback; disabling the swoosh pack restores new events' procedural fallbacks. Details in `presentation_integration.md`.
+
+### Next actions and boundaries
+
+1. **Await one consolidated user batch**, top of `stage1_bulk_test.md`. Do not turn automated smoke into his acceptance. If production login fails, collect Prism latest/debug/crash logs before changing anything; optional FPM rollback is reversible. Keep accepted axe/gun animation assets protected. Prioritize actual reported flaws over new features.
+2. Reproduce relevant remaining clipping, AI grab continuity, localized blood density, cue timing and real TaCZ ADS/reload on this exact hash. Dedicated timeout in the isolated dev fixture remains an explicit limitation; production startup alone does not resolve it. High RTTs can delay the server-only swoosh relative to local prediction. Full-body framing and all-weapon transitions still need human review.
+3. Source changes only: `refresh_dawn.py` then `make_all.sh --finish` for the current scoped set, or full source pipeline for wider changes. Exact Java/Python/UTF8/Git Bash environment in testing. Audio edits use recipe plus builder, never whole MP3s. Rebuild both jars after exports; verify protected assets and packaged copies, graceful empty-server save/exit, matching core install/hashes, hidden restart. No replacements while Minecraft is open.
+4. Previous gaps remain: jumping/recovery/reconnect/despawn/Gate0 rows, static regional melee geometry, older non-TaCZ projectile precision and non-walker click timing. Full permadeath/no-replacement/archival/unique-equipment persistence remain roadmap work; condition tests do not complete them.
+5. **After Andrew accepts animations**, next mechanics phase is precise contacts, seamless ragdolls, dismemberment/crawler transitions/animated intact heads, and ground blood pools/spatter, then GUI/general mechanics. Keep brain destruction and all gameplay/persistent state server-authoritative. No worldgen now; Tellus is a future candidate only. PR #1/#2 remain draft/unmerged; do not merge or change them.
+6. This scheduled run was **one session**; no further automation created. Monitor usage, stop around5% remaining and write a concrete handoff before exhausting it. Do not interpret remaining usage as authorization for worldgen or the gated physics phase.
+
+## Planned sequence after animation acceptance — 2026-10-18
+
+Andrew requests precise melee/bullet contacts, seamless execution/ordinary-death ragdolls, arm/head/torso dismemberment, torso-cut transitions into existing crawlers after a short recovery, animated intact detached heads, and surface blood pools/spatter. Finish animation review to his satisfaction first; then develop these mechanics, followed by GUI/general mechanics. See the new next-phase section in `decisions.md`, which supersedes the old dynamic-dismemberment deferral. Evaluate compatible existing mods before selection; do not promise off-the-shelf support for custom walker rigs. Keep gameplay and persistent body-part state server-owned and physics cosmetic. This is future scope, not an addition to the current 4:05 AM animation correction run, and does not authorize worldgen.
+
+## Future world generation candidate — user request, 2026-10-18
+
+Keep **Tellus** in mind when evaluating tools for the southeastern-US world generation phase. This is a candidate to research, not a selected or compatibility-tested dependency. Begin that future phase by controlling dimensions and disabling Nether, End and vanilla structures, then evaluate terrain tools and a small test region. Stage 1 remains current; this note does not authorize starting world generation.
+
 ## FINAL current stop — 2026-10-18: broad audit completed, client review pending
 
 **This section supersedes all earlier current-stop/deployment claims below.** Branch **`codex/stage1-review3-corrections`**, implementation **`a2c0968`** after **`a24755b`**, based on user-requested **`3d3b79e`**. Read `decisions.md`, newest `testing.md`, **`stage1_quality_audit.md`**, `controls.md`, relevant animation/combat/presentation docs and the **six-item top batch** in `stage1_bulk_test.md` before continuing. The detailed feature list below remains useful; the original review3 prompt is historical.
