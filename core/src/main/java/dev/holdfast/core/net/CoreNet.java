@@ -13,7 +13,7 @@ import java.util.Optional;
  * packets are requests the server validates (escape, execute, cancel, swing into the air). No client packet carries an outcome.
  */
 public final class CoreNet {
-    private static final String VERSION = "4";
+    private static final String VERSION = "5";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(HoldfastCore.MODID, "main"), () -> VERSION, VERSION::equals, VERSION::equals);
 
@@ -37,5 +37,7 @@ public final class CoreNet {
                 SwingPacket::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
         CHANNEL.registerMessage(id++, GunShotPacket.class, GunShotPacket::encode, GunShotPacket::decode,
                 GunShotPacket::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        CHANNEL.registerMessage(id++, WalkerVocalPacket.class, WalkerVocalPacket::encode, WalkerVocalPacket::decode,
+                WalkerVocalPacket::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
     }
 }

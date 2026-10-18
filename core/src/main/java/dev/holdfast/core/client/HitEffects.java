@@ -43,13 +43,13 @@ public final class HitEffects {
             ExtraGoreEffects.play(m);
             return; // One emitter: do not stack the former dust/block particles over Extra Gore.
         }
-        int n;
+        int n = dev.holdfast.core.rules.BloodProfile.count(m.contact(), kill);
         double spread, push;
         switch (m.contact()) {
-            case BLUNT -> { n = kill ? 22 : 8; spread = 0.12; push = 0.05; }
-            case SLASH -> { n = kill ? 26 : 14; spread = 0.22; push = 0.12; }
-            case STAB -> { n = kill ? 16 : 6; spread = 0.05; push = 0.18; }
-            default -> { n = kill ? 30 : 10; spread = 0.06; push = 0.35; }     // gunshot: exit spray along the shot
+            case BLUNT -> { spread = 0.12; push = 0.05; }
+            case SLASH -> { spread = 0.22; push = 0.12; }
+            case STAB -> { spread = 0.05; push = 0.18; }
+            default -> { spread = 0.06; push = 0.35; }
         }
         for (int i = 0; i < n; i++) {
             boolean exit = m.contact() == WeaponClass.Contact.GUNSHOT && m.hasExit() && i >= n * .7;
@@ -60,7 +60,7 @@ public final class HitEffects {
             mc.level.addParticle(i % 3 == 0 ? BLOOD_DARK : BLOOD, exit ? m.exitX() : m.x(), exit ? m.exitY() : m.y(),
                     exit ? m.exitZ() : m.z(), sx, sy, sz);
         }
-        if (kill) {
+        if (kill && m.contact() != WeaponClass.Contact.GUNSHOT) {
             for (int i = 0; i < 6; i++) {
                 mc.level.addParticle(GORE, m.x(), m.y(), m.z(), -m.dx() * 0.2 + (r.nextDouble() - 0.5) * 0.1, 0.05, -m.dz() * 0.2 + (r.nextDouble() - 0.5) * 0.1);
             }

@@ -9,7 +9,7 @@
  "animations": {
   "grabbed_seize": {
    "loop": false,
-   "animation_length": 0.5,
+   "animation_length": 0.2,
    "bones": {
     "camera": {
      "rotation": {
@@ -23,81 +23,33 @@
       },
       "0.05": {
        "post": [
-        -5.16,
-        -0.42,
-        0.04
+        -6.28,
+        5.81,
+        -0.35
        ],
        "lerp_mode": "linear"
       },
       "0.1": {
        "post": [
-        -12.1,
-        0.0,
-        0.0
+        -8.82,
+        8.2,
+        1.07
        ],
        "lerp_mode": "linear"
       },
       "0.15": {
        "post": [
-        -11.14,
-        4.43,
-        -0.06
+        -7.64,
+        9.37,
+        0.22
        ],
        "lerp_mode": "linear"
       },
       "0.2": {
        "post": [
-        -9.58,
-        7.33,
-        -0.14
-       ],
-       "lerp_mode": "linear"
-      },
-      "0.25": {
-       "post": [
-        -9.18,
-        8.01,
-        -0.01
-       ],
-       "lerp_mode": "linear"
-      },
-      "0.3": {
-       "post": [
-        -8.76,
-        8.6,
-        0.19
-       ],
-       "lerp_mode": "linear"
-      },
-      "0.35": {
-       "post": [
-        -8.34,
-        9.1,
-        0.42
-       ],
-       "lerp_mode": "linear"
-      },
-      "0.4": {
-       "post": [
-        -4.97,
-        9.51,
-        0.64
-       ],
-       "lerp_mode": "linear"
-      },
-      "0.45": {
-       "post": [
-        -9.27,
-        9.86,
-        1.69
-       ],
-       "lerp_mode": "linear"
-      },
-      "0.5": {
-       "post": [
-        -6.78,
+        -7.42,
         10.14,
-        0.26
+        1.04
        ],
        "lerp_mode": "linear"
       }
@@ -114,76 +66,28 @@
       "0.05": {
        "post": [
         0.0,
-        -0.01,
-        1.66
+        -0.18,
+        1.42
        ],
        "lerp_mode": "linear"
       },
       "0.1": {
        "post": [
         0.0,
-        -0.16,
-        3.23
+        -0.36,
+        2.01
        ],
        "lerp_mode": "linear"
       },
       "0.15": {
        "post": [
         0.0,
-        -0.22,
-        3.32
+        -0.53,
+        2.35
        ],
        "lerp_mode": "linear"
       },
       "0.2": {
-       "post": [
-        0.0,
-        -0.28,
-        3.32
-       ],
-       "lerp_mode": "linear"
-      },
-      "0.25": {
-       "post": [
-        0.0,
-        -0.35,
-        3.24
-       ],
-       "lerp_mode": "linear"
-      },
-      "0.3": {
-       "post": [
-        0.0,
-        -0.42,
-        3.11
-       ],
-       "lerp_mode": "linear"
-      },
-      "0.35": {
-       "post": [
-        0.0,
-        -0.49,
-        2.95
-       ],
-       "lerp_mode": "linear"
-      },
-      "0.4": {
-       "post": [
-        0.0,
-        -0.55,
-        2.79
-       ],
-       "lerp_mode": "linear"
-      },
-      "0.45": {
-       "post": [
-        0.0,
-        -0.61,
-        2.66
-       ],
-       "lerp_mode": "linear"
-      },
-      "0.5": {
        "post": [
         0.0,
         -0.65,
@@ -195,7 +99,7 @@
     }
    },
    "sound_effects": {
-    "0.1": {
+    "0.02": {
      "effect": "holdfast:player.gasp"
     }
    }

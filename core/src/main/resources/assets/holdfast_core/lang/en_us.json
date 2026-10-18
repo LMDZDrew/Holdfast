@@ -34,6 +34,7 @@
  "message.holdfast_core.execute_refused.obstructed": "Something's in the way",
  "message.holdfast_core.execute_refused.no_room": "No room to do it here",
  "message.holdfast_core.execute_refused.no_ammo": "Out of ammo",
+ "message.holdfast_core.execute_refused.off_hand_occupied": "This weapon needs both hands free",
  "item.holdfast_core.knife": "Kitchen Knife",
  "item.holdfast_core.machete": "Machete",
  "item.holdfast_core.fire_axe": "Fire Axe",
@@ -63,5 +64,8 @@
  "subtitles.holdfast_core.swing.light": "Swing",
  "subtitles.holdfast_core.swing.heavy": "Heavy swing",
  "subtitles.holdfast_core.body.fall": "Body falls",
- "subtitles.holdfast_core.bite.blocked": "Bite blocked"
+ "subtitles.holdfast_core.bite.blocked": "Bite blocked",
+ "subtitles.holdfast_core.swing.knife": "Small blade swings",
+ "subtitles.holdfast_core.swing.sword": "Sword swings",
+ "subtitles.holdfast_core.swing.blunt": "Heavy weapon swings"
 }

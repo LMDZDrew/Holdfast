@@ -134,7 +134,7 @@ public final class Clips {
         Map.entry("grabbed_bite_blocked", 0.6),
         Map.entry("grabbed_bitten", 1.0),
         Map.entry("grabbed_released", 0.6),
-        Map.entry("grabbed_seize", 0.5),
+        Map.entry("grabbed_seize", 0.2),
         Map.entry("grabbed_shove", 0.6),
         Map.entry("grabbed_struggle", 0.8),
         Map.entry("hold_axe", 3.2),
@@ -186,8 +186,8 @@ public final class Clips {
         Map.entry("swing_knife_heavy", 0.7),
         Map.entry("swing_machete", 0.75),
         Map.entry("swing_machete_heavy", 0.8),
-        Map.entry("swing_unarmed", 0.45),
-        Map.entry("swing_unarmed_heavy", 0.65)
+        Map.entry("swing_unarmed", 0.6),
+        Map.entry("swing_unarmed_heavy", 0.8)
     );
 
     /** Cosmetic harness shot timing, from the same authored table as core execution ticks. */

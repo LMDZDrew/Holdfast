@@ -135,7 +135,7 @@ Times are seconds from the start of the clip. Events and sounds are **presentati
 | `grabbed_bite_blocked` | 0.60 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | 0.36 `player.gasp` |
 | `grabbed_bitten` | 1.00 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | 0.38 `player.scream` |
 | `grabbed_released` | 0.60 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | — |
-| `grabbed_seize` | 0.50 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | 0.10 `player.gasp` |
+| `grabbed_seize` | 0.20 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | 0.02 `player.gasp` |
 | `grabbed_shove` | 0.60 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | `shove` 0.14 | 0.14 `player.exert_heavy` |
 | `grabbed_struggle` | 0.80 | loop | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | 0.00 `player.strain` |
 | `hold_axe` | 3.20 | loop | head, leftArm, leftItem, rightArm, rightItem | axe | — | — |
@@ -187,8 +187,8 @@ Times are seconds from the start of the clip. Events and sounds are **presentati
 | `swing_knife_heavy` | 0.70 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | knife | `commit` 0.16, `strike` 0.30 | 0.20 `swing.light` |
 | `swing_machete` | 0.75 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | machete | `commit` 0.20, `strike` 0.33 | 0.24 `swing.light` |
 | `swing_machete_heavy` | 0.80 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | machete | `commit` 0.22, `strike` 0.38 | 0.30 `swing.heavy` |
-| `swing_unarmed` | 0.45 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | `strike` 0.16 | 0.11 `swing.light` |
-| `swing_unarmed_heavy` | 0.65 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | `strike` 0.26 | 0.21 `swing.light` |
+| `swing_unarmed` | 0.60 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | `strike` 0.28 | 0.23 `swing.light` |
+| `swing_unarmed_heavy` | 0.80 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | `strike` 0.38 | 0.33 `swing.light` |
 
 ## Reference speeds at 1× playback
 

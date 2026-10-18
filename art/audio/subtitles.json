@@ -15,5 +15,8 @@
  "subtitles.holdfast_core.swing.light": "Swing",
  "subtitles.holdfast_core.swing.heavy": "Heavy swing",
  "subtitles.holdfast_core.body.fall": "Body falls",
- "subtitles.holdfast_core.bite.blocked": "Bite blocked"
+ "subtitles.holdfast_core.bite.blocked": "Bite blocked",
+ "subtitles.holdfast_core.swing.knife": "Small blade swings",
+ "subtitles.holdfast_core.swing.sword": "Sword swings",
+ "subtitles.holdfast_core.swing.blunt": "Heavy weapon swings"
 }

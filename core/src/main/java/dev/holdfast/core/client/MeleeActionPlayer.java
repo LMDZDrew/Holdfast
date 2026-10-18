@@ -7,7 +7,7 @@ import dev.kosmx.playerAnim.core.util.Vec3f;
 
 /** Release the action back to the live carry/gait before PA's implicit return to vanilla defaults.
  * Does not retime the clip, server contact, or its input lock. */
-final class MeleeActionPlayer extends KeyframeAnimationPlayer {
+final class MeleeActionPlayer extends BodyAwarePlayer {
     MeleeActionPlayer(KeyframeAnimation data) { super(data); }
 
     boolean blocksInput() { return isActive() && getTick() < getData().endTick + 1; }

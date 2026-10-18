@@ -296,13 +296,13 @@ def katana():
     # thrust: lunge, the tip through the face to the middle of the skull
     b.pose(I, torso=[10, -4, 0], body_pos=[0, -1.0, -6.0], head=[8, -2, 0], leftLeg=[-22, 0, 0], rightLeg=[12, 0, 0])
     Hm, _ = b.walker(I)
-    deep = hp(Hm, (0, 5, 3.5))
+    deep = hp(Hm, (0, 5, 3.8))
     axis = U(*(deep - P(0, 20, -6)))
     b.solve_two(I, deep, axis=axis, edge=U(0, -1, 0), marker="katanaTip", w_axis=30, reg=0.00002)
     # hold it in: same reachable lunge, the tip kept in the skull while the walker hangs on it
     b.pose(0.48, torso=[10, -4, 0], body_pos=[0, -1.0, -6.0])
     Hm, _ = b.walker(0.48)
-    b.solve_two(0.48, hp(Hm, (0, 5, 3.5)), axis=axis, edge=U(0, -1, 0), marker="katanaTip", w_axis=30, reg=0.00002)
+    b.solve_two(0.48, hp(Hm, (0, 5, 3.8)), axis=axis, edge=U(0, -1, 0), marker="katanaTip", w_axis=30, reg=0.00002)
     # draw it out along the same line
     b.pose(R, torso=[2, 6, 0], body_pos=[0, -0.5, -1.0], head=[4, 2, 0], leftLeg=[-8, 0, 0], rightLeg=[6, 0, 0])
     Hm, _ = b.walker(R)
@@ -443,14 +443,14 @@ def grab_anims():
     out = {}
     STRUG = dict(body_pos=[0, -0.6, 1.2], torso=[-8, 0, 0], head=[-6, 18, 0], rightLeg=[18, 0, 0], leftLeg=[-10, 0, 0],
                  rightArm=[-84, -10, 0], leftArm=[-80, 12, 0], rightItem=[0, 0, 0])
-    a = Anim(0.5, False)
-    a.pose(0.0, **STAND, rightArm=[-10, 0, 4], leftArm=[-10, 0, -4], rightItem=[0, 0, 0])
-    a.pose(0.1, body_pos=[0, 0, 1.5], torso=[-10, 0, 0], head=[-12, 0, 0])
-    a.pose(0.18, rightArm=[-72,-14,8],leftArm=[-46,14,-10],head=[-8,12,-2]) # catch one wrist, then brace
-    a.pose(0.3, rightArm=[-80, -8, 0], leftArm=[-82, 8, 0])
-    a.pose(0.5, **STRUG)
-    a.sound(0.1, "holdfast:player.gasp")
-    out["grabbed_seize"] = (a, dict(impacts=[(0.4, 3.0)]))
+    a = Anim(0.2, False)
+    # Server starts this at the walker's first grip, not at another anticipatory reach.
+    a.pose(0.0, **STAND, rightArm=[-60, -14, 8], leftArm=[-42, 14, -10], rightItem=[0, 0, 0])
+    a.pose(0.06, body_pos=[0, -.2, .6], torso=[-6, 0, 0], head=[-8, 12, -2],
+           rightArm=[-76,-12,4], leftArm=[-64,14,-6])
+    a.pose(0.2, **STRUG)
+    a.sound(0.02, "holdfast:player.gasp")
+    out["grabbed_seize"] = (a, dict(impacts=[(0.06, 2.0)]))
 
     a = Anim(0.8, True) # brace, one grip slips under pressure, regain the frame; not two arms pumping together
     for t,k,slip in ((0,0,0),(.12,.65,0),(.26,1,1),(.40,.25,.3),(.54,-.75,0),(.68,-.35,-.35),(.8,0,0)):

@@ -1,0 +1,14 @@
+{
+  "description": "Holdfast weapon swooshes - isolated user recordings",
+  "routing": "knife: knives and hatchets; sword: katana, swords and machetes; blunt: bat, hammer, staff and long axe. Unarmed uses the quiet original swing.light. Server schedules one cue before contact, including misses; hit sounds remain confirmed-contact only.",
+  "cuts": [
+    {"id": "swoosh_knife", "source": "knife swoosh.mp3", "start": 0.12, "end": 0.60},
+    {"id": "swoosh_sword", "source": "sword swoosh.mp3", "start": 0.08, "end": 0.48},
+    {"id": "swoosh_blunt", "source": "blunt force woosh.mp3", "start": 0.01, "end": 0.245}
+  ],
+  "events": {
+    "swing.knife": ["swoosh_knife"],
+    "swing.sword": ["swoosh_sword"],
+    "swing.blunt": ["swoosh_blunt"]
+  }
+}

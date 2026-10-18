@@ -344,17 +344,26 @@ def families():
         rest, report = globals()["carry"](weapon, "rest")
         out["rest_" + weapon] = (rest, dict(weapon=weapon, impacts=[], geodesic_items=True))
         rep.extend(report)
-    # Empty-hand attacks also replace the vanilla swing, including attacks into the air.
-    for heavy, length, contact in ((False, .45, .16), (True, .65, .26)):
+    out.update(unarmed())
+    return out, rep
+
+
+def unarmed():
+    """Empty-hand attacks replace vanilla's swing; source-scoped regeneration is supported."""
+    out = {}
+    for heavy, length, contact in ((False, .6, .28), (True, .8, .38)):
         a = Anim(length, False)
         a.pose(0, **STAND, rightArm=[-12, 0, 12], leftArm=[-12, 0, -12], rightItem=[0, 0, 0])
-        a.pose(contact * .55, torso=[-3, 0, 0], body_pos=[0, -.25, .5], rightArm=[18, 8, 18], leftArm=[-38, 0, -12])
+        # Chamber the fist beside the ribs, opposite hand guarding, then drive forward.
+        # Forward weight shift only: no click-driven torso yaw/roll.
+        a.pose(contact * .60, torso=[-4, 0, 0], body_pos=[0, -.3, .8],
+               rightArm=[-32, -24, 22], leftArm=[-68, 12, -12])
         a.pose(contact, torso=[10, 0, 0], body_pos=[0, -.6, -1], rightArm=[-92, -6, 8], leftArm=[-30, 0, -14])
         a.pose(contact + .08, torso=[12, 0, 0], rightArm=[-96, -8, 8])
         a.pose(length, **STAND, rightArm=[-12, 0, 12], leftArm=[-12, 0, -12])
         a.event(contact, "strike").sound(contact - .05, "holdfast_core:swing.light")
         out["swing_unarmed" + ("_heavy" if heavy else "")] = (a, dict(impacts=[], geodesic_items=True))
-    return out, rep
+    return out
 
 
 # ================================================================== locomotion

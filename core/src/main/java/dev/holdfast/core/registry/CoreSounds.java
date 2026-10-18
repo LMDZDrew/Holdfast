@@ -31,6 +31,9 @@ public final class CoreSounds {
     public static final RegistryObject<SoundEvent> SKULL_GUNSHOT = reg("impact.skull_gunshot");
     public static final RegistryObject<SoundEvent> SWING_LIGHT = reg("swing.light");
     public static final RegistryObject<SoundEvent> SWING_HEAVY = reg("swing.heavy");
+    public static final RegistryObject<SoundEvent> SWING_KNIFE = reg("swing.knife");
+    public static final RegistryObject<SoundEvent> SWING_SWORD = reg("swing.sword");
+    public static final RegistryObject<SoundEvent> SWING_BLUNT = reg("swing.blunt");
     public static final RegistryObject<SoundEvent> BODY_FALL = reg("body.fall");
     public static final RegistryObject<SoundEvent> BITE_BLOCKED = reg("bite.blocked");
 
@@ -47,6 +50,15 @@ public final class CoreSounds {
             case SLASH -> (skull ? SKULL_BLADE : IMPACT_SLASH).get();
             case STAB -> (skull ? SKULL_BLADE : IMPACT_STAB).get();
             case GUNSHOT -> (skull ? SKULL_GUNSHOT : IMPACT_GUNSHOT).get();
+        };
+    }
+
+    public static SoundEvent swing(WeaponClass weapon) {
+        return switch (weapon) {
+            case KNIFE, HATCHET -> SWING_KNIFE.get();
+            case MACHETE, KATANA -> SWING_SWORD.get();
+            case AXE, HAMMER, BAT, STAFF -> SWING_BLUNT.get();
+            default -> SWING_LIGHT.get();
         };
     }
 }

@@ -12,12 +12,24 @@ import java.util.function.Supplier;
  * (grabs, executions) carry the partner walker so both start on the same client frame; the walker's own clip is
  * in its synced entity data.
  */
-public record PlayClipPacket(int playerId, String clip, int partnerId, boolean ownsArms, String partnerClip, int partnerNonce) {
+public record PlayClipPacket(int playerId, String clip, int partnerId, boolean ownsArms, String partnerClip, int partnerNonce,
+                             String expectedClip) {
+    public PlayClipPacket(int playerId, String clip, int partnerId, boolean ownsArms, String partnerClip, int partnerNonce) {
+        this(playerId, clip, partnerId, ownsArms, partnerClip, partnerNonce, "");
+    }
     public PlayClipPacket(int playerId, String clip, int partnerId, boolean ownsArms) {
         this(playerId, clip, partnerId, ownsArms, "", -1);
     }
     public static PlayClipPacket stop(int playerId) {
         return new PlayClipPacket(playerId, "", -1, false);
+    }
+
+    public static PlayClipPacket stopSwing(int playerId, String expected) {
+        return new PlayClipPacket(playerId, "", -1, false, "", -1, expected);
+    }
+
+    public boolean stops(String activeClip) {
+        return expectedClip.isEmpty() || expectedClip.equals(activeClip);
     }
 
     static void encode(PlayClipPacket m, FriendlyByteBuf b) {
@@ -27,10 +39,11 @@ public record PlayClipPacket(int playerId, String clip, int partnerId, boolean o
         b.writeBoolean(m.ownsArms);
         b.writeUtf(m.partnerClip);
         b.writeVarInt(m.partnerNonce + 1);
+        b.writeUtf(m.expectedClip);
     }
 
     static PlayClipPacket decode(FriendlyByteBuf b) {
-        return new PlayClipPacket(b.readVarInt(), b.readUtf(), b.readVarInt() - 1, b.readBoolean(), b.readUtf(), b.readVarInt() - 1);
+        return new PlayClipPacket(b.readVarInt(), b.readUtf(), b.readVarInt() - 1, b.readBoolean(), b.readUtf(), b.readVarInt() - 1, b.readUtf());
     }
 
     static void handle(PlayClipPacket m, Supplier<NetworkEvent.Context> ctx) {

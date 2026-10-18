@@ -40,12 +40,7 @@ public final class ExtraGoreEffects {
         if (mc.level == null || mc.player == null
                 || mc.player.distanceToSqr(hit.x(), hit.y(), hit.z()) > 48 * 48) return;
         boolean kill = hit.outcome() == WalkerStrikeRules.Outcome.BRAIN_KILL;
-        int count = switch (hit.contact()) {
-            case BLUNT -> kill ? 24 : 8;
-            case SLASH -> kill ? 32 : 18;
-            case STAB -> kill ? 18 : 7;
-            case GUNSHOT -> kill ? 36 : 14;
-        };
+        int count = dev.holdfast.core.rules.BloodProfile.count(hit.contact(), kill);
         Vec3 forward = new Vec3(hit.dx(), hit.dy(), hit.dz());
         if (forward.lengthSqr() < 1e-6) forward = new Vec3(0, 0, 1);
         forward = forward.normalize();

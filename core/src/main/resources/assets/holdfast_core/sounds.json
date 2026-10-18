@@ -299,5 +299,56 @@
     "name": "holdfast_core:bite/blocked_4"
    }
   ]
+ },
+ "swing.knife": {
+  "subtitle": "subtitles.holdfast_core.swing.knife",
+  "sounds": [
+   {
+    "name": "holdfast_core:swing/light_1"
+   },
+   {
+    "name": "holdfast_core:swing/light_2"
+   },
+   {
+    "name": "holdfast_core:swing/light_3"
+   },
+   {
+    "name": "holdfast_core:swing/light_4"
+   }
+  ]
+ },
+ "swing.sword": {
+  "subtitle": "subtitles.holdfast_core.swing.sword",
+  "sounds": [
+   {
+    "name": "holdfast_core:swing/heavy_1"
+   },
+   {
+    "name": "holdfast_core:swing/heavy_2"
+   },
+   {
+    "name": "holdfast_core:swing/heavy_3"
+   },
+   {
+    "name": "holdfast_core:swing/heavy_4"
+   }
+  ]
+ },
+ "swing.blunt": {
+  "subtitle": "subtitles.holdfast_core.swing.blunt",
+  "sounds": [
+   {
+    "name": "holdfast_core:swing/heavy_1"
+   },
+   {
+    "name": "holdfast_core:swing/heavy_2"
+   },
+   {
+    "name": "holdfast_core:swing/heavy_3"
+   },
+   {
+    "name": "holdfast_core:swing/heavy_4"
+   }
+  ]
  }
 }

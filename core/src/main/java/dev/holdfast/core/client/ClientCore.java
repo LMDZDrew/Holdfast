@@ -38,6 +38,7 @@ public final class ClientCore {
         modBus.addListener((FMLClientSetupEvent e) -> e.enqueueWork(ClientClips::registerLayers));
         modBus.addListener((FMLClientSetupEvent e) -> e.enqueueWork(() -> {
             if(net.minecraftforge.fml.ModList.get().isLoaded("tacz")) dev.holdfast.core.compat.tacz.TaczClientActions.register();
+            if(net.minecraftforge.fml.ModList.get().isLoaded("firstperson")) dev.holdfast.core.compat.firstperson.FirstPersonBody.register();
         }));
         MinecraftForge.EVENT_BUS.addListener(ClientCore::onClientTick);
         MinecraftForge.EVENT_BUS.addListener(ClientClips::camera);
@@ -61,6 +62,7 @@ public final class ClientCore {
         if (event.phase != TickEvent.Phase.END) return;
         Minecraft mc = Minecraft.getInstance();
         ClientClips.tick();
+        WalkerVoices.tick();
         if (mc.player == null) return;
         if(mc.screen!=null) { while(ACTION.consumeClick()) {} return; }
         while (ACTION.consumeClick()) {

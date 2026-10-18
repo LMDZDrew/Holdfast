@@ -1,5 +1,13 @@
 # Character models and animation (walker, crawler, player)
 
+## Dawn feedback corrections — 2026-10-18
+
+Source-scoped reproduction: `refresh_dawn.py`, then `make_all.sh --finish` using the documented Python UTF-8 environment. This regenerates the katana standing/ground executions, upright player catch and empty-hand punches; accepted axe carries/swings and protected gun exports stay byte-identical. Final variant gate: 28 pairs, no early clipping; minimum standing katana insertion during its initial 100 ms is 6.93 px (previous minimum 6.75), ground cut 4.28 px (previous 4.24). These are small geometric changes, not visual acceptance. A first larger thrust failed the depth/entry gate and was discarded.
+
+The walker AI now uses the existing `grab_seize` from approach to grip instead of a full lunge followed by a restarted seize. Grip is its authored 0.4 s; the shorter player catch is 0.2 s and ends at the unchanged struggle pose. The walker continues its original clip until hold, rather than returning to a neutral reach. Crawler success similarly preserves its lunge; all full-body grab holds actually loop. Paired escape and server window rules are preserved.
+
+With optional First Person Model active, Holdfast's PA players return `FirstPersonMode.NONE` for render ownership: FPM renders the animated body, avoiding PA's own arms-only pass which hides the torso. Clip transforms, item channels and server timing remain PA-owned. F6 disabling FPM restores the existing PA renderer. Native TaCZ guns keep their arms/items/ADS; the trial config uses vanilla gun hands and disables FPM dynamic hand switching. Harness inspections retain their own renderer and temporarily suppress FPM. No Punchy adoption or firearm asset edits.
+
 Branch `claude/character-animation`. Source of truth for the character rigs, clips, export formats, and where the server must decide outcomes. Clip-by-clip lengths, events and sounds are generated into [`animation_catalog.md`](animation_catalog.md).
 
 ## Status labels (read first)

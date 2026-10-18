@@ -20,6 +20,23 @@ Status: accepted design unless labeled proposed. This file supersedes older word
 - No Nether, End, vanilla structures, fantasy progression, or Lost Cities. TaCZ is a preferred candidate for firearms, not yet validated as an integrated dependency.
 - Prioritize quality of mechanics and world design before performance optimization. Eventually test the 120 FPS aspiration on an RTX 5050 laptop with 16 GB system RAM, optional shaders separately, and a 16-player cap; no result is yet measured.
 
+### Next mechanics phase after animation acceptance (Andrew, 2026-10-18)
+
+- Finish animation quality review and obtain Andrew's satisfaction before beginning this phase. Then prioritize precise server-owned melee and bullet hit regions, pose-continuous ragdoll transitions for execution and ordinary deaths, dismemberment, and ground blood pools/spatter; follow with GUI elements and general game mechanics. No world generation is authorized by this sequence.
+- Ragdolls should inherit the final animated pose and motion without a stiff fall or visible reset. Cosmetic physics must not decide damage, death, bite reach or authoritative entity placement.
+- Suitable accurately placed blade attacks can sever arms, decapitate walkers, or divide the torso. A torso cut should let both pieces fall, then resume the existing crawler behavior after a short recovery. This is an incapacitation/transition when the brain is intact, not a body-damage kill or resurrection after brain destruction. Detached heads with intact brains remain animated; brain-destroyed heads do not. Server-owned limb/head state, crawler transition and persistence must stay consistent across clients and reloads.
+- Blood should pool and spatter on ground surfaces at confirmed impact/severance sites, with bounded lifetime and density. Evaluate existing physics, gore and decal mods against Holdfast's custom models and animation stack before selecting dependencies; matching game versions alone do not establish compatibility.
+- This explicitly schedules dynamic dismemberment for the next mechanics phase and supersedes its older blanket deferral below. Advanced structural physics remains deferred. All of these features are planned, not implemented or accepted.
+
+### Dawn correction requests (Andrew, 2026-10-18)
+
+- Actual preceding-build observations: dead walkers still vocalize; katana looks much better but needs a little more insertion; axes look great; pistol ammunition is good; QTE presentation looks much better but the initial walker grab retreats/restarts before the real hold/prompt; melee blood is insufficient. Preserve accepted axe/gun poses and ammo behavior.
+- Dead walkers must stop an existing voice and stay silent. Increase blood substantially for blunt, stab and slash contacts, with modest gunshot blood and impact-site placement preserved.
+- Unify the initial walker reach/grip and QTE transition. The server validates first contact and starts the escape window then; no new button-mash or client-owned outcomes.
+- Make punches more believable with readable preparation and corresponding server contact timing, without reintroducing lateral torso twitch. Add one pre-contact weapon swoosh even on misses, but impact audio and blood only on confirmed contact.
+- Use isolated excerpts from Andrew's named sources: `knife swoosh.mp3` for knives/hatchets; `sword swoosh.mp3` for swords/katanas/machetes; `blunt force woosh.mp3` for blunt weapons. Long axe uses the heavier blunt swoosh. Do not use entire recordings or the rejected `axe_hit.mp3` ding.
+- Evaluate First Person Model for visible body presentation, preserving Player Animator's Holdfast clips and TaCZ's arms/items/ADS ownership. It remains a reversible client candidate until the relevant runtime and user checks are recorded. Punchy remains unadopted.
+
 ## Survival and combat
 
 - Walkers die by brain destruction. Body impacts can stagger but cannot accumulate lethal walker damage. No special walker variants; prone, dormant, and lower-half crawlers are allowed.
@@ -98,4 +115,4 @@ Status: accepted design unless labeled proposed. This file supersedes older word
 
 ## Explicitly deferred
 
-Character skill leveling, friendly/recruitable survivors, dynamic dismemberment, broad stealth disguises beyond Whisperer masks, advanced structural physics, and guaranteed shader FPS. They can be revisited after a representative playable prototype.
+Character skill leveling, friendly/recruitable survivors, broad stealth disguises beyond Whisperer masks, advanced structural physics, and guaranteed shader FPS. They can be revisited after a representative playable prototype. Dynamic dismemberment is now scheduled for the mechanics phase after animation acceptance, as specified above.

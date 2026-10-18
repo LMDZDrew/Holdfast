@@ -44,6 +44,7 @@ public final class Grabs {
         final GrabRules.Session session;
         final Vec3 victimPos;
         final ServerPlayer ref;
+        long holdAt;
 
         Grab(WalkerEntity walker, ServerPlayer victim, GrabRules.Session session, Vec3 victimPos) {
             this.walker = walker;
@@ -51,6 +52,7 @@ public final class Grabs {
             this.ref = victim;
             this.session = session;
             this.victimPos = victimPos;
+            this.holdAt = session.windowStart() + (session.kind == GrabRules.Kind.UPRIGHT ? 4 : 10);
         }
     }
 
@@ -86,24 +88,46 @@ public final class Grabs {
 
     /** S1/S2: the walker's lunge connected (the caller checked reach and sight at the server's hit tick). */
     public static boolean start(WalkerEntity w, ServerPlayer victim, GrabRules.Kind kind) {
+        return start(w, victim, kind, false);
+    }
+
+    /** Continue the already playing seize; do not replay a second reach after the hands connect. */
+    public static boolean startFromLunge(WalkerEntity w, ServerPlayer victim, GrabRules.Kind kind) {
+        return start(w, victim, kind, true);
+    }
+
+    private static boolean start(WalkerEntity w, ServerPlayer victim, GrabRules.Kind kind, boolean continuing) {
         if (victim.isCreative() || victim.isSpectator() || !victim.isAlive()) return false;
+        if (w.isCorpse() || !w.isAlive() || w.level() != victim.level()) return false;
         if (isGrabbed(victim) || isGrabbing(w) || Executions.isExecuting(victim)) return false;
         Clips c = clips(kind);
         long now = victim.serverLevel().getGameTime();
         // Snap the walker to the pairing distance in front of the victim, facing them.
-        float yaw = victim.getYRot();
+        float yaw = (float) Math.toDegrees(Math.atan2(-(w.getX() - victim.getX()), w.getZ() - victim.getZ()));
         double rad = Math.toRadians(yaw), d = c.distPx / 16.0;
+        // Never retreat a close walker to its pairing slot. Only close the remaining gap.
+        d = Math.min(d, Math.hypot(w.getX() - victim.getX(), w.getZ() - victim.getZ()));
         Vec3 at = new Vec3(victim.getX() - Math.sin(rad) * d, w.getY(), victim.getZ() + Math.cos(rad) * d);
+        victim.connection.teleport(victim.getX(), victim.getY(), victim.getZ(), yaw, victim.getXRot());
+        victim.setYRot(yaw);
+        victim.setYHeadRot(yaw);
         w.moveTo(at.x, at.y, at.z, yaw + 180.0F, 0.0F);
         w.setYBodyRot(yaw + 180.0F);
         w.setYHeadRot(yaw + 180.0F);
         GrabRules.Session s = new GrabRules.Session(kind, CoreConfig.grabWindowTicks(), now);
-        BY_VICTIM.put(victim.getUUID(), new Grab(w, victim, s, victim.position()));
-        w.playFull(c.walkerSeize, 10);
-        clip(victim, c.victimSeize, w);
+        Grab grab = new Grab(w, victim, s, victim.position());
+        if (!continuing) grab.holdAt = now + 10;
+        BY_VICTIM.put(victim.getUUID(), grab);
+        if (!continuing) w.playFull(c.walkerSeize, 12);
+        w.continueFull(12); // no timeout-to-gait frame before Grabs.tick installs the hold
+        if (continuing) {
+            // Partner stays on the original animation timeline; synced data must not reset it either.
+            CoreNet.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> victim),
+                    new PlayClipPacket(victim.getId(), c.victimSeize, w.getId(), true));
+        } else clip(victim, c.victimSeize, w);
         hold(victim, true);
         CoreNet.CHANNEL.send(PacketDistributor.PLAYER.with(() -> victim), new GrabPromptPacket(s.windowTicks, kind != GrabRules.Kind.UPRIGHT, ""));
-        w.playSound(CoreSounds.WALKER_SNARL.get(), 1.0F, 1.0F);
+        w.vocal(CoreSounds.WALKER_SNARL.get(), 1.0F, 1.0F);
         return true;
     }
 
@@ -164,9 +188,10 @@ public final class Grabs {
             if (p.position().distanceToSqr(g.victimPos) > 0.04) p.teleportTo(g.victimPos.x, g.victimPos.y, g.victimPos.z);
             long now = p.serverLevel().getGameTime();
             Clips c = clips(g.session.kind);
-            if (now == g.session.windowStart() + 10) {
+            if (now >= g.holdAt) {
                 g.walker.playFull(c.walkerHold, Integer.MAX_VALUE - 1);
                 clip(p, c.victimHold, g.walker);
+                g.holdAt = Long.MAX_VALUE;
             }
             if (g.session.biteDue(now, p.latency)) bite(p, g, now);
         }
@@ -191,6 +216,7 @@ public final class Grabs {
         List<ItemStack> stacks = new ArrayList<>();
         BiteRules.Result r = BiteRules.resolve(region, guards(p, stacks));
         g.session.bite(r, now);
+        if (r.blocked()) g.holdAt = now + 12;
         var cond = ConditionCapability.of(p);
         if (r.blocked()) {
             BiteGuardItem.wear(stacks.get(r.guardIndex()));
@@ -205,7 +231,7 @@ public final class Grabs {
             cond.bitten(region, CoreConfig.difficulty());
             g.walker.playFull(c.walkerBite, 20);
             clip(p, c.victimBitten, g.walker);
-            p.level().playSound(null, p.blockPosition(), CoreSounds.WALKER_BITE.get(), SoundSource.HOSTILE, 1.0F, 1.0F);
+            g.walker.vocal(CoreSounds.WALKER_BITE.get(), 1.0F, 1.0F);
             p.hurt(p.damageSources().mobAttack(g.walker), 3.0F);    // the wound itself; infection decides the outcome
             end(p, g, "bitten_" + region.name().toLowerCase(java.util.Locale.ROOT));
             String confirm = switch (region) {

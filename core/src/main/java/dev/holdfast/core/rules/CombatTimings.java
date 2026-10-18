@@ -49,8 +49,8 @@ public final class CombatTimings {
         new Swing("swing_bat", 2, 5, 13),
         new Swing("swing_bat_heavy", 4, 8, 18),
         new Swing("bat_charged_miss", 1, 4, 30),
-        new Swing("swing_unarmed", 0, 3, 9),
-        new Swing("swing_unarmed_heavy", 0, 5, 13)
+        new Swing("swing_unarmed", 0, 6, 12),
+        new Swing("swing_unarmed_heavy", 0, 8, 16)
     );
 
     public static Swing swing(String clip) {
@@ -117,12 +117,12 @@ public final class CombatTimings {
         java.util.Map.entry("react_bat_charged_right", new ExecContact(-0.053146, 24.912331, -6.601542, 0.097729, 0.927491, 0.360845, false, 0.0, 0.0, 0.0)),
         java.util.Map.entry("react_bat_ground", new ExecContact(-2.076372, 8.172253, -9.423773, 0.597786, -0.775263, -0.204006, false, 0.0, 0.0, 0.0)),
         java.util.Map.entry("react_bat_ground_prone", new ExecContact(-2.076372, 8.172253, -13.423773, 0.597786, -0.775263, -0.204006, false, 0.0, 0.0, 0.0)),
-        java.util.Map.entry("react_katana", new ExecContact(-0.302966, 24.832422, -8.1836, -0.005238, 0.551038, 0.834464, false, 0.0, 0.0, 0.0)),
-        java.util.Map.entry("react_katana_ground", new ExecContact(0.015422, 8.292772, -3.856343, -0.043853, -0.738739, -0.672564, false, 0.0, 0.0, 0.0)),
-        java.util.Map.entry("react_katana_ground_prone", new ExecContact(0.015422, 8.292772, -7.856343, -0.043853, -0.738739, -0.672564, false, 0.0, 0.0, 0.0)),
-        java.util.Map.entry("react_katana_left", new ExecContact(-3.496204, 24.916548, -4.956234, 0.834464, 0.551038, 0.005238, false, 0.0, 0.0, 0.0)),
-        java.util.Map.entry("react_katana_rear", new ExecContact(-0.389203, 25.656217, -2.883914, 0.005238, 0.551038, -0.834464, false, 0.0, 0.0, 0.0)),
-        java.util.Map.entry("react_katana_right", new ExecContact(2.148362, 25.34435, -4.867832, -0.834464, 0.551038, -0.005238, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_katana", new ExecContact(-0.194852, 24.804316, -8.177129, -0.002304, 0.54428, 0.838901, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_katana_ground", new ExecContact(0.005296, 7.438772, -3.185562, -0.000595, -0.869458, -0.494006, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_katana_ground_prone", new ExecContact(0.005296, 7.438772, -7.185562, -0.000595, -0.869458, -0.494006, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_katana_left", new ExecContact(-3.484539, 24.890341, -5.064784, 0.838901, 0.54428, 0.002304, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_katana_rear", new ExecContact(-0.501621, 25.637418, -2.926933, 0.002304, 0.54428, -0.838901, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_katana_right", new ExecContact(2.052879, 25.365043, -4.757226, -0.838901, 0.54428, -0.002304, false, 0.0, 0.0, 0.0)),
         java.util.Map.entry("react_knife", new ExecContact(-1.052311, 28.100213, -1.128225, 0.73102, -0.017832, -0.682123, false, 0.0, 0.0, 0.0)),
         java.util.Map.entry("react_knife_ground", new ExecContact(-0.007544, 8.298148, -8.932894, 0.000772, -0.785973, 0.61826, false, 0.0, 0.0, 0.0)),
         java.util.Map.entry("react_knife_ground_prone", new ExecContact(-0.007544, 8.298148, -12.932894, 0.000772, -0.785973, 0.61826, false, 0.0, 0.0, 0.0)),
@@ -144,7 +144,7 @@ public final class CombatTimings {
     );
 
     /** Walker lunge: the server's own hit moment after the lunge starts (S1). */
-    public static final int LUNGE_HIT_TICK = 11, CRAWLER_LUNGE_HIT_TICK = 10;
+    public static final int LUNGE_HIT_TICK = 8, CRAWLER_LUNGE_HIT_TICK = 10;
     /** Reach of a lunge or ankle grab, blocks (S1, proposed). */
     public static final double GRAB_REACH = 1.2;
     /** Pairing distances for grabs, px (S2). */

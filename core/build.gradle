@@ -56,9 +56,32 @@ dependencies {
     compileOnly fg.deobf("maven.modrinth:SzzJttH8:${tacz_modrinth_version}")
     // Optional client presentation bridge; exact API inspected from this published file.
     compileOnly fg.deobf('curse.maven:extra-gore-937006:8608443')
+    // Optional body renderer trial; 2.4.8 retains working PA offset support and needs no extra animation owner.
+    compileOnly fg.deobf('maven.modrinth:H5XMjpHi:iwodXe68')
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.2'
+}
+
+// Opt-in isolated presentation smoke run. Probe code/dependencies are excluded from ordinary release builds.
+if (project.hasProperty('presentationProbe') || project.hasProperty('presentationProbeServer')) {
+    dependencies { runtimeOnly fg.deobf("maven.modrinth:SzzJttH8:${tacz_modrinth_version}") }
+    if (project.hasProperty('presentationProbe')) {
+        sourceSets.main.java.srcDir 'tools/probe'
+        repositories { flatDir { dirs 'build/test-evidence/2026-10-18-dawn/probe-jars' } }
+        dependencies {
+            runtimeOnly fg.deobf('maven.modrinth:H5XMjpHi:iwodXe68')
+            runtimeOnly fg.deobf('curse.maven:extra-gore-937006:8608443')
+            runtimeOnly fg.deobf('probe.local:bookling:3.15')
+        }
+        minecraft.runs.client {
+            workingDirectory project.file('build/presentation-probe/client')
+            property 'holdfast.probe', project.file('build/test-evidence/2026-10-18-dawn/client-probe').absolutePath
+            args '--server', 'localhost', '--port', '25566', '--username', 'HoldfastProbe'
+        }
+    } else {
+        minecraft.runs.server { workingDirectory project.file('build/presentation-probe/server') }
+    }
 }
 
 test {

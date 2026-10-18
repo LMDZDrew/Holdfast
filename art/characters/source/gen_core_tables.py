@@ -90,7 +90,7 @@ L.append(",\n".join(f'        java.util.Map.entry("{name}", new ExecContact(' +
                    for name,row in sorted(contacts.items())))
 L += ["    );", "",
       "    /** Walker lunge: the server's own hit moment after the lunge starts (S1). */",
-      "    public static final int LUNGE_HIT_TICK = 11, CRAWLER_LUNGE_HIT_TICK = 10;",
+      f"    public static final int LUNGE_HIT_TICK = {round(wa.GRAB_CONTACT * 20)}, CRAWLER_LUNGE_HIT_TICK = 10;",
       "    /** Reach of a lunge or ankle grab, blocks (S1, proposed). */",
       "    public static final double GRAB_REACH = 1.2;",
       f"    /** Pairing distances for grabs, px (S2). */",

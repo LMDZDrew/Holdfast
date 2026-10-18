@@ -41,6 +41,7 @@ public final class Executions {
         final int slot;
         final Vec3 playerSnapped;
         boolean killed;
+        boolean swooshed;
         /** The walker reaction this approach plays (front, left, right or rear variant). */
         String targetClip;
         net.minecraft.world.item.ItemStack gun = net.minecraft.world.item.ItemStack.EMPTY;
@@ -79,7 +80,8 @@ public final class Executions {
      * between the slot and the skull, and a lying walker is never finished from over its body.
      */
     public static void request(ServerPlayer p, Entity e) {
-        if (!(e instanceof WalkerEntity w) || w.isCorpse() || !p.isAlive()) return;
+        if (!(e instanceof WalkerEntity w) || w.isCorpse() || !p.isAlive() || p.isSpectator()
+                || Grabs.isGrabbed(p) || isExecuting(p)) return;
         WeaponClass weapon = Weapons.held(p);
         boolean lying = w.posture().onGround();
         Vec3 head = skullPoint(w);
@@ -89,6 +91,10 @@ public final class Executions {
         ExecutionRules.Request req = new ExecutionRules.Request(weapon, w.posture(), Math.hypot(dx, dz) * 16.0, facingErr, true,
                 Grabs.isGrabbing(w), targeted(w), charge);
         Optional<ExecutionRules.Refusal> refusal = ExecutionRules.validate(req);
+        if (p.getMainHandItem().getItem() instanceof dev.holdfast.core.item.MeleeWeaponItem melee
+                && melee.twoHanded && !p.getOffhandItem().isEmpty()) {
+            refusal = Optional.of(ExecutionRules.Refusal.OFF_HAND_OCCUPIED);
+        }
         // A pistol execution is a real shot (Andrew 2026-10-17: it cost no bullet): it needs a round to start.
         if (refusal.isEmpty() && weapon == WeaponClass.PISTOL && rounds(p.getMainHandItem()) < 1) {
             refusal = Optional.of(ExecutionRules.Refusal.NO_AMMO);
@@ -230,6 +236,10 @@ public final class Executions {
             }
             long now = p.serverLevel().getGameTime();
             boolean inPlace = a.target.isAlive() && !a.target.isCorpse() && a.target.position().distanceTo(a.snapped) <= IN_PLACE;
+            if (!a.swooshed && !a.killed && inPlace && now >= a.session.startTick + a.session.clip.killTick() - 3) {
+                SwingSounds.play(p, a.weapon);
+                a.swooshed = true;
+            }
             switch (a.session.tick(now, inPlace)) {
                 case KILL -> {
                     // the shot spends its round at the kill tick, from the gun still in hand

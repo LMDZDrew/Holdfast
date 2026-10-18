@@ -98,7 +98,7 @@ public final class ClientClips {
             HoldfastCore.LOG.warn("[holdfast] no Player Animator clip holdfast:{}", clip);
             return null;
         }
-        return (meleeAction(clip) ? new MeleeActionPlayer(data) : new KeyframeAnimationPlayer(data)).setFirstPersonMode(fp)
+        return (meleeAction(clip) ? new MeleeActionPlayer(data) : new BodyAwarePlayer(data)).setFirstPersonMode(fp)
                 .setFirstPersonConfiguration(new FirstPersonConfiguration(true, true, true, true));
     }
 
@@ -112,6 +112,7 @@ public final class ClientClips {
         if (layer == null) return;
         if (m.clip().isEmpty()) {
             String previous = ACTION_NAMES.get(p.getId());
+            if (!m.stops(previous)) return;
             ACTION_NAMES.remove(p.getId());
             if (!holdingGun(p) && (meleeAction(previous) || "bat_charge_hold".equals(previous))) blendMelee(layer, null, 3);
             else blend(layer, null, 3);
@@ -222,7 +223,7 @@ public final class ClientClips {
     }
 
     /** Small gait follow-through on the authored carry, rather than pinning both arms to one idle pose. */
-    private static class LookPlayer extends KeyframeAnimationPlayer {
+    private static class LookPlayer extends BodyAwarePlayer {
         private final boolean additiveHead;
         LookPlayer(KeyframeAnimation data) { this(data, true); }
         LookPlayer(KeyframeAnimation data, boolean additiveHead) { super(data); this.additiveHead = additiveHead; }

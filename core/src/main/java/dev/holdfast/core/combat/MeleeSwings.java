@@ -41,6 +41,7 @@ public final class MeleeSwings {
         final ServerPlayer ref;
         Result result = Result.PENDING;
         WalkerStrikeRules.Outcome outcome;
+        boolean swooshed;
 
         Active(SwingRules.Session session, WeaponClass weapon, double strength, double charge, int slot, ItemStack stack, ServerPlayer ref) {
             this.session = session;
@@ -140,7 +141,14 @@ public final class MeleeSwings {
                 a.session.cancel();
                 a.result = Result.CANCELLED;
                 LAST.put(e.getKey(), Result.CANCELLED);
-                CoreNet.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> p), PlayClipPacket.stop(p.getId()));
+                // The new paired action owns this layer now. Never stop it on behalf of the old swing.
+                if (!Grabs.isGrabbed(p) && !Executions.isExecuting(p))
+                    CoreNet.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> p), PlayClipPacket.stopSwing(p.getId(), a.session.swing.clip()));
+            }
+            if (!a.swooshed && a.session.state() == SwingRules.State.PENDING
+                    && now >= Math.max(a.session.startTick + 1, a.session.contactTick - 3)) {
+                SwingSounds.play(p, a.weapon);
+                a.swooshed = true;
             }
             if (a.session.contactDue(now)) resolve(p, a);
             if (a.session.finished(now)) it.remove();

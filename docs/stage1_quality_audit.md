@@ -1,5 +1,17 @@
 # Stage 1 quality audit — 2026-10-18
 
+## Scheduled dawn follow-up
+
+Branch `codex/stage1-dawn-corrections`, from `46cd32b`. Andrew's preceding-build acceptance: axe appearance and pistol ammunition; katana/QTE appearance improved but require the specific refinements in `decisions.md`. New code remains pending his review.
+
+- The two queued leads below are resolved in source: a pending old swing no longer stops a new paired action, and delayed stops are qualified by expected clip; execution entry mirrors two-handed offhand refusal and rejects already busy/spectator players. Packet-policy/round-trip tests and a live server cancellation regression cover these changes; they do not prove every network ordering under latency.
+- Six added GameTests: corpse voice refusal/reload, upright/crawler seize continuation without nonce restart or backward pairing, old swing cancellation during grab, two-handed offhand refusal, wound-up punch contact. **All 49 required GameTests /62 unit tests pass.** Actual modded client smoke additionally confirmed one swing/no impact on a miss and active-to-stopped voice on corpse transition. Its voice fixture initially used the wrong entity ID and failed; corrected fixture passes.
+- Regenerated changed clips from editable source with `refresh_dawn.py` / `make_all.sh --finish`; 28 execution pairs pass, all 82 PA exports sampled in runtime unit tests, all 89 walker/crawler exports pass finite/seam checks. Standing katana initial-hold minimum 6.93 px, ground 4.28 px; no early clipping. All 28 protected gun assets, eight accepted axe carry/swing assets and 72 existing Ogg samples remain byte-identical. Both release jars contain all 173 current shared export files and no developer-probe class.
+- Optional First Person Model 2.4.8 client trial has actual local/integrated render evidence, not full acceptance. First-person body screenshots, PA fallback toggle, knife swing/grab/katana/pistol display smoke checked. Dedicated userdev login timed out; production dedicated login, real ADS/reload, all-weapon fluidity and broader multiplayer remain pending. No Punchy/NEA adoption. See `presentation_integration.md` and newest `testing.md`.
+- Larger melee/smaller gun blood is bounded by existing renderer limits; dense-fight performance, exact appearance and listening review remain open. Ragdolls/dismemberment/pools are planned only after Andrew accepts animations; no worldgen work.
+
+The earlier audit below describes the previous revision and is superseded where noted here.
+
 Code: `a24755b` + follow-up **`a2c0968`**, branch `codex/stage1-review3-corrections`. Exact deployed jars, logs and commands are in the newest `testing.md` entry. No new mod was needed for the concrete faults found; dependencies/audio packs were preserved. Andrew authorized additional mods if useful, but none is selected by that authorization alone.
 
 ## Animation coverage

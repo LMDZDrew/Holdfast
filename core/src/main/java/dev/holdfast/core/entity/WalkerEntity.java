@@ -162,6 +162,13 @@ public class WalkerEntity extends PathfinderMob implements GeoEntity {
         getNavigation().stop();
     }
 
+    /** Continue an owned seize through the hold handoff without resetting its animation nonce. */
+    public void continueFull(int ticks) {
+        fullClipTicks = Math.max(fullClipTicks, ticks);
+        getNavigation().stop();
+        setDeltaMovement(0, getDeltaMovement().y, 0);
+    }
+
     public boolean busy() {
         return fullClipTicks > 0 || staggerTicks > 0 || isCorpse() || dormant() || Grabs.isGrabbing(this);
     }
@@ -192,7 +199,8 @@ public class WalkerEntity extends PathfinderMob implements GeoEntity {
             entityData.set(CLIP_NONCE, entityData.get(CLIP_NONCE) + 1);
         }
         fullClipTicks = Integer.MAX_VALUE;     // corpses hold the last frame
-        playSound(CoreSounds.WALKER_DEATH.get(), 0.8F, 0.9F + random.nextFloat() * 0.2F);
+        // Brain destruction stops the voice. The confirmed impact supplies the death sound;
+        // the resource pack's long "death" vocal pool must not make a corpse keep growling.
     }
 
     @Override
@@ -214,11 +222,18 @@ public class WalkerEntity extends PathfinderMob implements GeoEntity {
                 return;
             }
             nextVocalTick = tickCount + (getTarget() == null ? 180 + random.nextInt(180) : 100 + random.nextInt(80));
-            playSound(getTarget() != null ? CoreSounds.WALKER_SNARL.get() : CoreSounds.WALKER_GROAN.get(), 0.9F, 0.85F + random.nextFloat() * 0.3F);
+            vocal(getTarget() != null ? CoreSounds.WALKER_SNARL.get() : CoreSounds.WALKER_GROAN.get(), 0.9F, 0.85F + random.nextFloat() * 0.3F);
         }
     }
 
     private static final int DESPAWN_CHECK_TICKS = 20;
+
+    public boolean vocal(SoundEvent sound, float volume, float pitch) {
+        if (level().isClientSide || isCorpse() || !isAlive() || isSilent()) return false;
+        dev.holdfast.core.net.CoreNet.CHANNEL.send(net.minecraftforge.network.PacketDistributor.TRACKING_ENTITY.with(() -> this),
+                new dev.holdfast.core.net.WalkerVocalPacket(getId(), sound.getLocation(), volume, pitch));
+        return true;
+    }
 
     /** Server: apply DespawnRules once a second; true if this walker was removed. */
     private boolean despawnCheck() {
@@ -359,7 +374,6 @@ public class WalkerEntity extends PathfinderMob implements GeoEntity {
             double d = distanceTo(t);
             if (posture() == Posture.PRONE && d < CombatTimings.GRAB_REACH + 0.4 && t instanceof ServerPlayer sp) {
                 setDormant(false);
-                playFull("prone_ankle_grab", 10);
                 Grabs.start(WalkerEntity.this, sp, GrabRules.Kind.PRONE_ANKLE);
             } else if (d < 7.0) {
                 setDormant(false);
@@ -408,7 +422,7 @@ public class WalkerEntity extends PathfinderMob implements GeoEntity {
                 if (lungeTick == hit) {
                     if (t instanceof ServerPlayer sp && distanceTo(sp) <= CombatTimings.GRAB_REACH + 0.3 && hasLineOfSight(sp)
                             && staggerTicks == 0) {
-                        Grabs.start(WalkerEntity.this, sp, posture() == Posture.CRAWLER ? GrabRules.Kind.CRAWLER_ANKLE : GrabRules.Kind.UPRIGHT);
+                        Grabs.startFromLunge(WalkerEntity.this, sp, posture() == Posture.CRAWLER ? GrabRules.Kind.CRAWLER_ANKLE : GrabRules.Kind.UPRIGHT);
                     }
                     lungeTick = -1;
                     cooldown = 30;
@@ -419,8 +433,8 @@ public class WalkerEntity extends PathfinderMob implements GeoEntity {
             double d = distanceTo(t);
             if (d <= CombatTimings.GRAB_REACH && cooldown == 0 && hasLineOfSight(t)) {
                 lungeTick = 0;
-                playFull(posture() == Posture.CRAWLER ? "crawler_lunge" : "lunge", 20);
-                playSound(CoreSounds.WALKER_LUNGE.get(), 1.0F, 0.9F + random.nextFloat() * 0.2F);
+                playFull(posture() == Posture.CRAWLER ? "crawler_lunge" : "grab_seize", 20);
+                vocal(CoreSounds.WALKER_LUNGE.get(), 1.0F, 0.9F + random.nextFloat() * 0.2F);
             } else {
                 getNavigation().moveTo(t, posture() == Posture.CRAWLER ? 0.7D : 1.0D);
             }
@@ -471,7 +485,7 @@ public class WalkerEntity extends PathfinderMob implements GeoEntity {
             seenClip[layer] = clip;
             state.getController().forceAnimationReset();
         }
-        boolean once = !fullClip().isEmpty();
+        boolean once = !fullClip().isEmpty() && !clip.endsWith("_hold");
         return state.setAndContinue(RawAnimation.begin().then(prefix + clip,
                 once ? Animation.LoopType.HOLD_ON_LAST_FRAME : Animation.LoopType.LOOP));
     }

@@ -40,9 +40,9 @@ def stable_ogg(data, serial):
     return bytes(result)
 
 
-def build(source_dir, output, preview_dir=None):
+def build(source_dir, output, preview_dir=None, recipe_path=None):
     source_dir, output = Path(source_dir).resolve(), Path(output).resolve()
-    recipe_path = Path(__file__).with_name("impact_cuts.json")
+    recipe_path = Path(recipe_path) if recipe_path else Path(__file__).with_name("impact_cuts.json")
     recipe = json.loads(recipe_path.read_text(encoding="utf-8"))
     sources = {}
     for name in sorted({cut["source"] for cut in recipe["cuts"]}):
@@ -102,10 +102,10 @@ def build(source_dir, output, preview_dir=None):
     report = {"recipe_sha256": sha(recipe_path.read_bytes()), "cuts": measurements,
               "events": recipe["events"], "processing": "mono downmix, DC removal, reduce-only -6 dBFS peak ceiling, 1ms/25ms fades, Vorbis",
               "review": "Waveform selection and decode validation only; listening and in-game acceptance pending.",
-              "routing": "Core sends contact families only: axes/hatchets/swords share slash; blade skull kills share one pool.",
+              "routing": recipe.get("routing", "Core sends contact families only: axes/hatchets/swords share slash; blade skull kills share one pool."),
               "provenance": "Supplied by Andrew for local use; original authors and redistribution rights not established."}
     files["pack.mcmeta"] = json.dumps({"pack": {"pack_format": 15,
-        "description": "Holdfast isolated impact cuts - Andrew's reference recordings"}}).encode()
+        "description": recipe.get("description", "Holdfast isolated impact cuts - Andrew's reference recordings")}}).encode()
     files["assets/holdfast_core/sounds.json"] = json.dumps(events, indent=2).encode()
     files["holdfast-impact-provenance.json"] = json.dumps(report, indent=2).encode()
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -123,5 +123,6 @@ if __name__ == "__main__":
     parser.add_argument("source_dir")
     parser.add_argument("output")
     parser.add_argument("--preview-dir")
+    parser.add_argument("--recipe")
     args = parser.parse_args()
-    build(args.source_dir, args.output, args.preview_dir)
+    build(args.source_dir, args.output, args.preview_dir, args.recipe)

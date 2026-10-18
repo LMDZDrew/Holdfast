@@ -361,6 +361,7 @@ def full_body():
 # ================================================================== grab
 # Paired with the player: the walker is snapped GRAB_DIST px in front of them, facing them.
 GRAB_DIST = 18
+GRAB_CONTACT = 0.4
 HOLD = dict(APPROACH, root_pos=[0, 0, -2], torso=[24, 0, 0], head=[-10, 8, 0], jaw=[18, 0, 0],
             rightArm=[-80, 10, 0], leftArm=[-80, -10, 0], rightForearm=[-40, 0, 0], leftForearm=[-40, 0, 0],
             rightLeg=[-6, 0, 2], leftLeg=[14, 0, -2], rightShin=[10, 0, 0], leftShin=[12, 0, 0])

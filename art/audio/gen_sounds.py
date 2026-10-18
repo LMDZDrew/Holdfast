@@ -185,6 +185,9 @@ EVENTS = {
     "impact.skull_gunshot": ("impact/skull_gunshot", "Headshot"), "swing.light": ("swing/light", "Swing"),
     "swing.heavy": ("swing/heavy", "Heavy swing"), "body.fall": ("body/fall", "Body falls"),
     "bite.blocked": ("bite/blocked", "Bite blocked"),
+    "swing.knife": ("swing/light", "Small blade swings"),
+    "swing.sword": ("swing/heavy", "Sword swings"),
+    "swing.blunt": ("swing/heavy", "Heavy weapon swings"),
 }
 
 
@@ -213,5 +216,21 @@ def main():
     print(f"wrote {total} ogg files for {len(EVENTS)} events")
 
 
+def refresh_swing_aliases():
+    """Add event fallbacks without re-encoding any already accepted audio samples."""
+    path = os.path.join(ASSETS, "sounds.json")
+    sounds = json.load(open(path))
+    lang_path = os.path.join(HERE, "subtitles.json")
+    lang = json.load(open(lang_path))
+    for event in ("swing.knife", "swing.sword", "swing.blunt"):
+        recipe, subtitle = EVENTS[event]
+        sounds[event] = {"subtitle": f"subtitles.holdfast_core.{event}",
+                         "sounds": [{"name": f"holdfast_core:{recipe}_{i + 1}"} for i in range(RECIPES[recipe][0])]}
+        lang[f"subtitles.holdfast_core.{event}"] = subtitle
+    json.dump(sounds, open(path, "w"), indent=1)
+    json.dump(lang, open(lang_path, "w"), indent=1)
+
+
 if __name__ == "__main__":
-    main()
+    import sys
+    refresh_swing_aliases() if "--refresh-swing-aliases" in sys.argv else main()

@@ -1,5 +1,15 @@
 # Holdfast core: Stage 1 server-owned combat slice
 
+## Dawn follow-up (2026-10-18)
+
+- **Protocol 5:** entity-owned vocal packets and ownership-qualified clip stops require matching core jars. Corpse state stops already-playing vocals on the client; server corpse guards refuse new ones, including after reload. Brain kills no longer start the external pack's long death-vocal pool. Confirmed impact audio remains.
+- Free swings schedule one cosmetic server sound three ticks before contact (at least one tick after start), including misses. Executions use the same weapon-family sound before their kill tick; firearms retain TaCZ audio. No local predicted audio or extras-event emitter duplicates it. On higher RTTs, received sound can lag the locally predicted animation; localhost smoke is not a latency acceptance test.
+- Pending swings cancel without stopping a newly owned grab/execution. Other interruption stops carry the expected old clip, so a delayed packet cannot clear a differently named newer paired action. Execution entry mirrors the Holdfast two-handed item's occupied-offhand refusal and refuses busy/spectator players.
+- Upright AI starts `grab_seize` once and validates grip at its source-generated tick 8 (0.4 s). Success continues that walker clip, starts the prompt/player catch, then joins hold after four ticks. Crawler lunge also continues instead of replaying reach; prone no longer starts its clip twice. Alignment faces the victim toward the real attacker and never moves a close walker backward to the pairing distance. Grab hold clips loop. Server bite/escape outcomes and configured window lengths remain unchanged; the contact delay changed from 11 to 8 ticks for upright grabs.
+- Unarmed light/heavy preparation now contacts at generated ticks 6/8, with lengths 12/16. Client displays the same regenerated clips. Blood profiles are cosmetic: blunt 64/110, slash 72/120, stab 48/85, gunshot 10/18 particles (ordinary/brain kill), retaining the optional renderer's 1,800-particle cap and entry/exit surfaces.
+
+Newest `testing.md` distinguishes automated checks and actual client smoke from Andrew's pending acceptance. Older counts/status descriptions below are historical.
+
 ## Review 3 impact placement contract (2026-10-17)
 
 The server supplies each confirmed impact's surface point and incoming direction. Free melee uses current posture-local regional boxes, with a closest-surface fallback for an accepted arc-margin ray. Region and point come from the same volume. This remains a static regional ray approximation, not animated mesh or weapon-mesh collision. Executions use source-generated blade/skull entry points/directions for the actual reaction/approach at the server kill frame. Bullets use TaCZ's collision segment against those volumes rather than an unprojected bullet tick position. Clients render outward entry blood there; a separately server-supplied traversed exit can render an exit burst. Feedback is transient, with no new saved state. Tests cover segment/surface math, live server feedback and generated execution transforms. Cosmetic packets never decide damage, regions or kills.

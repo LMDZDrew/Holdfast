@@ -1,6 +1,20 @@
 # Stage 1 bulk test sheet (for Andrew)
 
-## Current review: impact-site blood, execution depth and axe direction (Codex, 2026-10-17)
+## Current review: scheduled dawn corrections — 2026-10-18
+
+Branch `codex/stage1-dawn-corrections`; installed hashes and deployment evidence are at the top of `testing.md`. Both sides require **core protocol 5**. Start Prism **Holdfast Gate0**, join `localhost`, and run `/hfa stop`. First Person Model is an optional client trial; its F6 toggle is reversible. Report these numbered items together. Automated results below do not constitute your acceptance.
+
+1. **Dead walkers stay quiet.** In survival, let a walker start a long groan, then brain-kill it by melee, execution, or gunshot. The existing voice should stop promptly and the corpse should not start new growls. Nearby living walkers may still vocalize; try one isolated walker first.
+2. **One continuous grab.** Let an upright walker approach and grab you. Its first grip should lead directly into the prompt/brace, without retreating and reaching again. Press the displayed F once to escape. Repeat with a crawler and a prone ankle grab. Report any snap, restart, drift, or delayed prompt, and the posture. A blocked bite still opens another server-owned escape window.
+3. **Blood amount and location.** Compare real blunt body/head contacts, knife stabs, katana/machete slashes, and pistol/rifle shots. Melee should be substantially bloodier; shots should remain modest. Blood must still begin at the actual impact surface. Air misses must produce neither blood nor impact sounds. These changes increase bounded bursts; persistent pools/dismemberment belong to the later phase.
+4. **Katana depth.** Try standing F executions from front/side/rear, plus prone/crawler finishes from the head end. Check the slightly deeper insertion and withdrawal. Optional side inspection: `/hfa pair exec_katana`, `/hfa freeze 0.32`; ground pairs use `exec_katana_ground_prone` or `exec_katana_ground_crawler` and `0.50`. Then `/hfa stop` before normal play.
+5. **Punches and swooshes.** Empty-handed, single-click and rapid-click into open air and at a walker in both views: preparation should be readable, impact delayed to the punch, and no sideways torso twitch. For knife/hatchet, katana/machete, and bat/hammer/long axe, listen for their respective pre-contact swoosh. Miss into open air rather than a block (mining is separate). Each accepted swing should sound once; only a confirmed hit gets the additional wet impact. The rejected `axe_hit.mp3` ding remains excluded.
+6. **Your body in first person.** Look down with empty hands, knife, axe and katana; walk, crouch, jump, attack, and let a walker grab you. Check torso visibility, camera/head clipping, duplicate arms/items, and animation continuity. Briefly toggle F6 off/on to check fallback. Harness previews deliberately use their own renderer; evaluate normal gameplay after `/hfa stop`.
+7. **Preserve accepted behavior.** Your axe poses and pistol ammo behavior were accepted on the preceding build. Check axe carry still looks right. With pistol and rifle separately, check ADS, fire/reload and F routing with the new body renderer. A two-handed Holdfast weapon with an occupied offhand should now refuse an execution. Remaining despawn, reconnect, jumping and Gate 0 rows are still open unless you explicitly observed them.
+
+The following batches are historical; this section is the current consolidated request.
+
+## Earlier review: impact-site blood, execution depth and axe direction (Codex, 2026-10-17)
 
 Branch `codex/stage1-review3-corrections`; deployment status and exact jar hashes are in the newest `testing.md` entry. Both sides need core protocol **4**. These are pending observations, not passes. Join `localhost`, use flat ground/daylight, run `/hfa stop`, and report by number in one reply. Check both views where practical.
 
