@@ -14,3 +14,4 @@ __pycache__/
 .venv/
 .uv-cache/
 art/characters/.deps/
+art/guns/*/build/

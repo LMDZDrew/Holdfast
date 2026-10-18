@@ -95,6 +95,21 @@ if (project.hasProperty('presentationProbe') || project.hasProperty('presentatio
     }
 }
 
+// Opt-in isolated smoke runs for TaCZ gun packs (art/guns, -PgunPackProbe) and held core items such as GeckoLib
+// iconic weapons (art/weapons, -PheldItemProbe). Probe code is excluded from ordinary release builds.
+// Gun packs go in build/gun-probe/client/tacz first; screenshots land in build/test-evidence/<value>.
+if (project.hasProperty('gunPackProbe') || project.hasProperty('heldItemProbe')) {
+    sourceSets.main.java.srcDir 'tools/gunprobe'
+    dependencies { runtimeOnly fg.deobf("maven.modrinth:SzzJttH8:${tacz_modrinth_version}") }
+    minecraft.runs.client {
+        workingDirectory project.file('build/gun-probe/client')
+        if (project.hasProperty('gunPackProbe'))
+            property 'holdfast.gunProbe', project.file('build/test-evidence/' + project.property('gunPackProbe')).absolutePath
+        if (project.hasProperty('heldItemProbe'))
+            property 'holdfast.itemProbe', project.file('build/test-evidence/' + project.property('heldItemProbe')).absolutePath
+    }
+}
+
 test {
     useJUnitPlatform()
     // Rule tests are pure Java; keep Forge off their classpath ordering concerns.

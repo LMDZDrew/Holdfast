@@ -1,5 +1,76 @@
 # Assistant handoff
 
+## For Codex — Michonne's Katana, 2026-10-18 (Claude)
+
+Branch **`claude/michonne-katana`** in worktree `C:/Users/drewl/Holdfast-katana`. It is built on `claude/ricks-python` (`f343b1a`), which is built on `97748d4`. Neither branch is merged or pushed. Your branches and checkout were not touched. Your `3ed6ea3` (knife/bat/katana execution contact) is newer than this branch's base, so merge carefully if you combine them.
+
+**Andrew's request:** a new weapon, "Michonne's Katana", from his baseline GLB plus six reference renders. He chose box-fit style with a GeckoLib item renderer.
+
+**Server-owned data and behaviour**
+- No new server rules, packets or saved state.
+- `MichonneKatanaItem extends MeleeWeaponItem implements GeoItem` with class KATANA, two-handed, tier IRON, damage 5, speed −2.2: identical to `katana`.
+- `Weapons.of`, swings, contact, executions, swooshes and blood all follow the katana family through `MeleeWeaponItem.weaponClass`.
+
+**Client display**
+- GeckoLib `GeoItemRenderer` with `DefaultedItemGeoModel(holdfast_core:michonne_katana)`, built in `initializeClient`.
+- The item model is `forge:separate_transforms`: GeckoLib in hand, ground and fixed views with the katana's display transforms, and a flat 64×64 icon in the GUI.
+- `ClientClips` picks the katana family through `Weapons.held`, so rest, hold and swing clips are unchanged.
+- The geometry sits in the katana's held-item frame through `pa_item.model_point`, so the clips need no changes.
+
+**Saved state:** none beyond an ordinary item stack. Forge remaps item IDs in older worlds.
+
+**Files**
+- `core/.../item/MichonneKatanaItem.java`
+- `CoreItems.MICHONNE_KATANA`
+- `gametest/IconicWeaponGameTests.java`
+- under `assets/holdfast_core`:
+  - `geo/item/`
+  - `textures/item/michonne_katana.png` and `_icon.png`
+  - `animations/item/` (empty)
+  - `models/item/michonne_katana.json`
+  - `credits/michonne_katana.txt` (the CC-BY credit)
+- the lang entry, in both `en_us.json` and `gen_core_assets.py`
+- the builder: `art/weapons/michonne_katana/` and its README
+
+**Shared art tools**
+- `box_fit.py`, `bake.py` and `preview_geo.py` moved from `art/guns/ricks_python/` to `art/boxmodel/`, with Python-builder imports updated. The rebuilt Python pack's contents are byte-identical.
+- New in `art/boxmodel/`: `gltf_binary.py` and `render_geo_blender.py`.
+- `bake.py` now accepts painter functions.
+- `core/build.gradle` gains `-PheldItemProbe` next to `-PgunPackProbe`, which also covers `tools/gunprobe/HeldItemProbe.java`. Both are excluded from release jars.
+
+**Tests:** `build runGameTestServer` passes, 50/50 required GameTests including the new one. Two isolated dev-client probes; probe 2 shows identical clips and placement to `katana`. Andrew has not seen it in game; nothing is installed. Details are in the `testing.md` entry for this item.
+
+**Open items for whoever continues**
+1. **Execution check.** Run a katana execution with this item and confirm contact. The blade is the real curved katana: about 0.8 rig px of tip offset toward the spine, and slimmer than the old box blade. Your execution-contact measurements were solved on the straight `katana` geometry; re-measure if the insertion reads short.
+2. **Deploy** on Andrew's go-ahead: replace the core jar on both Gate 0 and Prism gracefully, keeping protocol parity.
+3. **Iconic-weapon rules**, deferred for both this and Rick's Python: one per world, higher repair cost, no ordinary loot.
+4. **Shadeless renders.** `render_geo_blender.py` renders shadeless because Cycles shades overlapping coplanar strips badly. The game does not have that problem.
+## Side task — Rick's Colt Python gun pack, 2026-10-18 (Claude)
+
+Branch **`claude/ricks-python`**, worktree `C:/Users/drewl/Holdfast-python`, from `97748d4`. This does not supersede the CURRENT STOP below; Codex's checkout, branch and uncommitted `core/build.gradle` were not touched.
+
+- **What exists:** `art/guns/ricks_python/` builds a TaCZ gun pack, `holdfast:ricks_python` ("Rick's Colt Python", type `pistol`), from Andrew's model ZIP plus the installed TaCZ jar. Neither input is committed.
+  - Stats are copied from `tacz:rhino357`. Its animations, state machine and sounds are referenced unchanged.
+  - The geometry is the Python voxelized into boxes on the Rhino's rig. The reload rig is shifted together onto the Python cylinder; hammer, trigger and latch pins are measured on the Python mesh.
+  - Finish: nickel and walnut, as Andrew asked. See the README and the new section in `decisions.md`.
+  - At his later request ("smoother rather than tiny little particles"), the geometry is now about 600 rotated boxes from `box_fit.py`, no longer voxels; probe 5 checked it in TaCZ.
+  - Scale is 0.51 units/cm, TaCZ's pistol scale, so it reads as a real 6" Python.
+  - Hotbar and HUD images are Blender renders of the original mesh (`render_icons.py`), checked in probe 6.
+  - Iron sights: nickel rear sight with its real notch and the real ramp front sight, matching Andrew's photo; `iron_view` on the blade top.
+  - Texture: a 1024×1024 per-face atlas baked by `bake.py`. Walnut comes from the source grip texture; nickel is baked polished shading.
+  - The cylinder shows six empty chambers after ejection.
+  - Probe 7 checked both.
+- **Tests:** four opt-in isolated dev-client runs, `-PgunPackProbe` with `core/tools/gunprobe`, excluded from release builds. TaCZ loads and indexes the gun, and it reloads, aims and fires. Details are in `testing.md`.
+- **Andrew's verdict:** "looks great animation wise" (probe 1). The texture and then the geometry were replaced; he has not seen the smooth nickel/walnut version in game.
+- **Installed 09:23 Eastern** at Andrew's request: the pack ZIP (SHA-256 `07D953E4…510B534`) is in both `tacz/` folders. The server was gracefully stopped (all dimensions saved 09:22:57) and restarted as PID 37120; TaCZ loaded the pack and startup logged `Done (4.222s)`. Codex's core jars and other files are untouched. Details are in `testing.md`.
+- **Open items:**
+  - Andrew's first in-game check on the installed pack.
+  - Dedicated-server and multiplayer check.
+  - One-per-world uniqueness, repair cost and loot rules.
+  - Confirm the model's licence before any distribution.
+  - Review the attachment positions.
+  - Check whether execution placement suits the longer barrel.
+
 ## Latest actual user review — 2026-10-18, after blood installation
 
 Resume from **`codex/stage1-blood-bursts`** HEAD (previous pushed stop `97748d4`, production implementation `4ef55a8`). Following review-doc commit preserves this feedback; installed core remains **C700A3367FC72DE982C1EE0F75A9DE5F5C9A5269079E68540B7156C7F31693AA**, protocol5. No new code/exports/build/deployment in this review intake. Server/client files remain unchanged; recheck live processes before any replacement. User's5% floor remains: intake began at8% remaining; leave implementation for a run with enough budget for regeneration and runtime verification.
