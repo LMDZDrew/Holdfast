@@ -4,6 +4,8 @@ Status: accepted design unless labeled proposed. This file supersedes older word
 
 ## Dawn-build follow-up and movement-pack clarification (Andrew, 2026-10-18)
 
+- Andrew subsequently authorized installing what is compatible. Fresh Player Extension plus EMF/ETF and separate PA/TaCZ bridges are now a reversible client trial: selected pack owns ordinary movement, while Holdfast retains injury/carry/action parts and the gun bridge preserves TaCZ parts. Adoption/visual satisfaction remains pending; disabling the pack restores core gait. See `fresh_animations.md` for actual version-specific runtime evidence and remaining gaps.
+
 - Andrew reports unstable normal-walking camera motion and no katana execution contact; investigate actual runtime alignment and closer pairing rather than relying on earlier software measurements.
 - Swooshes are accepted. Make the sledgehammer convey more weight. Hold left click is the requested universal weapon-charge input; preserve server-measured charge/contact/outcomes and accepted TaCZ gun behavior while resolving input ownership.
 - Exaggerate blood on every confirmed impact, including bullets. This supersedes the earlier modest gunshot-blood direction; origins remain impact-site based and effects retain finite capacity/lifetime.

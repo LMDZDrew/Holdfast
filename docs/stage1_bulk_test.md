@@ -1,5 +1,9 @@
 # Stage 1 bulk test sheet (for Andrew)
 
+## Latest installation note — 2026-10-18
+
+Fresh client trial is installed; current core SHA256 is `AAC479B88D3174E16D6ACAF33331DEE2A30330038D5669CDA3DE03C85DDDC01A`, protocol5, harness unchanged. See `fresh_animations.md` and newest `testing.md`. Earlier batches below remain historical review context. Hold the next combined request until pending katana/hammer/charge/blood corrections are finished; do not ask for repeated partial tests. No new user acceptance has been reported for Fresh.
+
 ## Current review: scheduled dawn corrections — 2026-10-18
 
 Branch `codex/stage1-dawn-corrections`; installed hashes and deployment evidence are at the top of `testing.md`. Both sides require **core protocol 5**. Start Prism **Holdfast Gate0**, join `localhost`, and run `/hfa stop`. First Person Model is an optional client trial; its F6 toggle is reversible. Report these numbered items together. Automated results below do not constitute your acceptance.

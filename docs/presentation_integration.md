@@ -1,5 +1,9 @@
 # Stage 1 blood and walker audio
 
+## Latest client movement integration — 2026-10-18
+
+Fresh Animations plus its Player Extension and EMF/ETF/EPC/TaCZ bridges are now installed as a reversible client trial. Core yields ordinary locomotion while preserving injury/action/carry ownership; all existing blood/audio/gun assets remain unchanged. See `fresh_animations.md` and newest `testing.md` for versions, actual production-format client evidence, limitations and rollback. Andrew's request for exaggerated blood including bullets remains pending; the dawn counts below are still the implemented values.
+
 ## Dawn revision — 2026-10-18 (supersedes older counts/death routing below)
 
 **Walker voices:** `WalkerVocalPacket` identifies the source entity. `WalkerVoices` permits one tickable, following voice per living walker, stops it on corpse/dead/silent/unloaded state, and cleans finished instances. Brain kills no longer start a death growl. This changes playback ownership, not the accepted recordings or external pack. A client smoke confirmed an active voice before death and stopped playback afterward; Andrew's listening review remains pending. Protocol **5** requires matching core jars.

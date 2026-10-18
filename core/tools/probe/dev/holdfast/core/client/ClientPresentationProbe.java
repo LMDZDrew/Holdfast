@@ -75,14 +75,23 @@ public final class ClientPresentationProbe {
             phase("body-tacz-pistol", gun, CameraType.FIRST_PERSON, 85);
         }
         if (tick == 215) shot();
-        if (tick == 205) com.tacz.guns.api.entity.IGunOperator.fromLivingEntity(mc.player).aim(true);
+        if (tick == 205) {
+            com.tacz.guns.client.input.AimKey.AIM_KEY.setDown(true);
+            com.tacz.guns.api.client.gameplay.IClientPlayerGunOperator.fromLocalPlayer(mc.player).aim(true);
+        }
         if (tick == 225) {
-            HoldfastCore.LOG.info("[holdfast-probe] TaCZ aim progress {}",com.tacz.guns.api.entity.IGunOperator.fromLivingEntity(mc.player).getSynAimingProgress());
-            phase("fresh-tacz-ads-third", mc.player.getMainHandItem().copy(), CameraType.THIRD_PERSON_BACK, 15);
+            var operator=com.tacz.guns.api.client.gameplay.IClientPlayerGunOperator.fromLocalPlayer(mc.player);
+            float progress=com.tacz.guns.api.entity.IGunOperator.fromLivingEntity(mc.player).getSynAimingProgress();
+            HoldfastCore.LOG.info("[holdfast-probe] TaCZ aim active {} progress {}",operator.isAim(),progress);
+            if(!operator.isAim() || progress<.9F) throw new IllegalStateException("ADS fixture never reached aiming");
+            phase="fresh-tacz-ads-third"; observed=false;
+            mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
+            mc.player.setXRot(15); mc.player.xRotO=15;
         }
         if (tick == 235) shot();
         if (tick == 240) {
-            com.tacz.guns.api.entity.IGunOperator.fromLivingEntity(mc.player).aim(false);
+            com.tacz.guns.client.input.AimKey.AIM_KEY.setDown(false);
+            com.tacz.guns.api.client.gameplay.IClientPlayerGunOperator.fromLocalPlayer(mc.player).aim(false);
             dev.tr7zw.firstperson.api.FirstPersonAPI.setEnabled(false);
             phase("fallback-without-body", new ItemStack(CoreItems.KNIFE.get()), CameraType.FIRST_PERSON, 65);
         }

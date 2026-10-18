@@ -1,5 +1,9 @@
 # Stage 1 quality audit — 2026-10-18
 
+## Fresh installation follow-up
+
+Branch `codex/stage1-movement-charge-review`: optional ordinary locomotion handoff to selected Fresh Player Extension; PA injury/carry/action ownership retained. Exact candidate stack was exercised in production-format Prism with Forge47.4.8, existing FPM/PA/TaCZ/audio/gore and harness. Developer probes assert ordinary gait yield and injury priority, inspect first/third-person rendering and reach TaCZ aim active/progress1.0;62 unit/49 GameTests remain green. Existing274 core assets match dawn byte-for-byte. No user acceptance claimed. Sustained mouse-input pistol/rifle ADS/reload, all paired clips/skins/armor and performance remain pending. See newest testing entry for failed fixtures and corrected runs. Katana spacing, hammer weight, left-click charge and exaggerated blood are still pending user-requested work.
+
 ## Scheduled dawn follow-up
 
 Branch `codex/stage1-dawn-corrections`, from `46cd32b`. Andrew's preceding-build acceptance: axe appearance and pistol ammunition; katana/QTE appearance improved but require the specific refinements in `decisions.md`. New code remains pending his review.
