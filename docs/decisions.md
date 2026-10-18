@@ -2,6 +2,13 @@
 
 Status: accepted design unless labeled proposed. This file supersedes older wording in `design.md` and the original Word document.
 
+## Ground follow-up after standing acceptance (Andrew, 2026-10-18)
+
+- All standing executions in the deployed 3c995ab build are accepted: freeze them until Andrew requests a change.
+- Andrew now explicitly reopens crawler/prone execution presentation: all weapons need deeper first-person skull contact, and crawler katana spins. This supersedes the previous ground freeze only for these corrections; preserve standing motion and walker reactions.
+- Python inventory recording shows first-person gun/hands over the container UI. Suppress that render pass for inventory/container screens while preserving normal gunplay and inventory previews.
+- No agent game probes/tests; Andrew retains visual acceptance. Stop around5% remaining usage and record handoff.
+
 ## Standing execution review (Andrew, 2026-10-18, afternoon)
 
 - Pistol executions are removed for every posture; TaCZ firing, ADS and shove remain unchanged. This supersedes the earlier handgun execution exception.

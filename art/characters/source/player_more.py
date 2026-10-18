@@ -231,7 +231,7 @@ def overhead_ground(w):
     for t, snd in o["sounds"]:
         b.a.sound(t, snd)
     impacts = [(I, 6.0 if w == "axe" else 5.0 if w == "bat" else 3.5)] + ([(t2, 2.0)] if o["edge"] else [])
-    return b, dict(impacts=impacts, weapon=w)
+    return b, dict(impacts=impacts, weapon=w, geodesic_items=w == "katana")
 
 
 # =========================================================== free blunt swings

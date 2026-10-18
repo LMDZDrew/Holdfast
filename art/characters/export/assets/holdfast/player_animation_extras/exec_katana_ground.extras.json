@@ -4,7 +4,7 @@
   "weapon": "katana",
   "vanilla_pose": null,
   "pa_native": false,
-  "geodesic_items": false
+  "geodesic_items": true
  },
  "animations": {
   "exec_katana_ground": {

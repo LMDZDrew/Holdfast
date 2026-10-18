@@ -98,7 +98,7 @@ public final class ClientClips {
             HoldfastCore.LOG.warn("[holdfast] no Player Animator clip holdfast:{}", clip);
             return null;
         }
-        return (pairedMelee(clip) ? new PairedMeleePlayer(data)
+        return ((pairedMelee(clip) || groundMelee(clip)) ? new PairedMeleePlayer(data)
                 : meleeAction(clip) ? new MeleeActionPlayer(data) : new BodyAwarePlayer(data)).setFirstPersonMode(fp)
                 .setFirstPersonConfiguration(new FirstPersonConfiguration(true, true, true, true));
     }
@@ -122,7 +122,7 @@ public final class ClientClips {
         KeyframeAnimationPlayer kp = player(m.clip(), m.ownsArms() ? FirstPersonMode.THIRD_PERSON_MODEL : FirstPersonMode.NONE);
         if (kp == null) return;
         combat(p);
-        if (pairedMelee(m.clip())) blendMelee(layer, kp, 3);
+        if (pairedMelee(m.clip()) || groundMelee(m.clip())) blendMelee(layer, kp, 3);
         else if (meleeAction(m.clip())) blendMelee(layer, kp, 2);
         else layer.setAnimation(kp);
         ACTION_NAMES.put(p.getId(), m.clip());
@@ -202,6 +202,12 @@ public final class ClientClips {
         return "exec_katana".equals(clip) || "exec_knife".equals(clip) || "exec_bat_charged".equals(clip);
     }
 
+    private static boolean groundMelee(String clip) {
+        return "exec_knife_ground".equals(clip) || "exec_axe_ground".equals(clip)
+                || "exec_machete_ground".equals(clip) || "exec_katana_ground".equals(clip)
+                || "exec_bat_ground".equals(clip);
+    }
+
     private static void blendMelee(ModifierLayer<IAnimation> layer, IAnimation next, int ticks) {
         // PA's default overload silently skips fades when there is no active previous animation.
         if (layer != null) layer.replaceAnimationWithFade(new MeleeFade(ticks), next, true);
@@ -220,18 +226,20 @@ public final class ClientClips {
     /** FPM must preserve the authored pair-frame advance for these measured melee executions. */
     public static boolean pairedMeleeExecution(AbstractClientPlayer p) {
         String name = ACTION_NAMES.get(p.getId());
-        return (pairedMelee(name) || "exec_axe".equals(name) || "exec_machete".equals(name)) && executing(p) && !holdingGun(p);
+        return (pairedMelee(name) || groundMelee(name) || "exec_axe".equals(name) || "exec_machete".equals(name)) && executing(p) && !holdingGun(p);
     }
 
     /** Small first-person presentation correction; third-person placement and weapon geometry stay authored. */
     public static double pairedViewAdvance(AbstractClientPlayer p, float partial) {
         if (!pairedMeleeExecution(p)) return 0;
         // Apply the accepted katana view correction to every standing melee family.
-        // Ground/crawler executions keep their accepted FPM behavior.
+        // Ground presentations use their own timing table; standing behavior stays accepted.
         double distance=.20;
         var action=layer(p,ACTION);
         if (!(action.getAnimation() instanceof KeyframeAnimationPlayer kp)) return 0;
-        var timing=dev.holdfast.core.rules.ExecutionRules.clipFor(Weapons.held(p),dev.holdfast.core.rules.Posture.UPRIGHT);
+        String name=ACTION_NAMES.get(p.getId());
+        var posture=groundMelee(name)?dev.holdfast.core.rules.Posture.CRAWLER:dev.holdfast.core.rules.Posture.UPRIGHT;
+        var timing=dev.holdfast.core.rules.ExecutionRules.clipFor(Weapons.held(p),posture);
         if(timing.isEmpty()) return 0;
         var clip=timing.get();float t=kp.getTick()+partial;
         double in=Math.max(0,Math.min(1,(t-clip.commitTick())/Math.max(1,clip.killTick()-clip.commitTick())));

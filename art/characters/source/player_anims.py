@@ -728,7 +728,7 @@ def export(out, merge_keys=False):
     key_path = os.path.join(OUT, "player_keys.animation.json")
     keys = json.load(open(key_path))["animations"] if merge_keys and os.path.exists(key_path) else {}
     for k, (a, info) in out.items():
-        if k in ("exec_knife", "exec_katana", "exec_bat_charged") or (info.get("weapon") == "bat" and "ground" not in k):
+        if k in ("exec_knife", "exec_katana", "exec_bat_charged", "exec_katana_ground") or (info.get("weapon") == "bat" and "ground" not in k):
             # IK can return equivalent angles several whole turns apart. Normalize BEFORE
             # Catmull-Rom baking; otherwise an arm circles through those turns between valid poses.
             for channels in a.tracks.values():
