@@ -1,5 +1,13 @@
 # Assistant handoff
 
+## Codex — iconic merge deployed; motion corrections next (2026-10-18)
+
+Branch `codex/stage1-iconic-katana-validation`, merge `b74d3c0`, verification `f254b50`. Claude's two local weapon branches merged without editing them; both documentation histories and probes retained. Required GameTests **54/54**. Actual isolated client paired requests and curved blade render measurements verify contact front/left/right/rear/crawler/prone; this excludes Fresh/FPM and is not Andrew's visual approval.
+
+Andrew authorized immediate deployment. New core installed on BOTH Gate 0/Prism, SHA-256 `71029B7B6AAC58D5284A577DC0DD04F571DA707DFD04C7D75D880C9D9B0423AF`, protocol5; harness unchanged `9FA2CDB7…12B09C57`. Old server saved all dimensions 10:23:57 Eastern, restarted hidden PID37564. Python pack preserved. Full evidence/commands in matching testing entry.
+
+Next authorized work: user referred to earlier animation reports and newly reported **katana spin**; investigate/fix fluid knife side-head stab, charged bat contact and katana rotation/contact. Ground probe shows rapid item rotation; Euler interpolation and implicit return need investigation. Do not change weapon length to fake contact. Preserve accepted axe/gun/blood/swoosh assets. Universal hold-left-click charge and heavier sledgehammer remain backlog. No test requests until batch finished. Production Fresh/FPM visuals and Andrew approval pending. Keep PR1/2 draft/unmerged; no worldgen, iconic rules deferred. Stop near 5% remaining usage with handoff.
+
 ## For Codex — Michonne's Katana, 2026-10-18 (Claude)
 
 Branch **`claude/michonne-katana`** in worktree `C:/Users/drewl/Holdfast-katana`. It is built on `claude/ricks-python` (`f343b1a`), which is built on `97748d4`. Neither branch is merged or pushed. Your branches and checkout were not touched. Your `3ed6ea3` (knife/bat/katana execution contact) is newer than this branch's base, so merge carefully if you combine them.
