@@ -17,8 +17,9 @@ Branch **`claude/ricks-python`**, worktree `C:/Users/drewl/Holdfast-python`, fro
   - Probe 7 checked both.
 - **Tests:** four opt-in isolated dev-client runs, `-PgunPackProbe` with `core/tools/gunprobe`, excluded from release builds. TaCZ loads and indexes the gun, and it reloads, aims and fires. Details are in `testing.md`.
 - **Andrew's verdict:** "looks great animation wise" (probe 1). The texture and then the geometry were replaced; he has not seen the smooth nickel/walnut version in game.
+- **Installed 09:23 Eastern** at Andrew's request: the pack ZIP (SHA-256 `07D953E4…510B534`) is in both `tacz/` folders. The server was gracefully stopped (all dimensions saved 09:22:57) and restarted as PID 37120; TaCZ loaded the pack and startup logged `Done (4.222s)`. Codex's core jars and other files are untouched. Details are in `testing.md`.
 - **Open items:**
-  - Install on Gate 0 and Prism, only with Andrew's go-ahead.
+  - Andrew's first in-game check on the installed pack.
   - Dedicated-server and multiplayer check.
   - One-per-world uniqueness, repair cost and loot rules.
   - Confirm the model's licence before any distribution.

@@ -88,7 +88,17 @@
 
 **Ordinary build:** `.\gradlew.bat build --no-daemon`, without the probe flag, finished `BUILD SUCCESSFUL in 13s`. `holdfast_core-0.1.0.jar` contains no `GunPackProbe` class. Log: `release-build.log`.
 
-**Not installed** on the Gate 0 server or the Prism instance. To try it, put the ZIP in `tacz/` on both, with Minecraft and the server stopped.
+**Installed, 2026-10-18, 09:23 Eastern.** Andrew asked: "Install the Python pack ZIP into the tacz folder on both the Gate 0 server and the Prism Holdfast Gate0 instance. Stop and restart the server gracefully, and only touch the client while Minecraft is closed." Evidence is in `core/build/test-evidence/2026-10-18-python/install/` (ignored).
+- **Pack.** `holdfast_ricks_python.zip` from commit `8a5e643`, with a 1024×1024 atlas. SHA-256 `07D953E47FB0CA2E84192025D2DA3C864ADD05CB8944C65791604269E510B534`.
+- **Client.** Only the Prism launcher window was open, with no Minecraft Java process. I copied the pack to `Holdfast Gate0/minecraft/tacz/` and the hash matched. No other client files changed.
+- **Server stop.** `status_query.py` showed 0/20 players (`pre-stop-status.json`). I confirmed PID 8856 was the Forge server, then ran the existing `stop-server.ps1 -ServerProcessId 8856` (AttachConsole + CTRL_C) in a separate hidden PowerShell. The log shows `Stopping server` at 09:22:56.791 and `All dimensions are saved` at 09:22:57.732, and the process exited (`server-stop.log`).
+- **Server install.** I copied the pack to `server/tacz/`; the hash matched.
+- **Restart.** Same hidden Java 17 command as before: `@user_jvm_args.txt @libraries/net/minecraftforge/forge/1.20.1-47.4.8/win_args.txt nogui`. New PID 37120.
+  - TaCZ logged `- holdfast_ricks_python.zip, Main namespace: holdfast` and `Found 2 possible gunpack(s)` at 09:23:24.
+  - `Done (4.222s)` at 09:23:31.846; no ERROR or Exception lines; stderr `logs/claude-python-stderr.log` 0 bytes.
+  - The post-start status query answers with 0/20 players.
+- **Not yet done.** Andrew has not joined with this installation. The client loads the pack on its next launch. To get the gun as an operator, use `/give @s tacz:modern_kinetic_gun{GunId:"holdfast:ricks_python"}`.
+- **Rollback.** With the client closed and the server gracefully stopped, delete `holdfast_ricks_python.zip` from both `tacz/` folders.
 
 ## Low-usage blood follow-up — 2026-10-18, installed08:04 Eastern
 
