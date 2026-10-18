@@ -98,7 +98,7 @@ if (project.hasProperty('presentationProbe') || project.hasProperty('presentatio
 // Opt-in isolated smoke runs for TaCZ gun packs (art/guns, -PgunPackProbe) and held core items such as GeckoLib
 // iconic weapons (art/weapons, -PheldItemProbe). Probe code is excluded from ordinary release builds.
 // Gun packs go in build/gun-probe/client/tacz first; screenshots land in build/test-evidence/<value>.
-if (project.hasProperty('gunPackProbe') || project.hasProperty('heldItemProbe')) {
+if (project.hasProperty('gunPackProbe') || project.hasProperty('heldItemProbe') || project.hasProperty('executionItemProbe')) {
     sourceSets.main.java.srcDir 'tools/gunprobe'
     dependencies { runtimeOnly fg.deobf("maven.modrinth:SzzJttH8:${tacz_modrinth_version}") }
     minecraft.runs.client {
@@ -107,6 +107,8 @@ if (project.hasProperty('gunPackProbe') || project.hasProperty('heldItemProbe'))
             property 'holdfast.gunProbe', project.file('build/test-evidence/' + project.property('gunPackProbe')).absolutePath
         if (project.hasProperty('heldItemProbe'))
             property 'holdfast.itemProbe', project.file('build/test-evidence/' + project.property('heldItemProbe')).absolutePath
+        if (project.hasProperty('executionItemProbe'))
+            property 'holdfast.executionItemProbe', project.file('build/test-evidence/' + project.property('executionItemProbe')).absolutePath
     }
 }
 

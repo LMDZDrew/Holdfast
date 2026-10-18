@@ -3,12 +3,15 @@ package dev.holdfast.core.gametest;
 import com.mojang.authlib.GameProfile;
 import dev.holdfast.core.HoldfastCore;
 import dev.holdfast.core.combat.MeleeSwings;
+import dev.holdfast.core.combat.Executions;
+import dev.holdfast.core.combat.Strikes;
 import dev.holdfast.core.combat.Weapons;
 import dev.holdfast.core.entity.WalkerEntity;
 import dev.holdfast.core.item.MeleeWeaponItem;
 import dev.holdfast.core.registry.CoreEntities;
 import dev.holdfast.core.registry.CoreItems;
 import dev.holdfast.core.rules.CombatTimings;
+import dev.holdfast.core.rules.ExecutionRules;
 import dev.holdfast.core.rules.Posture;
 import dev.holdfast.core.rules.SwingRules;
 import dev.holdfast.core.rules.WeaponClass;
@@ -53,6 +56,45 @@ public final class IconicWeaponGameTests {
         h.runAfterDelay(contact + 1, () -> {
             h.assertTrue(MeleeSwings.lastResult(p) == MeleeSwings.Result.HIT, "result " + MeleeSwings.lastResult(p));
             h.assertTrue(p.getMainHandItem().getDamageValue() == damageBefore + 1, "durability not spent once at contact");
+            h.succeed();
+        });
+    }
+
+    @GameTest(template="arena", timeoutTicks=80)
+    public static void michonneKatanaStandingExecution(GameTestHelper h) { execution(h,Posture.UPRIGHT,false); }
+
+    @GameTest(template="arena", timeoutTicks=80)
+    public static void michonneKatanaRearExecution(GameTestHelper h) { execution(h,Posture.UPRIGHT,true); }
+
+    @GameTest(template="arena", timeoutTicks=80)
+    public static void michonneKatanaCrawlerExecution(GameTestHelper h) { execution(h,Posture.CRAWLER,false); }
+
+    @GameTest(template="arena", timeoutTicks=80)
+    public static void michonneKatanaProneExecution(GameTestHelper h) { execution(h,Posture.PRONE,false); }
+
+    private static void execution(GameTestHelper h, Posture posture, boolean rear) {
+        Vec3 at=h.absoluteVec(new Vec3(3.5,2,3.5));
+        WalkerEntity w=h.spawn(CoreEntities.WALKER.get(),new Vec3(3.5,2,3.5));
+        w.setPosture(posture); w.setNoAi(true); w.moveTo(at.x,at.y,at.z,0,0);
+        ServerPlayer p=FakePlayerFactory.get(h.getLevel(),new GameProfile(UUID.randomUUID(),"hf_mk_exec"));
+        double headOffset=posture==Posture.PRONE?13/16.0:posture==Posture.CRAWLER?9/16.0:0;
+        p.moveTo(at.x,at.y,at.z+headOffset+(rear?-2.5:2.5),rear?0:180,0);
+        p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(CoreItems.MICHONNE_KATANA.get()));
+        p.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+        var timing=ExecutionRules.clipFor(WeaponClass.KATANA,posture).orElseThrow();
+        Executions.request(p,w);
+        h.assertTrue(Executions.isExecuting(p),"refused "+posture+": "+Executions.lastRefusal(p));
+        h.assertTrue(w.fullClip().startsWith("react_katana"),"wrong reaction "+w.fullClip());
+        if(rear) h.assertTrue(Executions.lastApproach(p).orElseThrow()==ExecutionRules.Approach.REAR,"rear approach lost");
+        h.runAfterDelay(timing.killTick()-1,()->h.assertFalse(w.isCorpse(),"killed before server contact tick"));
+        h.runAfterDelay(timing.killTick()+1,()-> {
+            h.assertTrue(w.isCorpse(),"no brain kill for "+posture);
+            h.assertTrue(p.getMainHandItem().getDamageValue()==1,"durability not spent exactly once");
+            h.assertTrue(Strikes.lastFeedback(w).isPresent(),"no confirmed feedback");
+        });
+        h.runAfterDelay(timing.lengthTicks()+3,()-> {
+            h.assertFalse(Executions.isExecuting(p),"execution retained ownership after release");
+            h.assertTrue(p.getMainHandItem().getDamageValue()==1,"duplicate durability spend");
             h.succeed();
         });
     }
