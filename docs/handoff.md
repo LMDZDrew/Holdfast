@@ -1,5 +1,15 @@
 # Assistant handoff
 
+## CURRENT — standing accepted/frozen; ground + inventory candidate deployed (2026-10-18 Codex)
+
+**Branch `codex/stage1-ground-depth-spin`, implementation `0ef5049`**, from c3066d7. Andrew: "everything looks great"; **do not touch standing executions until he requests it**. New exception to old ground freeze: all crawler/prone weapons need deeper first-person contact; crawler katana spins. Inventory video shows Python first-person hands/gun over GUI.
+
+Ground now uses accepted0.20-block FPM advance with ground timings plus bounded paired entry/release. Katana ground normalized rotations before bake/geodesic item path, regenerated from editable source. Standing14 resources and both walker reaction resources byte-identical in both jars. Optional TaCZ HIGHEST RenderHandEvent guard suppresses gun rendering behind container GUI; normal gunplay/preview untouched in intent, runtime effect pending.
+
+Both builds succeeded -x test (23s/17s); no game/unit/GameTests, per Andrew. Core `F95B70C4BB4B93F96E136B43DB888EE1D2EBFB89929F547B4B20CA1E97EF8C26`, harness `12D90184AF91D1356D9C142CEC2B471072970C0842EED02839056ABC6CD5E2DE`, protocol5 on BOTH Gate0/Prism. Graceful save11:58:13 Eastern; hidden restartPID35936. Newest testing entry has exact commands/environment/logs and limits. No new visual results accepted, no test requests; Andrew owns review. GUI event ordering remains a risk if overlay persists; ground spin/contact still pending his verdict.
+
+Stopping near5% usage; next agent read this and decisions/testing first, preserve standing and guns, follow Andrew's recordings. Heavier sledgehammer/universal hold-left-click charge older backlog, not done. PR1/2 draft/unmerged, no worldgen; server owns outcomes.
+
 ## CURRENT — melee depth / bat clearance / crawler egg deployed (2026-10-18 Codex)
 
 **Branch `codex/stage1-melee-depth-crawler-egg`, implementation `3c995ab`**, from `fb0431e`. Core/harness on BOTH Gate0/Prism: core `4AAFA3C1C42A77F57F77AB04034B848877FD33F0A4355E9DFBEA6135C2881948`, harness `AC639B63969414CE5F69E45693EDE30458660EE8E2ADA64E8D7F4AC89EAFA256`, protocol5. Saved11:42:11 Eastern; hidden serverPID21784, Done3.046s. Newest testing entry has exact environment/commands/logs/hashes.
