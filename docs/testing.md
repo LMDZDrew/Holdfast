@@ -1,5 +1,64 @@
 # Test record
 
+## Claude stances, all-angle executions, Punchy evaluation — 2026-10-17
+
+**Branch/code:** `claude/stage1-stances-executions` from `c327bef` (`codex/stage1-motion-corrections`), implementation **`1da61ff`**. This was built in a separate worktree, `C:\Users\drewl\Holdfast-claude`, because the Codex app was still running. Its `art/characters/build` was copied from the main checkout.
+
+**Environment:** same Windows 11 Gate 0 machine and pins: Java 17.0.20.1, Gradle 8.8, Forge 47.4.8, GeckoLib 4.8.4, Player Animator 1.0.2-rc1+1.20, TaCZ 1.1.8-hotfix2. Python 3.14.7 (uv path) with `art/characters/.deps` through a Git Bash `python3` shim. No dependency changed. GameTests run headless without TaCZ or Extra Gore. Claude ran no client and saw nothing in game.
+
+**Commands and results:**
+
+- **Punchy:**
+  - Read Modrinth API version `vbMU3NlS`, then downloaded `punchy-2.8f-forge-1.20.1.jar` from the official CDN into scratch; SHA-1 `d8f4bbf9…` matches the API.
+  - Inspected `META-INF/mods.toml`, both mixin JSONs and class signatures with `javap -p`/`-c`.
+  - Not installed or run. Not adopted; the reasons are in `presentation_integration.md`.
+- **Stance source:**
+  - `python player_weapons.py --refresh-movement-carries`, then `check_carries.py`, iterated.
+  - The new checks rejected four early designs, each with numbers:
+    - rigid-arm over-shoulder rests for the katana and axe: weapon 1.4–1.6 px inside the carrying arm (impossible without an elbow);
+    - an axe "port arms" with a fixed support point: the left hand missed it by 5–6 px (out of reach);
+    - its first solved version: arm 0.066 px into the chest;
+    - the existing machete blade-down hang: tip about 1 px into the ground.
+  - Final run: all 10 carries (6 ready, 4 rest) have chest depth 0, weapon inside body 0, the support grip within 0.86–1.13 px for katana, axe and bat, and every weapon at least 0.5 px above the ground.
+  - Software renders inspected (`core/build/test-evidence/2026-10-17-stances/stances.png`).
+- **Full pipeline** (`bash make_all.sh`), then `measure.py`, `gen_core_tables.py`, `gen_core_assets.py`, `gen_catalog.py`, `gen_testmod_clips.py`, `gen_test_items.py`, `build_preview.py`, `check_exec_variants.py`:
+  - 68 walker animations (15 new directional reactions), 15 crawler, 80 player clips (4 new rest carries).
+  - Exports validated; carry checks pass; locomotion checks pass; `check_weapon_motion` 26 of 26.
+  - PA semantics worst 0.577 px (unchanged).
+  - Execution contact unchanged: knife enters 0.27 s, axe 0.45, machete 0.29, charged bat 0.19, ground clips as before.
+  - `check_exec_variants`: 16 blade variants (left, right and rear × knife, axe, machete, charged bat, plus the four front pairs) enter the skull 0.18–0.45 s, within 0.02 s of their front pair, with no early clipping. The pistol is aligned by its skull data.
+  - `make_all` itself first stopped in `gen_catalog` on the new `exec_skull` pairing entry; the generator was fixed and the remaining steps run.
+  - Six regenerated PNGs were pixel-identical and restored.
+- **Protected firearm assets:** no `_gun`, `exec_pistol*` or pistol extras file changed (git status against `c327bef`).
+- **Core:** `.\gradlew.bat build runGameTestServer --no-daemon` passed with **43 JUnit tests and all 32 GameTests**. New tests:
+  - `MeleeStanceTest` (4);
+  - `ExecutionAlignmentTest` (4; every clip × 24 approach angles puts the skull on the strike point within 1e-6 blocks; upright walkers turn at most 55°, worst seen 51°);
+  - `ExecutionGameTests` (10): six approaches including two diagonals, wall, no room, a prone walker approached over its body and from its side, and the weapon and ownership gates.
+
+  Intermediate failures, all fixed:
+  - a test assumed a walker turn of at most 52°; the server now picks the approach needing the smallest turn;
+  - the GameTests had left and right bearings reversed (the server was right);
+  - Codex's baseline assertion that the old knife wrist spin still reproduces no longer holds, because the new knife ready carry removes it. The measured value is kept as a comment, and the corrected-release assertions still run for all four clips.
+- **Harness:** `.\gradlew.bat build --no-daemon` passed.
+
+**Deployment:**
+- No client running; no player had joined since 19:24.
+- Backed up the old jars and log under `core/build/test-evidence/2026-10-17-stances/before/` (core `644ED4B7…`, harness `B57180A7…`).
+- Stopped server PID 30080 through the `AttachConsole` + `CTRL_C` helper: **"All dimensions are saved" at 20:02:16.910**, and the process exited.
+- Installed both jars in the server and Prism mods folders, hashes verified:
+  - core 1,144,983 bytes, **`CA805B1D3AF3F82C921962AA57B5E9C142A276EADB3E638B181856EFBA45BE6A`**;
+  - harness 372,862 bytes, **`4CC35E0F556382F6F6CE8D727157550441827B6C523201AC737B634FE636F398`**.
+- Started hidden Java 17 in the server folder (stdout and stderr in `logs/claude-stances-*.log`): PID **22124**, **`Done (5.084s)` at 20:02:52**, listening on 25565, no ERROR lines. The PID is a snapshot.
+- Impact and Tissou packs untouched.
+
+**Open:**
+- Every visual result: rest and ready poses and timer, attack entry from rest, directional reactions and step-in alignment, prone and crawler approaches, plus Codex's still-unreviewed shimmy, jump and recovery fixes.
+- The 4 s ready timeout is a provisional default.
+- Incoming hits don't refresh ready.
+- Diagonal approaches use the nearer authored side with a walker turn up to about 50°.
+- The pistol has no blade contact measurement.
+- Unchanged gaps: standing knife execution contact, pistol execution ammunition, real-player reconnect, remaining Gate 0 rows.
+
 ## Codex motion corrections / no-ding audio — 2026-10-17
 
 **Branch/code:** `codex/stage1-motion-corrections`, implementation **`e3f2181`**, base `0468a8d`. Andrew authorized the torso shimmy, jumping and axe/knife corrections, asked for a Claude handoff afterward, and required stopping implementation at 5% usage remaining. Implementation stopped with 8% remaining to finish records. Latest user audio feedback: he likes the effects but rejects the ding specifically in `axe_hit.mp3`; no new visual pass was supplied.

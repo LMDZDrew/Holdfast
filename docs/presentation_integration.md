@@ -40,3 +40,19 @@ Profiles vary counts and direction: compact blunt bursts, wider slashes, narrow 
 Use the recorded hashes. Close the Prism Minecraft client before replacing jars or options. Back up `options.txt`, prior Holdfast jars and logs. Copy both newly built Holdfast jars to both server/client mods folders, with Extra Gore and Bookling Gear in the client folder only. Copy the generated audio ZIP into client `resourcepacks` and enable it. Preserve other selected resource packs when repeating this on an existing customized profile.
 
 Rollback: close the client, move the two added client jars out of `mods`, disable the audio pack, and restore the backed-up matching Holdfast jars on both sides after a graceful server stop. Do not mix core protocols 2 and 3. Runtime logs and in-game acceptance belong in `docs/testing.md`; see the top of `docs/stage1_bulk_test.md` for one review batch.
+
+## Punchy first-person evaluation (2026-10-17, Claude) — not adopted
+
+Andrew proposed tailoring first-person animation to Punchy. Candidate: Punchy **2.8f** (Forge 1.20.1), Modrinth version `vbMU3NlS`, file `punchy-2.8f-forge-1.20.1.jar`, 1,937,605 bytes, SHA-1 `d8f4bbf93c6166b811fe923dc3b82c6825056b25` (matches the API). It is client-only, all rights reserved (`ARR`), and depends only on Forge 47+ and Minecraft 1.20.1. I downloaded it from the official CDN into a scratch folder and inspected its manifest, mixin lists and class signatures with `javap`. It was **not installed** in any mods folder and not run.
+
+**What it can do:**
+- First-person arm and item clips, set per item through tuning/resource-pack entries (`attack_1`…`attack_6`, `critical_hit`, `charge`/`release`/`abort`, start/loop/end).
+- An item blacklist, with built-in TaCZ awareness (`TaczBlacklistCompat` lists every TaCZ gun id).
+
+**Why it doesn't fit Holdfast now:**
+- **No hook for Holdfast to trigger it.** There is no API package, no network handling, and only client debug commands. Attacks start from its own mixins on `LivingEntity.swing` and `MultiPlayerGameModeAttack`, which play its combo slots. Holdfast can't make it play the clip the server picked (light/heavy, charged, overswing) at the server's contact tick, so its visual contact would drift from the outcome.
+- **It needs the vanilla swing that the shimmy fix removed.** Codex's motion fix suppresses the vanilla hand swing for Holdfast attacks. Punchy would then never animate them; re-enabling that swing brings the click shimmy back.
+- **It can't step aside for executions and grabs.** Its exclusion is a static per-item blacklist. Holdfast's first-person execution and grab clips would render alongside Punchy's arms for any non-blacklisted item, for example being grabbed while holding food.
+- **It overlaps Player Animator.** Its `LivingEntityRendererMixin.applyThirdPersonAnimation` also animates third person.
+
+**Decision:** keep Holdfast's first-person path through Player Animator for melee, executions and grabs, and TaCZ for guns. A later trial could still use Punchy for non-combat items only: blacklist all Holdfast weapons and TaCZ guns. That trial would first have to show how being grabbed while holding a non-blacklisted item renders, and that Player Animator's third person is unaffected. Its license allows modpack listing, not redistributing the jar.

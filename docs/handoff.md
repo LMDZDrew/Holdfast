@@ -1,5 +1,27 @@
 # Assistant handoff
 
+## Current stop: stances, all-angle executions, Punchy evaluation — 2026-10-17 (Claude)
+
+**Branch/code:** `claude/stage1-stances-executions` from `c327bef`, implementation **`1da61ff`** plus this documentation commit (worktree `C:\Users\drewl\Holdfast-claude`). PR #1 and #2 untouched; Stage 1 only; no world generation.
+
+**Punchy:** evaluated from its published 2.8f jar without installing it. **Not adopted.** It has no API to play the server-chosen clip at the server's contact tick. It triggers from the vanilla swing that Codex's shimmy fix suppresses. It can't be paused per action for executions or grabs. It also animates third person. Details are in `presentation_integration.md`; a later trial limited to non-combat items stays possible.
+
+**Implemented** (automated evidence only; see `testing.md`):
+1. **Rest and ready carries** for knife, hatchet, katana and fire axe (`player_weapons.STANCES`); swings start and end in ready. A client-only `MeleeStance` shows ready for 80 ticks after combat events and rest otherwise. The machete hang no longer clips the ground.
+2. **Executions from any approach:**
+   - the walker is never moved; an upright one turns at most about 50° to the authored front, left, right or rear reaction;
+   - a lying walker keeps its yaw and is refused from over its body;
+   - the player steps to the generated skull-aligned slot, with room, step and line-of-sight checks and the new refusals `TOO_CLOSE`, `OBSTRUCTED` and `NO_ROOM`;
+   - kill timing, pistol-only firearms and exclusive ownership are unchanged.
+3. **Codex's motion fixes are kept.** One exception: the outdated baseline assertion was removed, with the reason given in a comment.
+
+**Verified:** 43 JUnit tests and 32 GameTests; both builds; carry, motion, PA-semantics and execution-variant contact checks; firearm assets unchanged. Deployed on both sides: core `CA805B1D…`, harness `4CC35E0F…`. Server PID 22124 was ready at 20:02:52; client closed.
+
+**Next safe task:**
+- Andrew runs the five-part batch at the top of `stage1_bulk_test.md`. Record his exact words.
+- If stances or directional reactions look wrong, re-author them in `player_weapons.STANCES` or `walker_anims.directional_reactions`, regenerate with `make_all.sh`, and run `check_carries`, `check_exec_variants` and the GameTests.
+- Still open: standing knife execution contact, pistol execution ammunition, real-player reconnect, remaining TaCZ Gate 0 rows.
+
 ## Current stop: motion corrections and Punchy proposal — 2026-10-17
 
 **Branch/implementation:** `codex/stage1-motion-corrections`, **`e3f2181`**, from `0468a8d`; this documentation update follows. Current Claude prompt: **`docs/claude_stage1_motion_followup.md`**. Earlier prompts/entries below are historical. Andrew's 5%-remaining stop constraint was honored by ending implementation with 8% remaining and writing the handoff.

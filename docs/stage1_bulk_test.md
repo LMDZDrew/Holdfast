@@ -1,6 +1,29 @@
 # Stage 1 bulk test sheet (for Andrew)
 
-## Current review: motion corrections and no-ding audio (2026-10-17)
+## Current review: stances, all-angle executions, plus Codex's motion fixes (2026-10-17)
+
+Branch `claude/stage1-stances-executions`, code `1da61ff`, on top of Codex's `c327bef` (its motion corrections are included and also still await your look). Installed on both sides: core `CA805B1D…`, harness `4CC35E0F…` (full hashes in `testing.md`). The server restarted at 20:02 and is ready; the client is closed. The no-ding impact pack and Tissou pack are unchanged. Run `/hfa stop` first. Report by number; "fine" is a valid answer.
+
+1. **Rest and ready.** Hold the knife, hatchet, katana and fire axe one after another, standing, walking, sprinting and crouching, in both views. Each should rest naturally:
+   - knife and hatchet: blade or head forward and down at your side;
+   - katana: lowered, blade forward and down;
+   - axe: one hand, head low in front.
+
+   Attack once (into the air counts): each should come up to ready at once and the attack should not wait for it:
+   - knife: forward guard;
+   - hatchet: head up;
+   - katana: two-hand guard;
+   - axe: both hands, head up by your left shoulder.
+
+   Stop fighting: about 4 s later each should relax back to rest. Holding, walking or mining should never bring up ready. Switching weapons should start at rest. The machete now also points forward and down instead of hanging straight down.
+2. **Attacks and clicks.** Knife light and heavy, axe light and overhead, from rest and from ready, standing and moving, both views. Then click as fast as you can during a swing. Look for the weapon spinning or jumping at the start or end of the hit, and for any torso shimmy on clicks.
+3. **Jumping.** Empty hands, then knife and axe: standing jumps, running jumps, repeated jumps, walking off a ledge, under a low ceiling. Both views.
+4. **Executions from every side.** `/holdfast walker upright`, then V with the knife from the walker's front, back, left, right and a diagonal. Repeat a few with the axe, machete, charged bat and a TaCZ pistol. The walker should stay where it stands (turning at most about 45°). You step in to it; from behind it pitches forward and falls face first, from a side it is knocked away and falls on the far side. Then `/holdfast walker prone`: execute from in front of and beside its head; from over its body it should refuse ("No room to do it here"). Put a wall or fence between you and a walker: it should refuse ("Something's in the way").
+5. **Guns.** Quick pistol and rifle hold and ADS check only; the firearm animation files are byte-identical.
+
+Still open and not covered here: standing knife execution contact (`/hfa freeze`), pistol execution ammunition, real-player reconnect, and the remaining TaCZ Gate 0 rows.
+
+## Previous review: motion corrections and no-ding audio (2026-10-17)
 
 Branch `codex/stage1-motion-corrections`, code `e3f2181`. Installed core `644ED4B7…`, harness `B57180A7…`; five-cut impact pack `5378A624…`. Server restarted and ready, client left closed. Automated checks passed; **these visual outcomes are not yet accepted**. Use `/hfa stop` so core layers own playback. One batch when ready:
 
