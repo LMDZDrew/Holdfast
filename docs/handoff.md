@@ -1,5 +1,17 @@
 # Assistant handoff
 
+## CURRENT — melee depth / bat clearance / crawler egg deployed (2026-10-18 Codex)
+
+**Branch `codex/stage1-melee-depth-crawler-egg`, implementation `3c995ab`**, from `fb0431e`. Core/harness on BOTH Gate0/Prism: core `4AAFA3C1C42A77F57F77AB04034B848877FD33F0A4355E9DFBEA6135C2881948`, harness `AC639B63969414CE5F69E45693EDE30458660EE8E2ADA64E8D7F4AC89EAFA256`, protocol5. Saved11:42:11 Eastern; hidden serverPID21784, Done3.046s. Newest testing entry has exact environment/commands/logs/hashes.
+
+**Andrew accepts katana FP as fixed/resolved.** Other first-person executions look short; supplied video shows bat hand crossing player's head on load/swing. Pistol executions now removed for ALL postures: server eligibility/table, client F routing and harness paired presets; retired clips retained. Normal gunplay/TaCZ F shove unchanged. Accepted katana0.20-block FPM advance/bypass now also covers other standing melee families; no geometry lengthening. Bat load moved outward, standing bat head-clearance cost and source-regenerated swings/charge/pair/miss; server bat kill tick regenerated4→5. `holdfast_core:crawler_spawn_egg` added to Holdfast creative tab (`/give @s holdfast_core:crawler_spawn_egg`); dedicated `holdfast_core:crawler` registry variant uses existing WalkerEntity, synced/saved CRAWLER posture, AI, attributes and renderer, no natural spawns.
+
+**Protected:** accepted katana clips; ground/crawler/prone clips/reactions/FPM/camera; carries, gaits, blood/audio and gun animations. Fifteen resources byte-identical in both jars, 13 ground reaction entries unchanged. No generated clip hand edits; client owns no combat outcomes.
+
+**Evidence limit:** both builds succeeded with `-x test`; generation and package checks only. **Andrew said no more agent tests/probes, leave review to him**: no game client, JUnit or GameTests run, no test requests. New visuals and egg interactions remain unaccepted; source contact measurements are not a runtime pass.
+
+**New pending issue:** Python bugs hands when inventory opens. Source inherits TaCZ Rhino animations/poses, no inventory-specific override; recorded, not fixed. Do not guess at accepted firing/ADS to fix it. Wait for Andrew's deployed-candidate review; preserve accepted katana/ground behavior. Older heavier sledgehammer/universal hold-left-click charge remain unimplemented. PR1/2 draft/unmerged, iconic uniqueness/repair/loot deferred, no worldgen. Stop near5% remaining with handoff.
+
 ## CURRENT — standing melee candidate deployed; Andrew owns visual review (2026-10-18 Codex)
 
 **Branch `codex/stage1-paired-motion`, implementation `0946211`**, includes iconic merge `b74d3c0` and verification `f254b50`; Claude branches unmodified. Both new weapons included. Core/harness now deployed on BOTH Gate 0/Prism: core `41349C7C3E8A22C34A23A462B71A615A75CFD3AC8D208CC4AC61548D7F3938E7`, harness `535D280B7731D5B715EC9D5320CAF4D5F436105F41440AF4324DDAB45CE338F2`, protocol5. Server saved 11:13:43 Eastern, restarted hidden PID22320. Full commands/environment/evidence in newest testing entry.
