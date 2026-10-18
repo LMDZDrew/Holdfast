@@ -139,6 +139,12 @@ Status: accepted design unless labeled proposed. This file supersedes older word
 - The credit ships in the jar (`assets/holdfast_core/credits/michonne_katana.txt`).
 - The one-per-world rule and the recipe and loot rules are deferred, as for the Python.
 
+## Standing execution follow-up and animation freeze (Andrew, 2026-10-18)
+
+- Crawler and prone animations are accepted: "they look amazing." Preserve their shipped clips, reactions, camera behavior and FPM offset handling. Do not revise them while correcting standing attacks.
+- Current observations: standing knife still spazzes in third person; bat looks awkward; knife and katana contact look fine in third person but insufficient in first person. Fix first-person presentation separately from accepted world-space contact; do not extend weapon geometry to fake depth.
+- Andrew explicitly stopped further agent-run game/visual testing and will judge the result himself. Finish source corrections, regenerate exports, build/package and deploy the authorized jars; leave final visual results pending. Do not resume probes or repeatedly request tests without his direction.
+
 ## Explicitly deferred
 
 Character skill leveling, friendly/recruitable survivors, broad stealth disguises beyond Whisperer masks, advanced structural physics, and guaranteed shader FPS. They can be revisited after a representative playable prototype. Dynamic dismemberment is now scheduled for the mechanics phase after animation acceptance, as specified above.

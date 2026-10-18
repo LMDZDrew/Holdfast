@@ -1,5 +1,11 @@
 # Stage 1 bulk test sheet (for Andrew)
 
+## Current installed candidate — 2026-10-18, standing corrections
+
+Core `41349C7C…7F3938E7`, harness `535D280B…5CE338F2`, protocol5; both Gate 0 and Prism updated. Full hashes/evidence in testing.md. Andrew will perform his own visual review; **this is not another testing request**. No automated game probes should resume without his direction.
+
+Standing knife rotation, charged-bat sweep/recovery and first-person knife/katana reach/camera are the current candidate. Final visuals remain unaccepted. Crawler/prone are accepted and frozen; skip those animation re-tests. Blood/swooshes, axes and gun poses remain accepted/protected. Universal left-click charging and heavier hammer are still pending; current blunt charging uses right-click/use. Older sheets below are historical and must not override these controls or the ground freeze.
+
 ## Latest installation note — 2026-10-18
 
 **Blood follow-up supersedes the core hash below:** both sides now use `C700A3367FC72DE982C1EE0F75A9DE5F5C9A5269079E68540B7156C7F31693AA`, protocol5. Exaggerated blood now includes bullets; the older modest-gun-blood review wording is historical. Fresh/harness/audio unchanged. Pending katana/hammer/charge corrections still precede the next combined user test request.

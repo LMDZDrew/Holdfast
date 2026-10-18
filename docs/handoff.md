@@ -1,5 +1,17 @@
 # Assistant handoff
 
+## CURRENT — standing melee candidate deployed; Andrew owns visual review (2026-10-18 Codex)
+
+**Branch `codex/stage1-paired-motion`, implementation `0946211`**, includes iconic merge `b74d3c0` and verification `f254b50`; Claude branches unmodified. Both new weapons included. Core/harness now deployed on BOTH Gate 0/Prism: core `41349C7C3E8A22C34A23A462B71A615A75CFD3AC8D208CC4AC61548D7F3938E7`, harness `535D280B7731D5B715EC9D5320CAF4D5F436105F41440AF4324DDAB45CE338F2`, protocol5. Server saved 11:13:43 Eastern, restarted hidden PID22320. Full commands/environment/evidence in newest testing entry.
+
+**Latest user direction overrides older plans:** crawler/prone look amazing; freeze their shipped clips, reactions, camera and FPM behavior. Do not touch them. Thirteen ground/crawler resources byte-identical in both jars; all combined walker ground/prone entries unchanged. Earlier ground-katana experiments were discarded. **Andrew explicitly said no more agent tests; leave visual testing to him.** Do not launch probes or repeatedly ask for tests. Final standing corrections are unreviewed.
+
+**Standing fixes:** normalize IK rotations before export (knife had multi-turn arm winding); shortest item motion, 3-tick action entry, carry recovery without implicit wrist spin. Bat charged execution now diagonal sweep, shorter 26 px pairing, controlled follow-through/recovery. FPM's PA compensation had canceled visible advance: skip only that handler during these three standing actions; view-only extra advance 0.10 blocks knife/0.20 katana around contact. Standing camera retains look pitch, no forced cue yaw, bounded eased pitch/roll. Gun animations, axe carries, accepted blood/audio protected. Editable source regenerated; no geometry lengthening.
+
+**Evidence limits:** intermediate build had 64 JUnit / 54 required GameTests passing; intermediate real production client captured contact and camera issue. Final source normalization, extra FP offsets and bat shape were built with `-x test` after Andrew stopped tests. Final visuals are **pending his verdict**, never accepted on his behalf. Runtime logs had knife jumps in the intermediate candidate and are not a pass. A 14 px knife pairing failed collision tests and was discarded; current safe 18 px remains.
+
+**Pending after his review:** respond to any standing knife/katana/bat/camera findings. Heavier sledgehammer and universal hold-left-click charge remain **not implemented**; current blunt charging is still right-click/use. Fresh movement acceptance and older Gate 0 checks remain unreported. Do not start broad changes while the current issue is being judged. Iconic one-per-world/repair/loot deferred. PR1/2 stay draft/unmerged, no worldgen. Gameplay outcomes remain server-owned.
+
 ## Codex — iconic merge deployed; motion corrections next (2026-10-18)
 
 Branch `codex/stage1-iconic-katana-validation`, merge `b74d3c0`, verification `f254b50`. Claude's two local weapon branches merged without editing them; both documentation histories and probes retained. Required GameTests **54/54**. Actual isolated client paired requests and curved blade render measurements verify contact front/left/right/rear/crawler/prone; this excludes Fresh/FPM and is not Andrew's visual approval.
