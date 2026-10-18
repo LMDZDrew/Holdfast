@@ -4,7 +4,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 ART=..
-if [ "${1:-}" != "--finish" ]; then
+if [ "${1:-}" != "--finish" ] && [ "${1:-}" != "--export-only" ]; then
 python3 build_model.py
 python3 walker_anims.py
 python3 placement.py > /dev/null
@@ -26,13 +26,18 @@ cp "$ART/build"/player_animation_extras/*.json "$A/player_animation_extras/"
 mkdir -p "$ART/preview/rig"
 cp "$ART/build/survivor_preview.geo.json" "$ART/build/survivor_preview.png" "$ART/build/player_keys.animation.json" \
    "$ART/build/pairing.json" "$ART/build/gait_speeds.json" "$ART/build/player_move_speeds.json" "$ART/preview/rig/"
+if [ "${1:-}" != "--export-only" ]; then
 python3 validate_exports.py "$A"
 python3 check_carries.py
 python3 check_locomotion.py
 python3 check_weapon_motion.py
 python3 check_pa_semantics.py
+fi
+# Contact measurement is an input to the generated server timing/feedback tables, not a game run.
 python3 measure.py
+if [ "${1:-}" != "--export-only" ]; then
 python3 check_exec_variants.py
+fi
 python3 gen_core_tables.py
 python3 gen_catalog.py
 python3 pa_item.py | tail -1

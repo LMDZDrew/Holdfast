@@ -230,47 +230,46 @@ STAND = dict(body_pos=[0, 0, 0], torso=[0, 0, 0], head=[4, 0, 0], rightLeg=[0, 0
 
 
 # ================================================================== executions
+def carry_key(b, weapon, t):
+    """Match the actual live ready layer at an action boundary, including the held-item frame."""
+    import player_weapons
+    carry, _ = player_weapons.relaxed_hold(weapon)
+    for part, channels in carry.tracks.items():
+        for channel in channels:
+            if t > 0 and channel == "position" and channel not in b.a.tracks.get(part, {}):
+                # A lone end key would apply its shoulder offset throughout the entire clip,
+                # invalidating the contact solve. Introduce it only during the final recovery.
+                b.a.key(0, part, pos=[0, 0, 0])
+                b.a.key(max(0, t-.2), part, pos=[0, 0, 0])
+            b.a.key(t, part, **({"rot": carry.value(part, channel, 0)} if channel == "rotation"
+                                else {"pos": carry.value(part, channel, 0)}))
+
+
 def knife():
     e = wa.EXECS["knife"]
     b = Builder("exec_knife", e["length"], weapon="knife", react=W["react"]["react_knife"], dist=e["dist"])
     I, R = e["impact"], e["release"]
     b.pose(0.0, **STAND, rightArm=[-20, 10, 10], rightItem=[0, 0, 0], leftArm=[-20, 0, -6])
-    # load: weight back, shoulders coil, knife hand drops low and back, free hand goes for its chest
-    b.pose(0.12, body_pos=[0, 0, 1], torso=[-4, 14, 0], head=[2, -6, 0], rightArm=[10, 30, 30], rightItem=[-30, 0, 0])
-    Hm, Wm = b.walker(0.12)
-    b.solve_left(0.12, fk.point(Wm, "torso", (0, 9, -2.5)))
-    # Into the temple on the walker's left (the player's right), blade travelling right to left across the head.
-    # Andrew, in game 2026-10-16: the frontal eye-socket stab read as passing through the face; the rigid
-    # vanilla arm could only bring the blade ~50 deg off a head-on line anyway, and a hook suits it.
-    temple, deep = (-4, 4.5, -0.5), (2.0, 4.5, -0.5)
-    # commit: step in hard, blade comes round beside the head
-    b.pose(0.22, body_pos=[0, -0.8, -2.5], torso=[8, 6, 0], head=[6, -2, 0], leftLeg=[-22, 0, 0], rightLeg=[14, 0, 0])
-    Hm, Wm = b.walker(0.22)
-    b.solve_left(0.22, fk.point(Wm, "torso", (0, 9, -2.5)))
-    side = hd(Hm, (-1, 0, 0))                    # out of the walker's left temple
-    b.solve_weapon(0.22, hp(Hm, temple) + side * 6, axis=-side)
-    b.pose(I - .06, body_pos=[0, 0, -9.7], torso=[14, -10, 0], head=[6, -2, 0], rightArm_pos=[0, 1, -2])
-    Hm, _ = b.walker(I - .06)
-    b.solve_weapon(I - .06, hp(Hm, temple) + hd(Hm, (-1, 0, 0))*2, reg=.00002)
-    # impact: into the temple, whole body behind it
-    b.pose(I, body_pos=[0, 0, -9.7], torso=[14, -10, 0], head=[8, -4, 0], rightArm_pos=[0, 1, -2])
-    Hm, Wm = b.walker(I)
-    b.solve_weapon(I, hp(Hm, deep), axis=hd(Hm, (1, 0, 0)), w_axis=100, reg=0.00002)
-    b.solve_left(I, fk.point(Wm, "torso", (0, 9, -2.5)))
-    # drive it home
-    b.pose(0.45, body_pos=[0, 0, -10.0], torso=[17, -12, 0], head=[10, -4, 0], rightArm_pos=[0, 1, -2])
-    Hm, Wm = b.walker(0.45)
-    b.solve_weapon(0.45, hp(Hm, (2.8, 4.5, -0.5)), axis=hd(Hm, (1, 0, 0)), w_axis=100, reg=0.00002)
-    # wrench it out with a twist, back the way it came
-    b.pose(0.6, body_pos=[0, -0.8, -2], torso=[6, 8, 0], head=[4, 4, 0], rightArm_pos=[0, 0, 0])
-    Hm, Wm = b.walker(0.6)
-    b.solve_weapon(0.6, hp(Hm, temple) + hd(Hm, (-1, 0, 0)) * 6 + P(1, -2, 2), axis=U(-0.8, 0.3, -0.5))
-    # shove the body off the free hand
-    b.pose(R, body_pos=[0, -0.5, -1.5], torso=[4, -4, 0], leftArm=[-98, 0, 10], rightArm=[-30, 20, 20], rightItem=[-10, 0, 0])
-    b.pose(1.0, **STAND, rightArm=[-18, 10, 10], rightItem=[0, 0, 0], leftArm=[-10, 0, -4])
+    # One aimed side-head thrust: establish the blade axis outside the left temple,
+    # advance along it, hold, then withdraw along the same line. No hook or wrench.
+    for t, root, lean, x, z in ((0.12, 0.3, 2, -8, -10), (0.22, -1.5, 6, -7, -5),
+                                (.30, -3.8, 9, -7, -7),
+                                (I-.05, -5.5, 12, -6, -.5), (I, -5.5, 14, 2, -.5),
+                                (0.52, -5.5, 14, 2.8, -.5), (0.72, -2.5, 8, -8, -7)):
+        b.pose(t, body_pos=[0, -.4, root], torso=[lean, -6, 0], head=[6, -2, 0],
+               rightArm_pos=[0, 1, -2], leftLeg=[-16, 0, 0], rightLeg=[10, 0, 0])
+        Hm, Wm = b.walker(t)
+        b.solve_weapon(t, hp(Hm, (x, 6.0, z)), axis=hd(Hm, (1, 0, 0)),
+                       w_axis=100, reg=.00002)
+        b.solve_left(t, fk.point(Wm, "torso", (0, 9, -2.5)))
+    b.pose(R, body_pos=[0, -.3, -1], torso=[2, 0, 0], head=[2, 0, 0],
+           leftArm=[-50, 0, -6], rightArm=[-30, 10, 10], rightArm_pos=[0,0,0], rightItem=[0,0,0])
+    b.pose(e["length"], **STAND, rightArm=[-18, 10, 10], rightArm_pos=[0,0,0],
+           rightItem=[0, 0, 0], leftArm=[-10, 0, -4])
+    carry_key(b, "knife", e["length"])
     b.a.event(e["commit"], "commit").event(I, "kill").event(R, "release")
-    b.a.sound(0.1, "holdfast:player.exert_light").sound(I, "holdfast:player.exert_heavy").sound(0.58, "holdfast:knife.pull")
-    return b, dict(impacts=[(I, 2.5)], weapon="knife")
+    b.a.sound(.1, "holdfast:player.exert_light").sound(I, "holdfast:player.exert_heavy").sound(.67, "holdfast:knife.pull")
+    return b, dict(impacts=[(I, 2.5)], weapon="knife", geodesic_items=True)
 
 
 def katana_guard(b, t):
@@ -308,10 +307,10 @@ def katana():
     Hm, _ = b.walker(R)
     b.solve_two(R, hp(Hm, (0, 5, -8)) - axis * (tip + 4), axis=axis, edge=U(0, -1, 0))
     b.pose(e["length"], **STAND)
-    katana_guard(b, e["length"])
+    carry_key(b, "katana", e["length"])
     b.a.event(e["commit"], "commit").event(I, "kill").event(R, "release")
     b.a.sound(0.1, "holdfast:player.exert_light").sound(I, "holdfast:player.exert_heavy").sound(R - 0.06, "holdfast:knife.pull")
-    return b, dict(impacts=[(I, 3.0)], weapon="katana")
+    return b, dict(impacts=[(I, 3.0)], weapon="katana", geodesic_items=True)
 
 
 def bat_ready(b, t, extra=None):
@@ -362,20 +361,21 @@ def bat_charged():
     b.solve_two(0.0, from_hands((1, 16, -5.5), (0.45, 0.6, 0.65)), axis=U(0.45, 0.6, 0.65))
     b.pose(0.12, body_pos=[0, -1.0, -2], torso=[0, 20, 0], head=[4, -6, 0], leftLeg=[-26, 0, 0], rightLeg=[14, 0, 0])
     b.solve_two(0.12, from_hands((1.5, 16, -6), (0.6, 0.3, -0.75)), axis=U(0.6, 0.3, -0.75))
-    b.pose(I, body_pos=[0, -1.4, -3], torso=[8, -24, 0], head=[8, -6, 0])
+    b.pose(I, body_pos=[0, -.9, -4], torso=[12, -20, 0], head=[6, -4, 0])
     Hm, _ = b.walker(I)
-    b.solve_two(I, hp(Hm, (-2.5, 5, 0)), axis=U(-0.25, 0, -1))
-    b.pose(0.42, body_pos=[0, -1.2, -2.6], torso=[6, -60, 0], head=[6, -20, 0], rightLeg=[20, 0, 0])
+    b.solve_two(I, hp(Hm, (0, 5, 0)), axis=U(-.65, 0, -.76), reg=.00002, w_axis=30)
+    b.pose(0.42, body_pos=[0, -.8, -2.6], torso=[6, -38, 0], head=[6, -12, 0], rightLeg=[20, 0, 0])
     b.solve_two(0.42, P(-16, 22, 2), axis=U(-1, -0.1, 0.4))
-    # spent: bent over, bat tip down, breathing
-    b.pose(0.7, body_pos=[0, -1.6, -1.5], torso=[16, -30, 0], head=[16, -10, 0])
-    b.solve_two(0.7, P(-6, 6, -12), axis=U(-0.2, -0.6, -0.8))
-    b.pose(0.88, body_pos=[0, -1.2, -1], torso=[12, -24, 0], head=[12, -8, 0])
+    # Recover the bat under control instead of folding over it with the head at the knees.
+    b.pose(0.7, body_pos=[0, -.6, -1.5], torso=[8, -16, 0], head=[8, -6, 0])
+    b.solve_two(0.7, P(-8, 17, -9), axis=U(-.55, -.45, -.70))
+    b.pose(0.88, body_pos=[0, -.3, -.6], torso=[4, -6, 0], head=[4, -3, 0])
     b.pose(e["length"], **STAND)
     bat_ready(b, e["length"])
+    carry_key(b, "bat", e["length"])
     b.a.event(e["commit"], "commit").event(I, "kill")
     b.a.sound(0.02, "holdfast:player.exert_heavy").sound(0.7, "holdfast:player.breath_heavy")
-    return b, dict(impacts=[(I, 5.0)], weapon="bat")
+    return b, dict(impacts=[(I, 5.0)], weapon="bat", geodesic_items=True)
 
 
 def axe():
@@ -716,6 +716,16 @@ def export(out, merge_keys=False):
     key_path = os.path.join(OUT, "player_keys.animation.json")
     keys = json.load(open(key_path))["animations"] if merge_keys and os.path.exists(key_path) else {}
     for k, (a, info) in out.items():
+        if k in ("exec_knife", "exec_katana", "exec_bat_charged"):
+            # IK can return equivalent angles several whole turns apart. Normalize BEFORE
+            # Catmull-Rom baking; otherwise an arm circles through those turns between valid poses.
+            for channels in a.tracks.values():
+                rotations = channels.get("rotation", {})
+                times = sorted(rotations)
+                if times:
+                    values = np.rad2deg(np.unwrap(np.deg2rad([rotations[t] for t in times]), axis=0))
+                    for t, value in zip(times, values):
+                        rotations[t] = [round(float(v), 2) for v in value]
         native = info.get("pa_native", False)
         pa_clip = native_player_animator(a) if native else to_player_animator(a, firearm_variant=info.get("firearm_variant", False),
                                                                                 geodesic_items=info.get("geodesic_items", False))

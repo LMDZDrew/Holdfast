@@ -56,6 +56,8 @@ def main():
     args = parser.parse_args()
     root = args.capture
     mesh = json.loads((root / 'blade-cubes.jsonl').read_text().splitlines()[0])
+    timings = {r['case']:r.get('killTick',10 if r['case'] in ('crawler','prone') else 6)
+               for r in map(json.loads,(root / 'cases.jsonl').read_text().splitlines())}
     cases = {}
     for line in (root / 'frames.jsonl').read_text().splitlines():
         frame = json.loads(line)
@@ -65,7 +67,7 @@ def main():
         cases.setdefault(frame['case'], []).append(result)
     report = {}
     for case, frames in cases.items():
-        kill = 10 if case in ('crawler', 'prone') else 6
+        kill = timings[case]
         contact = [f for f in frames if kill <= f['tick'] <= kill + 1]
         hold = [f for f in frames if kill <= f['tick'] <= kill + 2]
         report[case] = dict(frames=len(frames), contact_frames=len(contact),

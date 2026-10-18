@@ -50,16 +50,16 @@ Times are seconds from the start of the clip. Events and sounds are **presentati
 | `animation.holdfast.walker.grab_bite` | 0.80 | once | all (13) | `bite` 0.38 | 0.38 `walker.bite_flesh` |
 | `animation.holdfast.walker.grab_bite_blocked` | 0.60 | once | all (13) | `bite_blocked` 0.36 | 0.36 `protect.bite_blocked` |
 | `animation.holdfast.walker.grab_shoved` | 0.90 | once | all (13) | `shoved` 0.14 | 0.14 `walker.shoved` |
-| `animation.holdfast.walker.react_knife` | 1.70 | hold last frame | all (13) | `kill` 0.33, `release` 0.70 | 0.33 `hit.knife_skull`, 1.42 `body.fall` |
+| `animation.holdfast.walker.react_knife` | 1.88 | hold last frame | all (13) | `kill` 0.40, `release` 0.88 | 0.40 `hit.knife_skull`, 1.60 `body.fall` |
 | `animation.holdfast.walker.react_bat_quick` | 1.00 | once | all (13) | `stagger` 0.22 | 0.22 `hit.blunt_skull` |
-| `animation.holdfast.walker.react_bat_charged` | 1.42 | hold last frame | all (13) | `kill` 0.20 | 0.20 `hit.blunt_skull_heavy`, 1.18 `body.fall` |
+| `animation.holdfast.walker.react_bat_charged` | 1.46 | hold last frame | all (13) | `kill` 0.24 | 0.24 `hit.blunt_skull_heavy`, 1.22 `body.fall` |
 | `animation.holdfast.walker.react_axe` | 1.94 | hold last frame | all (13) | `kill` 0.46, `release` 0.86 | 0.46 `hit.axe_skull`, 1.70 `body.fall` |
 | `animation.holdfast.walker.react_machete` | 1.70 | hold last frame | all (13) | `kill` 0.30, `release` 0.62 | 0.30 `hit.blade_skull`, 1.46 `body.fall` |
 | `animation.holdfast.walker.react_katana` | 1.70 | hold last frame | all (13) | `kill` 0.32, `release` 0.70 | 0.32 `hit.blade_skull`, 1.42 `body.fall` |
 | `animation.holdfast.walker.react_pistol` | 1.42 | hold last frame | all (13) | `kill` 0.36 | 0.36 `hit.gunshot_skull`, 1.18 `body.fall` |
-| `animation.holdfast.walker.react_knife_left` | 1.78 | hold last frame | all (13) | `kill` 0.33, `release` 0.70 | 0.33 `hit.knife_skull`, 1.54 `body.fall` |
-| `animation.holdfast.walker.react_knife_right` | 1.78 | hold last frame | all (13) | `kill` 0.33, `release` 0.70 | 0.33 `hit.knife_skull`, 1.54 `body.fall` |
-| `animation.holdfast.walker.react_knife_rear` | 1.78 | hold last frame | all (13) | `kill` 0.33, `release` 0.70 | 0.33 `hit.knife_skull`, 1.54 `body.fall` |
+| `animation.holdfast.walker.react_knife_left` | 1.96 | hold last frame | all (13) | `kill` 0.40, `release` 0.88 | 0.40 `hit.knife_skull`, 1.72 `body.fall` |
+| `animation.holdfast.walker.react_knife_right` | 1.96 | hold last frame | all (13) | `kill` 0.40, `release` 0.88 | 0.40 `hit.knife_skull`, 1.72 `body.fall` |
+| `animation.holdfast.walker.react_knife_rear` | 1.96 | hold last frame | all (13) | `kill` 0.40, `release` 0.88 | 0.40 `hit.knife_skull`, 1.72 `body.fall` |
 | `animation.holdfast.walker.react_axe_left` | 1.94 | hold last frame | all (13) | `kill` 0.46, `release` 0.86 | 0.46 `hit.axe_skull`, 1.70 `body.fall` |
 | `animation.holdfast.walker.react_axe_right` | 1.94 | hold last frame | all (13) | `kill` 0.46, `release` 0.86 | 0.46 `hit.axe_skull`, 1.70 `body.fall` |
 | `animation.holdfast.walker.react_axe_rear` | 1.94 | hold last frame | all (13) | `kill` 0.46, `release` 0.86 | 0.46 `hit.axe_skull`, 1.70 `body.fall` |
@@ -69,9 +69,9 @@ Times are seconds from the start of the clip. Events and sounds are **presentati
 | `animation.holdfast.walker.react_katana_left` | 1.78 | hold last frame | all (13) | `kill` 0.32, `release` 0.70 | 0.32 `hit.blade_skull`, 1.54 `body.fall` |
 | `animation.holdfast.walker.react_katana_right` | 1.78 | hold last frame | all (13) | `kill` 0.32, `release` 0.70 | 0.32 `hit.blade_skull`, 1.54 `body.fall` |
 | `animation.holdfast.walker.react_katana_rear` | 1.78 | hold last frame | all (13) | `kill` 0.32, `release` 0.70 | 0.32 `hit.blade_skull`, 1.54 `body.fall` |
-| `animation.holdfast.walker.react_bat_charged_left` | 1.40 | hold last frame | all (13) | `kill` 0.20 | 0.20 `hit.blunt_skull_heavy`, 1.16 `body.fall` |
-| `animation.holdfast.walker.react_bat_charged_right` | 1.40 | hold last frame | all (13) | `kill` 0.20 | 0.20 `hit.blunt_skull_heavy`, 1.16 `body.fall` |
-| `animation.holdfast.walker.react_bat_charged_rear` | 1.40 | hold last frame | all (13) | `kill` 0.20 | 0.20 `hit.blunt_skull_heavy`, 1.16 `body.fall` |
+| `animation.holdfast.walker.react_bat_charged_left` | 1.44 | hold last frame | all (13) | `kill` 0.24 | 0.24 `hit.blunt_skull_heavy`, 1.20 `body.fall` |
+| `animation.holdfast.walker.react_bat_charged_right` | 1.44 | hold last frame | all (13) | `kill` 0.24 | 0.24 `hit.blunt_skull_heavy`, 1.20 `body.fall` |
+| `animation.holdfast.walker.react_bat_charged_rear` | 1.44 | hold last frame | all (13) | `kill` 0.24 | 0.24 `hit.blunt_skull_heavy`, 1.20 `body.fall` |
 | `animation.holdfast.walker.react_pistol_left` | 1.56 | hold last frame | all (13) | `kill` 0.36 | 0.36 `hit.gunshot_skull`, 1.32 `body.fall` |
 | `animation.holdfast.walker.react_pistol_right` | 1.56 | hold last frame | all (13) | `kill` 0.36 | 0.36 `hit.gunshot_skull`, 1.32 `body.fall` |
 | `animation.holdfast.walker.react_pistol_rear` | 1.56 | hold last frame | all (13) | `kill` 0.36 | 0.36 `hit.gunshot_skull`, 1.32 `body.fall` |
@@ -115,12 +115,12 @@ Times are seconds from the start of the clip. Events and sounds are **presentati
 | `bite_confirm_neck` | 1.60 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | — | — | 0.30 `player.breath_ragged` |
 | `exec_axe` | 1.30 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | axe | `commit` 0.30, `kill` 0.46, `release` 0.86 | 0.15 `player.exert_heavy`, 0.72 `player.exert_strain`, 1.00 `player.breath_heavy` |
 | `exec_axe_ground` | 1.40 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | axe | `commit` 0.34, `kill` 0.56, `release` 0.96 | 0.15 `player.exert_heavy`, 0.80 `player.exert_strain`, 1.15 `player.breath_heavy` |
-| `exec_bat_charged` | 1.10 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | bat | `commit` 0.06, `kill` 0.20 | 0.02 `player.exert_heavy`, 0.70 `player.breath_heavy` |
+| `exec_bat_charged` | 1.20 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | bat | `commit` 0.06, `kill` 0.24 | 0.02 `player.exert_heavy`, 0.70 `player.breath_heavy` |
 | `exec_bat_ground` | 1.20 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | bat | `commit` 0.20, `kill` 0.42, `release` 0.74 | 0.06 `player.exert_heavy`, 0.42 `player.exert_heavy`, 0.90 `player.breath_heavy` |
 | `exec_bat_quick` | 0.65 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | bat | `commit` 0.12, `stagger` 0.22 | 0.06 `player.exert_light`, 0.22 `player.exert_heavy` |
 | `exec_katana` | 1.15 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | katana | `commit` 0.18, `kill` 0.32, `release` 0.70 | 0.10 `player.exert_light`, 0.32 `player.exert_heavy`, 0.64 `knife.pull` |
 | `exec_katana_ground` | 1.30 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | katana | `commit` 0.30, `kill` 0.50, `release` 0.90 | 0.12 `player.exert_light`, 0.50 `player.exert_heavy`, 0.86 `player.exert_strain` |
-| `exec_knife` | 1.00 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | knife | `commit` 0.22, `kill` 0.33, `release` 0.70 | 0.10 `player.exert_light`, 0.33 `player.exert_heavy`, 0.58 `knife.pull` |
+| `exec_knife` | 1.15 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | knife | `commit` 0.22, `kill` 0.40, `release` 0.88 | 0.10 `player.exert_light`, 0.40 `player.exert_heavy`, 0.67 `knife.pull` |
 | `exec_knife_ground` | 1.20 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | knife | `commit` 0.32, `kill` 0.50, `release` 0.86 | 0.15 `player.exert_light`, 0.50 `player.exert_heavy`, 0.80 `knife.pull` |
 | `exec_machete` | 0.95 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | machete | `commit` 0.16, `kill` 0.30, `release` 0.62 | 0.08 `player.exert_light`, 0.30 `player.exert_heavy`, 0.56 `player.exert_strain` |
 | `exec_machete_ground` | 1.10 | once | body, head, leftArm, leftItem, leftLeg, rightArm, rightItem, rightLeg | machete | `commit` 0.20, `kill` 0.38, `release` 0.72 | 0.08 `player.exert_light`, 0.38 `player.exert_heavy`, 0.64 `player.exert_strain` |

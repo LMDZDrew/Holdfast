@@ -427,9 +427,9 @@ def grab_side():
 # ============================================================ executions
 # Shared with player_anims.py. Times in seconds; dist in px between survivor and walker.
 EXECS = {
-    "knife":       dict(length=1.0, dist=18, commit=0.22, impact=0.33, release=0.70, kind="stab", fall="back"),
+    "knife":       dict(length=1.15, dist=18, commit=0.22, impact=0.40, release=0.88, kind="stab", fall="back"),
     "bat_quick":   dict(length=0.65, dist=28, commit=0.12, impact=0.22, kind="blunt_stagger"),
-    "bat_charged": dict(length=1.1, dist=28, commit=0.06, impact=0.2, kind="blunt_kill", fall="side"),
+    "bat_charged": dict(length=1.2, dist=26, commit=0.06, impact=0.24, kind="blunt_kill", fall="side"),
     "axe":         dict(length=1.3, dist=26, commit=0.30, impact=0.46, release=0.86, kind="chop_top", fall="side"),
     "machete":     dict(length=0.95, dist=22, commit=0.16, impact=0.30, release=0.62, kind="chop_side", fall="side"),
     # two-handed katana (Andrew 2026-10-17: it borrowed the one-handed machete chop and looked odd): a straight

@@ -109,6 +109,12 @@ if (project.hasProperty('gunPackProbe') || project.hasProperty('heldItemProbe') 
             property 'holdfast.itemProbe', project.file('build/test-evidence/' + project.property('heldItemProbe')).absolutePath
         if (project.hasProperty('executionItemProbe'))
             property 'holdfast.executionItemProbe', project.file('build/test-evidence/' + project.property('executionItemProbe')).absolutePath
+        if (project.hasProperty('executionProbeWeapon'))
+            property 'holdfast.executionProbeWeapon', project.property('executionProbeWeapon')
+        if (project.hasProperty('executionProbeFirstPerson'))
+            property 'holdfast.executionProbeFirstPerson', 'true'
+        if (project.hasProperty('executionProbePlan'))
+            property 'holdfast.executionProbePlan', project.property('executionProbePlan')
     }
 }
 

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.holdfast.core.HoldfastCore;
 import dev.holdfast.core.combat.Executions;
+import dev.holdfast.core.combat.BluntCharge;
 import dev.holdfast.core.entity.WalkerEntity;
 import dev.holdfast.core.net.ActionPacket;
 import dev.holdfast.core.net.CoreNet;
@@ -35,15 +36,22 @@ import java.util.*;
 @Mod.EventBusSubscriber(modid=HoldfastCore.MODID,value=Dist.CLIENT)
 public final class ExecutionItemProbe {
     private static final Gson JSON=new Gson();
-    private static int tick,waiting,index=-1;
+    private static int tick,waiting,index=-1,group;
     private static boolean joining;
     private static volatile int targetId=-1;
     private static volatile String failure;
     private static Matrix4f head,item;
     private static float partial;
     private static double originX,originY,originZ;
+    private static net.minecraft.world.entity.decoration.ArmorStand observer;
+    private static boolean all(){return "all".equals(System.getProperty("holdfast.executionProbePlan"));}
+    private static String weapon(){return all()?(group<2?"katana":group<4?"knife":"bat"):System.getProperty("holdfast.executionProbeWeapon","katana");}
+    private static boolean firstPerson(){return all()?(group==1 || group==3):Boolean.getBoolean("holdfast.executionProbeFirstPerson");}
     private static final String[] CASES={"standing-front","standing-left","standing-right","standing-rear","crawler","prone"};
-    private static Path dir(){return Path.of(System.getProperty("holdfast.executionItemProbe"));}
+    private static Path dir(){
+        Path root=Path.of(System.getProperty("holdfast.executionItemProbe"));
+        return all()?root.resolve(weapon()+"-"+(firstPerson()?"fp":"tp")):root;
+    }
     private static boolean enabled(){return System.getProperty("holdfast.executionItemProbe")!=null;}
     private static void write(String name,Object value){
         try {Files.createDirectories(dir());Files.writeString(dir().resolve(name),JSON.toJson(value)+"\n",StandardOpenOption.CREATE,StandardOpenOption.APPEND);}
@@ -60,12 +68,12 @@ public final class ExecutionItemProbe {
         if(failure!=null) throw new IllegalStateException(failure);
         if(mc.screen instanceof net.minecraft.client.gui.screens.PauseScreen) mc.setScreen(null);
         tick++;mc.options.bobView().set(false);
-        mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
-        if(tick==1){originX=mc.player.getX();originY=mc.player.getY();originZ=mc.player.getZ();}
+        mc.options.setCameraType(firstPerson()?CameraType.FIRST_PERSON:CameraType.THIRD_PERSON_BACK);
+        if(tick==1){originX=mc.player.getX();originY=mc.player.getY();originZ=mc.player.getZ();if(firstPerson())mc.options.fov().set(70);}
         if(tick<20) return;
         int next=(tick-20)/100,local=(tick-20)%100;
-        if(next>=CASES.length){HoldfastCore.LOG.info("[holdfast-execprobe] finished six actual paired cases; not user acceptance");mc.stop();return;}
-        if(local==0){index=next;prepare(next);}
+        if(next>=CASES.length*(all()?5:1)){HoldfastCore.LOG.info("[holdfast-execprobe] finished actual paired plan; not user acceptance");mc.stop();return;}
+        if(local==0){group=next/CASES.length;index=next%CASES.length;mc.setCameraEntity(mc.player);mc.options.fov().set(firstPerson()?70:40);prepare(index);}
         if(local==20){
             if(targetId<0 || mc.level.getEntity(targetId)==null) throw new IllegalStateException("Target did not sync");
             CoreNet.CHANNEL.sendToServer(new ActionPacket(targetId));
@@ -75,7 +83,16 @@ public final class ExecutionItemProbe {
             var p=mc.getSingleplayerServer().getPlayerList().getPlayer(mc.player.getUUID());
             if(!Executions.isExecuting(p)) failure="Execution refused "+CASES[index]+": "+Executions.lastRefusal(p);
         });
-        if(local==26 || local==30 || local==33 || local==37) {
+        if(local==24 && !firstPerson()){
+            var target=mc.level.getEntity(targetId);
+            double x=(mc.player.getX()+target.getX())/2,z=(mc.player.getZ()+target.getZ())/2;
+            observer=new net.minecraft.world.entity.decoration.ArmorStand(mc.level,x+3,originY+.3,z);
+            observer.moveTo(x+3,originY+.3,z,90,7);
+            observer.yRotO=90;observer.xRotO=7;observer.xo=x+3;observer.yo=originY+.3;observer.zo=z;
+            observer.setYHeadRot(90);observer.yHeadRotO=90;observer.setYBodyRot(90);observer.yBodyRotO=90;
+            mc.setCameraEntity(observer);mc.options.fov().set(40);
+        }
+        if(local==25 || local==26 || local==28 || local==30 || local==33 || local==37 || local==44 || local==50) {
             try {Files.createDirectories(dir());}catch(Exception e){throw new RuntimeException(e);}
             Screenshot.grab(dir().toFile(),CASES[index]+"-"+local+".png",mc.getMainRenderTarget(),m->{});
         }
@@ -89,9 +106,12 @@ public final class ExecutionItemProbe {
         var mc=Minecraft.getInstance();final var uuid=mc.player.getUUID();targetId=-1;
         mc.getSingleplayerServer().execute(()-> {
             var server=mc.getSingleplayerServer();var p=server.getPlayerList().getPlayer(uuid);
+            server.overworld().setDayTime(6000);
             for(var w:server.overworld().getEntitiesOfClass(WalkerEntity.class,p.getBoundingBox().inflate(100))) w.discard();
-            p.setGameMode(GameType.CREATIVE);p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(CoreItems.MICHONNE_KATANA.get()));
+            p.setGameMode(GameType.CREATIVE);p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(
+                    weapon().equals("knife")?CoreItems.KNIFE.get():weapon().equals("bat")?CoreItems.BASEBALL_BAT.get():CoreItems.MICHONNE_KATANA.get()));
             p.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+            if(weapon().equals("bat")) BluntCharge.start(p);
             var w=new WalkerEntity(CoreEntities.WALKER.get(),server.overworld());
             w.setNoAi(true);w.setNoGravity(true);
             Posture posture=n==4?Posture.CRAWLER:n==5?Posture.PRONE:Posture.UPRIGHT;
@@ -100,15 +120,26 @@ public final class ExecutionItemProbe {
             w.moveTo(x,originY,z,0,0);w.setYBodyRot(0);w.setYHeadRot(0);server.overworld().addFreshEntity(w);
             double bearing=n==1?-90:n==2?90:n==3?180:0,r=Math.toRadians(bearing);
             double skullOffset=n==4?9/16.0:n==5?13/16.0:0;
-            double px=x-Math.sin(r)*2.5,pz=z+skullOffset+Math.cos(r)*2.5;
+            double startDistance=weapon().equals("katana")?2.5:1.8;
+            double px=x-Math.sin(r)*startDistance,pz=z+skullOffset+Math.cos(r)*startDistance;
             float yaw=(float)Math.toDegrees(Math.atan2(-(x-px),z+skullOffset-pz));
-            p.connection.teleport(px,originY,pz,yaw,0);p.setYHeadRot(yaw);p.setDeltaMovement(0,0,0);
+            p.connection.teleport(px,originY,pz,yaw,firstPerson() && posture!=Posture.UPRIGHT?45:0);p.setYHeadRot(yaw);p.setDeltaMovement(0,0,0);
             targetId=w.getId();
-            write("cases.jsonl",Map.of("case",CASES[n],"posture",posture,"target",targetId,"player",List.of(px,originY,pz),"walker",List.of(x,originY,z)));
+            int kill=dev.holdfast.core.rules.ExecutionRules.clipFor(dev.holdfast.core.combat.Weapons.held(p),posture).orElseThrow().killTick();
+            write("cases.jsonl",Map.of("case",CASES[n],"posture",posture,"target",targetId,"killTick",kill,"player",List.of(px,originY,pz),"walker",List.of(x,originY,z)));
         });
     }
     @SubscribeEvent public static void pre(GeoRenderEvent.Entity.Pre event){
         if(enabled() && event.getEntity().getId()==targetId) event.getRenderer().getGeoModel().getBone("head").ifPresent(b->b.setTrackingMatrices(true));
+    }
+    @SubscribeEvent(priority=net.minecraftforge.eventbus.api.EventPriority.LOWEST)
+    public static void camera(net.minecraftforge.client.event.ViewportEvent.ComputeCameraAngles event){
+        if(!enabled() || !firstPerson() || index<0) return;
+        var mc=Minecraft.getInstance();
+        if(mc.player==null) return;
+        write("camera.jsonl",Map.of("case",CASES[index],"clientTick",tick,"partial",event.getPartialTick(),
+                "pitch",event.getPitch(),"yaw",event.getYaw(),"roll",event.getRoll(),
+                "playerYaw",mc.player.getYRot(),"state",ClientClips.describe(mc.player)));
     }
     @SubscribeEvent public static void entity(GeoRenderEvent.Entity.Post event){
         if(!enabled() || event.getEntity().getId()!=targetId) return;

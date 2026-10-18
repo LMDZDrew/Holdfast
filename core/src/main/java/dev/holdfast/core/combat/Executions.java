@@ -117,8 +117,11 @@ public final class Executions {
         }
         LAST_REFUSAL.remove(p.getUUID());
         if (weapon.blunt()) BluntCharge.clear(p);
-        p.moveTo(al.playerX(), p.getY(), al.playerZ(), al.playerYaw(), 0.0F);
-        p.connection.teleport(al.playerX(), p.getY(), al.playerZ(), al.playerYaw(), 0.0F);   // tell the client
+        // Preserve the view pitch for standing melee; resetting it to zero snapped the camera on entry.
+        // Ground and firearm pairs retain their installed behavior.
+        float pitch = weapon.firearm() || lying ? 0 : p.getXRot();
+        p.moveTo(al.playerX(), p.getY(), al.playerZ(), al.playerYaw(), pitch);
+        p.connection.teleport(al.playerX(), p.getY(), al.playerZ(), al.playerYaw(), pitch);   // tell the client
         p.setYHeadRot(al.playerYaw());
         float facing = al.walkerYaw();
         w.moveTo(w.getX(), w.getY(), w.getZ(), facing, 0.0F);   // turns in place; never moved

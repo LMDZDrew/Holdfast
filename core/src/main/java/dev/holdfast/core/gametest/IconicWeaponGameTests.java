@@ -78,12 +78,13 @@ public final class IconicWeaponGameTests {
         w.setPosture(posture); w.setNoAi(true); w.moveTo(at.x,at.y,at.z,0,0);
         ServerPlayer p=FakePlayerFactory.get(h.getLevel(),new GameProfile(UUID.randomUUID(),"hf_mk_exec"));
         double headOffset=posture==Posture.PRONE?13/16.0:posture==Posture.CRAWLER?9/16.0:0;
-        p.moveTo(at.x,at.y,at.z+headOffset+(rear?-2.5:2.5),rear?0:180,0);
+        p.moveTo(at.x,at.y,at.z+headOffset+(rear?-2.5:2.5),rear?0:180,23);
         p.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(CoreItems.MICHONNE_KATANA.get()));
         p.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
         var timing=ExecutionRules.clipFor(WeaponClass.KATANA,posture).orElseThrow();
         Executions.request(p,w);
         h.assertTrue(Executions.isExecuting(p),"refused "+posture+": "+Executions.lastRefusal(p));
+        h.assertTrue(Math.abs(p.getXRot()-(posture==Posture.UPRIGHT?23:0))<.001,"unexpected execution look pitch");
         h.assertTrue(w.fullClip().startsWith("react_katana"),"wrong reaction "+w.fullClip());
         if(rear) h.assertTrue(Executions.lastApproach(p).orElseThrow()==ExecutionRules.Approach.REAR,"rear approach lost");
         h.runAfterDelay(timing.killTick()-1,()->h.assertFalse(w.isCorpse(),"killed before server contact tick"));

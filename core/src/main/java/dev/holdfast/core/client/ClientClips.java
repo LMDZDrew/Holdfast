@@ -98,7 +98,8 @@ public final class ClientClips {
             HoldfastCore.LOG.warn("[holdfast] no Player Animator clip holdfast:{}", clip);
             return null;
         }
-        return (meleeAction(clip) ? new MeleeActionPlayer(data) : new BodyAwarePlayer(data)).setFirstPersonMode(fp)
+        return (pairedMelee(clip) ? new PairedMeleePlayer(data)
+                : meleeAction(clip) ? new MeleeActionPlayer(data) : new BodyAwarePlayer(data)).setFirstPersonMode(fp)
                 .setFirstPersonConfiguration(new FirstPersonConfiguration(true, true, true, true));
     }
 
@@ -121,7 +122,8 @@ public final class ClientClips {
         KeyframeAnimationPlayer kp = player(m.clip(), m.ownsArms() ? FirstPersonMode.THIRD_PERSON_MODEL : FirstPersonMode.NONE);
         if (kp == null) return;
         combat(p);
-        if (meleeAction(m.clip())) blendMelee(layer, kp, 2);
+        if (pairedMelee(m.clip())) blendMelee(layer, kp, 3);
+        else if (meleeAction(m.clip())) blendMelee(layer, kp, 2);
         else layer.setAnimation(kp);
         ACTION_NAMES.put(p.getId(), m.clip());
         if (!meleeAction(m.clip())) {
@@ -195,6 +197,11 @@ public final class ClientClips {
         return clip != null && (clip.startsWith("swing_") || clip.equals("bat_charged_miss"));
     }
 
+    /** Release paired melee back to the live carry without PA's default wrist return spin. */
+    private static boolean pairedMelee(String clip) {
+        return "exec_katana".equals(clip) || "exec_knife".equals(clip) || "exec_bat_charged".equals(clip);
+    }
+
     private static void blendMelee(ModifierLayer<IAnimation> layer, IAnimation next, int ticks) {
         // PA's default overload silently skips fades when there is no active previous animation.
         if (layer != null) layer.replaceAnimationWithFade(new MeleeFade(ticks), next, true);
@@ -208,6 +215,26 @@ public final class ClientClips {
         String name=ACTION_NAMES.get(p.getId());
         var action=layer(p,ACTION);
         return name!=null && name.startsWith("exec_") && action!=null && action.isActive();
+    }
+
+    /** FPM must preserve the authored pair-frame advance for these measured melee executions. */
+    public static boolean pairedMeleeExecution(AbstractClientPlayer p) {
+        return pairedMelee(ACTION_NAMES.get(p.getId())) && executing(p) && !holdingGun(p);
+    }
+
+    /** Small first-person presentation correction; third-person placement and weapon geometry stay authored. */
+    public static double pairedViewAdvance(AbstractClientPlayer p, float partial) {
+        if (!pairedMeleeExecution(p)) return 0;
+        String name=ACTION_NAMES.get(p.getId());
+        double distance="exec_katana".equals(name)?.20:"exec_knife".equals(name)?.10:0;
+        var action=layer(p,ACTION);
+        if (!(action.getAnimation() instanceof KeyframeAnimationPlayer kp)) return 0;
+        var timing=dev.holdfast.core.rules.ExecutionRules.clipFor(Weapons.held(p),dev.holdfast.core.rules.Posture.UPRIGHT);
+        if(timing.isEmpty()) return 0;
+        var clip=timing.get();float t=kp.getTick()+partial;
+        double in=Math.max(0,Math.min(1,(t-clip.commitTick())/Math.max(1,clip.killTick()-clip.commitTick())));
+        double out=Math.max(0,Math.min(1,(clip.releaseTick()+2-t)/3));
+        return distance*in*in*(3-2*in)*out*out*(3-2*out);
     }
 
     private static void clear(ModifierLayer<IAnimation> layer) {
@@ -447,6 +474,13 @@ public final class ClientClips {
             a = frame;
         }
         float u = Math.max(0, Math.min(1, (t - a[0]) / Math.max(.0001F, b[0] - a[0])));
+        if (acting && pairedMelee(name)) {
+            float[] cue = ExecutionCamera.cue(a[1] + (b[1] - a[1]) * u,
+                    a[3] + (b[3] - a[3]) * u, t, player.getData().endTick / 20F);
+            event.setPitch(event.getPitch() + cue[0]);
+            event.setRoll(event.getRoll() + cue[1]);
+            return; // Keep the player's view yaw; a third-person shoulder turn must not steer the camera.
+        }
         event.setPitch(event.getPitch() + (a[1] + (b[1] - a[1]) * u) * factor);
         event.setYaw(event.getYaw() + (a[2] + (b[2] - a[2]) * u) * factor);
         event.setRoll(event.getRoll() + (a[3] + (b[3] - a[3]) * u) * factor);

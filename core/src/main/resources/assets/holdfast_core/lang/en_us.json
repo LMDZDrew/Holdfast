@@ -41,7 +41,6 @@
  "item.holdfast_core.baseball_bat": "Baseball Bat",
  "item.holdfast_core.hatchet": "Hatchet",
  "item.holdfast_core.katana": "Katana",
- "item.holdfast_core.michonne_katana": "Michonne's Katana",
  "item.holdfast_core.sledgehammer": "Sledgehammer",
  "item.holdfast_core.padded_collar": "Padded Collar",
  "item.holdfast_core.padded_sleeves": "Padded Sleeves",
@@ -68,5 +67,6 @@
  "subtitles.holdfast_core.bite.blocked": "Bite blocked",
  "subtitles.holdfast_core.swing.knife": "Small blade swings",
  "subtitles.holdfast_core.swing.sword": "Sword swings",
- "subtitles.holdfast_core.swing.blunt": "Heavy weapon swings"
+ "subtitles.holdfast_core.swing.blunt": "Heavy weapon swings",
+ "item.holdfast_core.michonne_katana": "Michonne's Katana"
 }

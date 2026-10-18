@@ -22,6 +22,12 @@ for full_name, data in raw.items():
             for time, value in keys.items():
                 a.key(float(time), bone, **({"rot": value["post"]} if channel == "rotation" else {"pos": value["post"]}))
     meta = json.load(open(os.path.join(OUT, "player_animation_extras", name + ".extras.json")))["holdfast_meta"]
+    if meta.get("geodesic_items"):
+        # Match the wrist path actually exported to PA, including shortest-path execution rotations.
+        reference = a.baked()
+        for part, arm in (("rightItem", "rightArm"), ("leftItem", "leftArm")):
+            pa.geodesic_item(a, reference, part, arm)
+        a = reference
     out[name] = (a, meta)
 PAIR = placement.load()
 SKULL = (np.array([-4, 2, -4]), np.array([4, 8, 4]))   # head-bone local (skull cube); jaw below

@@ -69,20 +69,20 @@
  },
  "exec_skull": {
   "react_knife": [
-   3.19,
-   -2.22
+   3.32,
+   -2.15
   ],
   "react_knife_left": [
-   -0.35,
+   -0.34,
    -4.91
   ],
   "react_knife_right": [
    -0.35,
-   -4.92
+   -4.91
   ],
   "react_knife_rear": [
-   -0.34,
-   -4.92
+   -0.35,
+   -4.91
   ],
   "react_axe": [
    -0.31,
