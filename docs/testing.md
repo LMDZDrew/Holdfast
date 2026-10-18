@@ -1,5 +1,50 @@
 # Test record
 
+## Claude second pass on Andrew's stance/execution review — 2026-10-17
+
+**Andrew's words** (after the `CA805B1D…` build): gun executions cost no bullet; the rest arms flare out too much ("decrease it significantly or just keep the arms in the regular vanilla stance only in the resting"); reverse the resting axe "so that the head is facing the opposite direction"; the katana execution "looks odd"; he wants a walker despawn mechanic to limit lag; and "i do like the ready positions and how its dynamic".
+
+**Code:** `claude/stage1-stances-executions`, implementation **`44fca32`**. Same environment as the entry below.
+
+**Results:**
+- **Rest carries:**
+  - near-vanilla arms (item arm −10°/3°, free arm 3° out, no shoulder shift);
+  - the axe is reversed (head trailing, bit back). This is my reading of "head facing the opposite direction" and still needs his confirmation.
+  - `check_carries` now also layers all 10 carries over the walk and sprint cycles: weapon depth in the legs is 0.00 px for all 20 combinations. The static checks still pass.
+- **Katana:**
+  - new `exec_katana` (two-handed thrust, pairing 36 px), `exec_katana_ground` (two-handed overhead cut, `OVERHEAD` template), `react_katana` ("thrust": the head stays impaled, then it falls back), and the left, right and rear variants;
+  - the `KATANA` class moved from the machete rows to its own (`CombatTimings`, 18 executions);
+  - contact is measured at the blade tip (`marker`).
+
+  Three failed intermediate runs, each measured:
+  - at 30 px the guard's tip was already inside the skull at t = 0;
+  - the tip entered for only 0.03 s because the hold key was out of reach (6.6 px miss);
+  - the reaction's 34° head whip pulled the skull off the blade (7.2 px miss).
+
+  Final: tip in the skull from 0.31 to 0.52 s, 1.38 px deep, no early clipping. Ground katana enters at 0.50 s, 2.10 px. `check_exec_variants`: 20 of 20 pass, the katana variants entering at 0.27–0.29 s.
+- **Pistol ammo:** `NO_AMMO` refusal plus `TaczGuns.consumeRound` at the kill tick, compile-checked against TaCZ 1.1.8. **Not runtime-tested**: TaCZ is absent from the headless tests.
+- **Despawn:**
+  - `DespawnRules` plus config (96 blocks / 60 s for walkers; corpses 10 min / 24 blocks), timers saved in NBT;
+  - JUnit `DespawnRulesTest` (3);
+  - GameTests `oldCorpseDespawnsWithNobodyNear` and `walkerOutOfRangeLongEnoughDespawns`.
+- **Pipeline:** `make_all` exit 0, PA worst 0.577 px, weapon motion 26 of 26, carries pass; firearm assets unchanged; six identical PNGs restored.
+- **Core:** **46 JUnit tests and all 34 GameTests passed**; harness build passed.
+
+**Andrew's 21:30–21:40 session** (client log preserved in `core/build/test-evidence/2026-10-17-stances/before-r3/`, on build `CA805B1D…`): 17 `pose jump` lines.
+- Rest-to-rest weapon swaps: item turns about 150°. The item itself changes there, so this is the intended cut.
+- Attacks from rest: the arm rises 92–98° within the first tick of the 2-tick fade into the swing (`swing_axe@1`, `swing_katana@1`). That is the cost of not waiting for ready; it can be lengthened if it reads as a snap.
+- `exec_pistol@0`: 92° arm snap in first person, the known paired-execution entry snap.
+
+No errors were attributed to Holdfast.
+
+**Deployment:**
+- Client closed, nobody online (he left at 21:40).
+- Server PID 22124 stopped with the `CTRL_C` helper: "All dimensions are saved" at 22:34:32.368.
+- Installed on both sides, hashes verified: core 1,159,057 bytes **`CF97AE6F0EE8F3EB1B273121FB4CD2E0D47D2E533D1C36BE254430BFFFD24C12`**; harness 382,806 bytes **`CE0DB3BFF16C20F6F0C9102CB00D59A342ABDF4E6B2EBC36996A2AF4929A4439`**.
+- New server PID **1520**, `Done (5.305s)` at 22:35:12, listening on 25565.
+
+**Open:** in-game confirmation of all five items; whether TaCZ treats creative mode differently for ammo; despawn timing in a real world; the rest-to-swing arm rise; the paired execution entry snap.
+
 ## Claude stances, all-angle executions, Punchy evaluation — 2026-10-17
 
 **Branch/code:** `claude/stage1-stances-executions` from `c327bef` (`codex/stage1-motion-corrections`), implementation **`1da61ff`**. This was built in a separate worktree, `C:\Users\drewl\Holdfast-claude`, because the Codex app was still running. Its `art/characters/build` was copied from the main checkout.

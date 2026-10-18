@@ -1,5 +1,25 @@
 # Assistant handoff
 
+## Current stop: Andrew's second stance/execution notes — 2026-10-17 (Claude)
+
+**Branch/code:** `claude/stage1-stances-executions`, implementation **`44fca32`** plus docs.
+
+**Done:**
+- **Pistol executions:** need a round, and spend one at the kill tick through TaCZ `IGun`.
+- **Rest carries:** keep near-vanilla arms; the resting axe is reversed.
+- **Katana:** its own two-handed executions, a standing thrust and a ground overhead cut, with directional reactions.
+- **Despawn:** configurable rules for walkers (60 s out of range) and corpses (10 min, never in sight).
+
+**Checks:** 46 JUnit tests and 34 GameTests; all asset checks pass. Installed on the server and in Prism: core `CF97AE6F…`, harness `CE0DB3BF…`. Server PID 1520 ready at 22:35; client closed.
+
+**Andrew likes the dynamic ready stances.**
+
+**Next:** his review of the five items at the top of `stage1_bulk_test.md`. Watch for:
+- the arm rise when attacking from rest, flagged in his 21:30 log; if it reads as a snap, raise the action fade from 2 to 3 ticks in `ClientClips.localSwing` and `play`;
+- the paired execution entry snap.
+
+Still open: standing knife execution contact, real-player reconnect, remaining TaCZ Gate 0 rows.
+
 ## Current stop: stances, all-angle executions, Punchy evaluation — 2026-10-17 (Claude)
 
 **Branch/code:** `claude/stage1-stances-executions` from `c327bef`, implementation **`1da61ff`** plus this documentation commit (worktree `C:\Users\drewl\Holdfast-claude`). PR #1 and #2 untouched; Stage 1 only; no world generation.
