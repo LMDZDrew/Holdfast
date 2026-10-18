@@ -56,5 +56,127 @@
   "dist": 31.08,
   "skull_height": 5.94,
   "skull_x": -0.0
+ },
+ "exec_skull": {
+  "react_knife": [
+   3.19,
+   -2.22
+  ],
+  "react_knife_left": [
+   -0.35,
+   -4.91
+  ],
+  "react_knife_right": [
+   -0.35,
+   -4.91
+  ],
+  "react_knife_rear": [
+   -0.35,
+   -4.91
+  ],
+  "react_axe": [
+   -0.31,
+   -7.51
+  ],
+  "react_axe_left": [
+   -0.35,
+   -4.91
+  ],
+  "react_axe_right": [
+   -0.35,
+   -4.91
+  ],
+  "react_axe_rear": [
+   -0.35,
+   -4.91
+  ],
+  "react_machete": [
+   2.45,
+   -7.06
+  ],
+  "react_machete_left": [
+   -0.35,
+   -4.91
+  ],
+  "react_machete_right": [
+   -0.35,
+   -4.91
+  ],
+  "react_machete_rear": [
+   -0.35,
+   -4.91
+  ],
+  "react_bat_charged": [
+   -0.35,
+   -4.91
+  ],
+  "react_bat_charged_left": [
+   -0.35,
+   -4.91
+  ],
+  "react_bat_charged_right": [
+   -0.35,
+   -4.91
+  ],
+  "react_bat_charged_rear": [
+   -0.35,
+   -4.91
+  ],
+  "react_pistol": [
+   -0.35,
+   -4.91
+  ],
+  "react_pistol_left": [
+   -0.35,
+   -4.91
+  ],
+  "react_pistol_right": [
+   -0.35,
+   -4.91
+  ],
+  "react_pistol_rear": [
+   -0.35,
+   -4.91
+  ],
+  "react_knife_ground": [
+   0.0,
+   -7.08
+  ],
+  "react_knife_ground_prone": [
+   0.0,
+   -11.08
+  ],
+  "react_axe_ground": [
+   0.0,
+   -7.08
+  ],
+  "react_axe_ground_prone": [
+   0.0,
+   -11.08
+  ],
+  "react_machete_ground": [
+   0.0,
+   -7.08
+  ],
+  "react_machete_ground_prone": [
+   0.0,
+   -11.08
+  ],
+  "react_bat_ground": [
+   0.0,
+   -7.08
+  ],
+  "react_bat_ground_prone": [
+   0.0,
+   -11.08
+  ],
+  "react_pistol_ground": [
+   0.0,
+   -7.08
+  ],
+  "react_pistol_ground_prone": [
+   0.0,
+   -11.08
+  ]
  }
 }

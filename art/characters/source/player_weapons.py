@@ -99,23 +99,62 @@ def swing(name, weapon, length, poses, two=False, sounds=(), commit=None, strike
     return b
 
 
-# Weapons whose carry orientation is authored rather than hung blade-down: (grip-to-head axis, edge direction).
-# Hatchet (Andrew 2026-10-17: the carry held it incorrectly, the swing is fine): a low ready carry with the head
-# forward and a little up and the bit down, the rest pose its accepted swing was authored around
-# (swing_hatchet's final key P(6, 10, -5), axis (0.15, -0.15, -0.97), edge down). Wind-up and recovery then pitch
-# the hatchet through its arc instead of turning it over from a hanging head.
-CARRY_ORIENT = {"hatchet": ((0.12, 0.3, -0.95), (0.0, -1.0, 0.0))}
+# Carries come in two stances (Andrew 2026-10-17: swords look permanently combat-ready, the axe T-posed, knife and
+# hatchet holds unnatural). REST is the relaxed out-of-combat carry; READY is what swings start from and return to,
+# shown during combat and for a few seconds after it (client timer, docs/animation.md "Rest and ready stances").
+# Each spec: arm(breath, shift) -> right arm rotation; the weapon's grip-to-head axis and edge direction (rig space:
+# x right, y up, z back); or solve=True with a head target for a two-hand carry solved like a swing key.
+def _hang(b, s):
+    return [6 + 1.6 * b, 2 + s, 13 + 0.7 * b]
+
+
+STANCES = {
+    # knife: relaxed, wrist neutral, blade forward and down along the thigh; ready: forward low guard
+    ("knife", "rest"): dict(arm=_hang, axis=(0.15, -0.6, -0.79), edge=(0.0, -1.0, 0.0)),
+    # machete (one carry for both stances): the old blade-down hang put its tip ~1 px into the ground
+    ("machete", "ready"): dict(arm=_hang, axis=(0.15, -0.6, -0.79), edge=(0.0, -1.0, 0.0)),
+    ("knife", "ready"): dict(arm=lambda b, s: [-26 + 1.2 * b, 6 + 0.6 * s, 10 + 0.5 * b], axis=(0.2, 0.3, -0.93), edge=(0.0, -1.0, 0.0)),
+    # hatchet: head forward and down at the side; ready: head forward and a little up, bit down (the rest pose its
+    # accepted swing was authored around)
+    ("hatchet", "rest"): dict(arm=_hang, axis=(0.12, -0.45, -0.88), edge=(0.0, -1.0, 0.0)),
+    ("hatchet", "ready"): dict(arm=_hang, axis=(0.12, 0.3, -0.95), edge=(0.0, -1.0, 0.0)),
+    # katana rest: lowered one-handed, blade ~20 degrees below level so its 26 px stay off the ground, edge down
+    ("katana", "rest"): dict(arm=_hang, axis=(0.12, -0.34, -0.93), edge=(0.0, -1.0, 0.0)),
+    # fire axe rest: one hand at the side, head forward and low, bit facing forward (a rigid-arm shoulder carry would
+    # run the handle along the carrying arm, so it was rejected by check_carries)
+    ("axe", "rest"): dict(arm=_hang, axis=(0.15, -0.55, -0.82), edge=(0.0, -0.3, -1.0)),
+    # fire axe ready ("port arms"): both hands, handle across the body, head up by the left shoulder; solved with
+    # Builder.solve_two so the left hand finds the handle (replaces the low arms-forward carry read as a T-pose).
+    # The katana ready stays the two-hand chudan below.
+    ("axe", "ready"): dict(solve=True, target=(-6.0, 26.0, -11.5), axis=(-0.45, 0.75, -0.48), edge=(0.0, 0.0, -1.0), two=True),
+}
+REST_FAMILIES = ("knife", "hatchet", "katana", "axe")
+
+
+def _frame(axis, edge):
+    axis = U(*axis) if not isinstance(axis, np.ndarray) else axis / np.linalg.norm(axis)
+    edge = np.array(edge, float)
+    edge = edge - (edge @ axis) * axis
+    edge /= np.linalg.norm(edge)
+    z, y = -axis, -edge
+    return np.column_stack((np.cross(y, z), y, z))
+
+
+def relaxed_hold(weapon):
+    """The READY carry: what swings start from and return to (kept under its old name for callers)."""
+    return carry(weapon, "ready")
 
 
 @cache
-def relaxed_hold(weapon):
-    """Construct the carry from the shoulder and fist, then orient the weapon around that fixed grip.
+def carry(weapon, stance="ready"):
+    """Construct a carry from the shoulder and fist, then orient the weapon around that fixed grip.
 
     A low blade does not need an IK target that drags the elbow through the chest. Two-hand carries solve only
     the support hand to a point on the actual handle. Shoulder protraction gives rigid vanilla arms clearance.
     """
     a = Anim(3.2, False)  # Do not wrap t=length to the unfinished first key while constructing the loop.
-    two = weapon in ("axe", "bat", "katana")
+    spec = STANCES.get((weapon, stance))
+    two = spec.get("two", False) if spec else weapon in ("axe", "bat", "katana")
     for i in range(9):
         t = i * 0.4
         phase = TAU * t / a.length
@@ -123,32 +162,40 @@ def relaxed_hold(weapon):
         right = [-62 + 1.2 * breath, -31 + 0.8 * shift, 14 + 0.6 * breath] if two else [6 + 1.6 * breath, 2 + shift, 13 + 0.7 * breath]
         if weapon == "katana":
             right = [-68 + 1.2 * breath, -45 + .8 * shift, 14 + .6 * breath]
+        if spec and "arm" in spec:
+            right = spec["arm"](breath, shift)
         a.pose(t, rightArm=right, leftArm=[-5 + 1.1 * breath, 0, -13 - 0.6 * breath],
                rightArm_pos=[-1, 0.08 * breath, -2 if two else -0.2],
                leftArm_pos=[1, -0.08 * breath, -2 if two else -0.2],
                head=[1.2 * breath, 1.1 * shift, 0.5 * breath], rightItem=[0, 0, 0])
         W = fk.worlds(pa.SR, [a], t)
-        axis = U(0.15, -0.97, -0.18) if not two else U(0.0, 0.42, -0.91)
-        if weapon in ("axe", "bat"):
-            axis = U(0.32, -0.65, -0.69)  # low diagonal carry, head clear of the legs
-        if weapon in CARRY_ORIENT:
-            axis = U(*CARRY_ORIENT[weapon][0])
-            edge = np.array(CARRY_ORIENT[weapon][1], float)
-            edge = edge - (edge @ axis) * axis
-            edge /= np.linalg.norm(edge)
-            z, y = -axis, -edge
-            x = np.cross(y, z)
+        if spec and spec.get("solve"):
+            continue                                   # solved below with both hands
+        elif spec:
+            frame = _frame(spec["axis"], spec["edge"])
         else:
+            axis = U(0.15, -0.97, -0.18) if not two else U(0.0, 0.42, -0.91)
+            if weapon in ("axe", "bat"):
+                axis = U(0.32, -0.65, -0.69)  # low diagonal carry, head clear of the legs
             z = -axis
             hint = U(0, 0, 1) if not two else U(0, 1, 0)
             x = np.cross(hint, z); x /= np.linalg.norm(x)
-            y = np.cross(z, x)
-        wrist = bb_euler(W["rightItem"][:3, :3].T @ np.column_stack((x, y, z)))
+            frame = np.column_stack((x, np.cross(z, x), z))
+        wrist = bb_euler(W["rightItem"][:3, :3].T @ frame)
         a.key(t, "rightItem", rot=wrist)
     # Same grip on every key; support hand can slide only within the physical handle.
     report = []
-    if two:
-        b = Builder("hold_" + weapon, a.length, loop=True, weapon=weapon)
+    if spec and spec.get("solve"):
+        b = Builder(("hold_" if stance == "ready" else "rest_") + weapon, a.length, loop=True, weapon=weapon)
+        b.a = a
+        b.prev["rightArm"], b.prev["leftArm"] = np.array([-40.0, 20, 0]), np.array([-60.0, -20, 0])
+        for i in range(9):
+            t = i * .4
+            lift = S(TAU * t / a.length) * 0.4
+            b.solve_two(t, np.array(spec["target"], float) + [0, lift, 0], axis=U(*spec["axis"]), edge=U(*spec["edge"]))
+        report = b.report
+    elif two:
+        b = Builder(("hold_" if stance == "ready" else "rest_") + weapon, a.length, loop=True, weapon=weapon)
         b.a = a
         for i in range(9):
             t = i * .4
@@ -277,6 +324,10 @@ def families():
     for weapon in ("knife", "machete", "hatchet", "katana", "axe", "bat"):
         carry, report = relaxed_hold(weapon)
         out["hold_" + weapon] = (carry, dict(weapon=weapon, impacts=[], geodesic_items=True))
+        rep.extend(report)
+    for weapon in REST_FAMILIES:
+        rest, report = globals()["carry"](weapon, "rest")
+        out["rest_" + weapon] = (rest, dict(weapon=weapon, impacts=[], geodesic_items=True))
         rep.extend(report)
     # Empty-hand attacks also replace the vanilla swing, including attacks into the air.
     for heavy, length, contact in ((False, .45, .16), (True, .65, .26)):
@@ -411,6 +462,9 @@ if __name__ == "__main__":
         for weapon in ("knife", "machete", "hatchet", "katana", "axe", "bat"):
             a, _ = relaxed_hold(weapon)
             out["hold_" + weapon] = (a, dict(weapon=weapon, impacts=[], geodesic_items=True))
+        for weapon in REST_FAMILIES:
+            a, _ = carry(weapon, "rest")
+            out["rest_" + weapon] = (a, dict(weapon=weapon, impacts=[], geodesic_items=True))
         pa.export(out, merge_keys=True)
         root = os.path.join(os.path.dirname(__file__), "..")
         target = os.path.join(root, "export", "assets", "holdfast")

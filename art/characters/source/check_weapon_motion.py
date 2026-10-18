@@ -96,7 +96,7 @@ def main():
             continue
         ex = json.load(open(xpath))
         weapon = (ex.get("holdfast_meta") or {}).get("weapon")
-        if not (name.startswith("swing_") or name.startswith("hold_") or name.startswith("bat_charge")):
+        if not (name.startswith(("swing_", "hold_", "rest_", "bat_charge"))):
             continue
         if "rightItem" not in j["bones"]:
             continue

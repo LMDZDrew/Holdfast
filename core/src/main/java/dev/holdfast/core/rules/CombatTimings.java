@@ -55,6 +55,43 @@ public final class CombatTimings {
         throw new IllegalArgumentException("no swing timing for " + clip);
     }
 
+    /**
+     * Skull centre at each execution reaction's impact, walker-local px {x, z} (the walker faces -z), from
+     * placement.py. The server aligns the player so this skull lands where the player clip strikes.
+     */
+    public static final java.util.Map<String, double[]> EXEC_SKULL = java.util.Map.ofEntries(
+        java.util.Map.entry("react_axe", new double[]{-0.31, -7.51}),
+        java.util.Map.entry("react_axe_ground", new double[]{0.0, -7.08}),
+        java.util.Map.entry("react_axe_ground_prone", new double[]{0.0, -11.08}),
+        java.util.Map.entry("react_axe_left", new double[]{-0.35, -4.91}),
+        java.util.Map.entry("react_axe_rear", new double[]{-0.35, -4.91}),
+        java.util.Map.entry("react_axe_right", new double[]{-0.35, -4.91}),
+        java.util.Map.entry("react_bat_charged", new double[]{-0.35, -4.91}),
+        java.util.Map.entry("react_bat_charged_left", new double[]{-0.35, -4.91}),
+        java.util.Map.entry("react_bat_charged_rear", new double[]{-0.35, -4.91}),
+        java.util.Map.entry("react_bat_charged_right", new double[]{-0.35, -4.91}),
+        java.util.Map.entry("react_bat_ground", new double[]{0.0, -7.08}),
+        java.util.Map.entry("react_bat_ground_prone", new double[]{0.0, -11.08}),
+        java.util.Map.entry("react_knife", new double[]{3.19, -2.22}),
+        java.util.Map.entry("react_knife_ground", new double[]{0.0, -7.08}),
+        java.util.Map.entry("react_knife_ground_prone", new double[]{0.0, -11.08}),
+        java.util.Map.entry("react_knife_left", new double[]{-0.35, -4.91}),
+        java.util.Map.entry("react_knife_rear", new double[]{-0.35, -4.91}),
+        java.util.Map.entry("react_knife_right", new double[]{-0.35, -4.91}),
+        java.util.Map.entry("react_machete", new double[]{2.45, -7.06}),
+        java.util.Map.entry("react_machete_ground", new double[]{0.0, -7.08}),
+        java.util.Map.entry("react_machete_ground_prone", new double[]{0.0, -11.08}),
+        java.util.Map.entry("react_machete_left", new double[]{-0.35, -4.91}),
+        java.util.Map.entry("react_machete_rear", new double[]{-0.35, -4.91}),
+        java.util.Map.entry("react_machete_right", new double[]{-0.35, -4.91}),
+        java.util.Map.entry("react_pistol", new double[]{-0.35, -4.91}),
+        java.util.Map.entry("react_pistol_ground", new double[]{0.0, -7.08}),
+        java.util.Map.entry("react_pistol_ground_prone", new double[]{0.0, -11.08}),
+        java.util.Map.entry("react_pistol_left", new double[]{-0.35, -4.91}),
+        java.util.Map.entry("react_pistol_rear", new double[]{-0.35, -4.91}),
+        java.util.Map.entry("react_pistol_right", new double[]{-0.35, -4.91})
+    );
+
     /** Walker lunge: the server's own hit moment after the lunge starts (S1). */
     public static final int LUNGE_HIT_TICK = 11, CRAWLER_LUNGE_HIT_TICK = 10;
     /** Reach of a lunge or ankle grab, blocks (S1, proposed). */

@@ -58,7 +58,8 @@ public final class ClientClips {
 
     private static final class Applied {
         AbstractClientPlayer owner;
-        String locomotion, hold;
+        String locomotion, hold, holdFamily;
+        final MeleeStance stance = new MeleeStance();
         boolean wasOnGround = true;
         double x, y, z, speed, distance;
         boolean positioned;
@@ -69,6 +70,8 @@ public final class ClientClips {
     }
 
     private static final Map<UUID, Applied> APPLIED = new HashMap<>();
+    /** Families with separate rest and ready carries (rest_<family> / hold_<family>); the others use hold_ for both. */
+    private static final java.util.Set<String> REST_FAMILIES = java.util.Set.of("knife", "hatchet", "katana", "axe");
     private static final Map<Integer, String> ACTION_NAMES = new HashMap<>();
     private static final Map<String, List<float[]>> CAMERAS = new HashMap<>();
 
@@ -116,6 +119,7 @@ public final class ClientClips {
         }
         KeyframeAnimationPlayer kp = player(m.clip(), m.ownsArms() ? FirstPersonMode.THIRD_PERSON_MODEL : FirstPersonMode.NONE);
         if (kp == null) return;
+        combat(p);
         if (meleeAction(m.clip())) blendMelee(layer, kp, 2);
         else layer.setAnimation(kp);
         ACTION_NAMES.put(p.getId(), m.clip());
@@ -349,19 +353,25 @@ public final class ClientClips {
                 else blendMelee(layer, motion, airborne != null ? 2 : 4);
             }
         }
-        // ---- weapon hold (melee families; TaCZ guns keep their own hold)
+        // ---- weapon hold (melee families; TaCZ guns keep their own hold): rest out of combat, ready during it
         String fam = gun ? null : family(p);
-        String hold = fam == null || fam.equals("unarmed") || p.isUsingItem() || p.isSwimming() || p.isPassenger() ? null : "hold_" + fam;
+        boolean carried = fam != null && !fam.equals("unarmed") && !p.isUsingItem() && !p.isSwimming() && !p.isPassenger();
+        boolean ready = a.stance.stance(carried ? fam : null, p.level().getGameTime()) == MeleeStance.Stance.READY;
+        String hold = !carried ? null : (!ready && REST_FAMILIES.contains(fam) ? "rest_" : "hold_") + fam;
         if (!Objects.equals(hold, a.hold)) {
-            boolean swap = a.hold != null && hold != null;
+            boolean swap = a.hold != null && hold != null && !Objects.equals(fam, a.holdFamily);
+            boolean stanceChange = a.hold != null && hold != null && !swap;
             a.hold = hold;
+            a.holdFamily = hold == null ? null : fam;
             ModifierLayer<IAnimation> layer = layer(p, HOLD);
             KeyframeAnimation data = hold == null ? null : PlayerAnimationRegistry.getAnimation(new ResourceLocation(HoldfastCore.ASSETS, hold));
-            CarryPlayer carry = data == null ? null : new CarryPlayer(data, a, fam.equals("axe") || fam.equals("bat") || fam.equals("katana"));
+            boolean two = hold != null && hold.startsWith("hold_") && (fam.equals("axe") || fam.equals("bat") || fam.equals("katana"));
+            CarryPlayer carry = data == null ? null : new CarryPlayer(data, a, two);
             // Weapon to weapon: the item swaps at once, so the carry does too. A fade would turn the new weapon through
-            // the per-channel blend of two unrelated wrist poses (a visible twirl). Fade only to and from empty hands.
+            // the per-channel blend of two unrelated wrist poses (a visible twirl). Fade only to and from empty hands,
+            // and between rest and ready of the same weapon (nearby-angle fade: quick into ready, unhurried back).
             if (swap && layer != null) layer.setAnimation(carry);
-            else blendMelee(layer, carry, 5);
+            else blendMelee(layer, carry, stanceChange ? (ready ? 3 : 8) : 5);
         }
     }
 
@@ -383,7 +393,14 @@ public final class ClientClips {
         if (kp == null) return false;
         blendMelee(layer, kp, 2);
         ACTION_NAMES.put(p.getId(), clip);
+        combat(p);
         return true;
+    }
+
+    /** A combat event for this player's rest/ready stance (cosmetic; see {@link MeleeStance}). */
+    private static void combat(AbstractClientPlayer p) {
+        Applied a = APPLIED.get(p.getUUID());
+        if (a != null && a.owner == p) a.stance.combat(family(p), p.level().getGameTime());
     }
 
     /** For {@link PoseTrace}: the clip on each Holdfast layer, with the action clip's tick. */

@@ -177,13 +177,14 @@ def collapse(a, t0, kind="front"):
         a.pose(t0 + 0.94, root=[82, 0, 0], root_pos=[0, 3, 0])
         a.pose(t0 + 1.08, root=[85, 0, 0], root_pos=[0, 2.5, 0])
         return t0 + 0.84
-    a.pose(t0 + 0.42, root=[4, 0, -8])
-    a.pose(t0 + 0.66, root=[10, 0, -52], root_pos=[0, 2, 0], torso=[22, 0, 0],
+    m = -1 if kind == "side_left" else 1      # "side": down on its right side; "side_left": the mirror
+    a.pose(t0 + 0.42, root=[4, 0, -8 * m])
+    a.pose(t0 + 0.66, root=[10, 0, -52 * m], root_pos=[0, 2, 0], torso=[22, 0, 0],
            rightArm=[-26, 0, 4], leftArm=[-34, 0, 4], rightShin=[74, 0, 0], leftShin=[70, 0, 0])
-    a.pose(t0 + 0.84, root=[10, 0, -86], root_pos=[0, 4.5, 0], torso=[20, 0, 0], head=[18, 0, -8],
+    a.pose(t0 + 0.84, root=[10, 0, -86 * m], root_pos=[0, 4.5, 0], torso=[20, 0, 0], head=[18, 0, -8 * m],
            rightArm=[-34, 0, 10], leftArm=[-44, 0, 14], rightShin=[66, 0, 0], leftShin=[56, 0, 0], jaw=[22, 0, 0])
-    a.pose(t0 + 0.94, root=[10, 0, -80], root_pos=[0, 4.2, 0])
-    a.pose(t0 + 1.08, root=[10, 0, -84], root_pos=[0, 4.5, 0])
+    a.pose(t0 + 0.94, root=[10, 0, -80 * m], root_pos=[0, 4.2, 0])
+    a.pose(t0 + 1.08, root=[10, 0, -84 * m], root_pos=[0, 4.5, 0])
     return t0 + 0.84
 
 
@@ -520,6 +521,55 @@ def reactions():
 
 
 
+# Execution approach directions other than the authored front pair (Andrew 2026-10-17: executions from the rear,
+# either side and diagonals). The player's clip is unchanged and still lands on the skull, which is a centred
+# cube; the walker keeps its own facing (turned at most 45 deg on the server) and plays one of these instead of
+# spinning to face the player. Name: the side of the WALKER the player is on. Timing (impact, kill, release) is
+# the front pair's, so the server's kill tick is unchanged.
+DIRECTIONS = {"left": 90.0, "right": 270.0, "rear": 0.0}     # pair yaw theta (front pair: 180)
+UPRIGHT_EXECS = ("knife", "axe", "machete", "bat_charged", "pistol")
+
+
+def directional_reactions():
+    out = {}
+    for name in UPRIGHT_EXECS:
+        e = EXECS[name]
+        I, kind = e["impact"], e["kind"]
+        R = e.get("release", I)
+        pinned = kind in ("stab", "chop_side", "chop_top")          # hangs on the blade until it is wrenched out
+        for side in DIRECTIONS:
+            a = Anim(round(R + 1.0, 2), "hold_on_last_frame")
+            full(a, 0, APPROACH)
+            full(a, I - 0.02, APPROACH)                               # no lean toward a player it never faced
+            if side == "rear":
+                # struck from behind: head driven forward and down, folds over the blow, goes down face first
+                blow = dict(head=[34, 0, 0], jaw=[30, 0, 0], torso=[26, 0, 0], root_pos=[0, 0, -0.6],
+                            rightArm=[-40, 0, 10], leftArm=[-36, 0, -10], rightForearm=[-4, 0, 0], leftForearm=[-4, 0, 0])
+                fall = "front"
+            else:
+                # struck from its left (player on that side): head knocked toward its right, and the mirror
+                m = 1 if side == "left" else -1
+                blow = dict(head=[-4, -12 * m, -32 * m], jaw=[30, 0, 0], torso=[10, -6 * m, -12 * m],
+                            root_pos=[0.8 * m, 0, 0], rightArm=[-44, 0, 10 + 8 * m], leftArm=[-40, 0, -10 + 8 * m],
+                            rightForearm=[-4, 0, 0], leftForearm=[-4, 0, 0])
+                fall = "side" if side == "left" else "side_left"
+            a.pose(I + 0.05, **blow)
+            if pinned:
+                a.pose(R - 0.06, **dict(blow, hips_pos=[0, -1, 0], rightShin=[16, 0, 0], leftShin=[14, 0, 0]))
+                hit = collapse(a, R, fall)
+            else:
+                hit = collapse(a, I + 0.12, fall)
+            a.sound(I, {"stab": "holdfast:hit.knife_skull", "blunt_kill": "holdfast:hit.blunt_skull_heavy",
+                        "chop_top": "holdfast:hit.axe_skull", "chop_side": "holdfast:hit.blade_skull",
+                        "shot": "holdfast:hit.gunshot_skull"}[kind])
+            a.sound(hit, "holdfast:body.fall")
+            a.event(I, "kill")
+            if "release" in e:
+                a.event(R, "release")
+            out[f"react_{name}_{side}"] = a.fit_length()
+    return out
+
+
 def ground_reactions():
     """Prone walker and crawler hit in the skull from above: pinned by a knife, axe or machete (released when the
     blade comes out) or crushed by a bat. Names: react_<weapon>_ground_prone (walker) and
@@ -655,6 +705,7 @@ def build():
     fullb = full_body()
     grabs = grab_side()
     reacts = reactions()
+    reacts.update(directional_reactions())
     crawl = crawler()
     ground = ground_reactions()
     for w in GROUND_EXECS:

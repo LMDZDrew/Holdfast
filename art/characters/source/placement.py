@@ -46,6 +46,22 @@ def compute():
             c = fk.point(Wm, "head", (0, 5, 0))
             out[key] = dict(dist=round(float(-GROUND_TARGET_Z[w] - c[2]), 2), skull_height=round(float(c[1]), 2),
                             skull_x=round(float(-c[0]), 2))
+    # Execution alignment from any approach (core Executions): the skull centre at the clip's impact, in walker-local
+    # px (x, z; the walker faces -z), for every reaction the server may pair with a player clip.
+    skull = {}
+    for name in wa.UPRIGHT_EXECS:
+        I = wa.EXECS[name]["impact"]
+        for side in ("",) + tuple("_" + d for d in wa.DIRECTIONS):
+            Wm = fk.worlds(WR, [W["react"][f"react_{name}{side}"]], I - 0.02)
+            c = fk.point(Wm, "head", (0, 5, 0))
+            skull[f"react_{name}{side}"] = [round(float(c[0]), 2), round(float(c[2]), 2)]
+    for w in wa.GROUND_EXECS:
+        I = wa.EXECS[f"{w}_ground"]["impact"]
+        for clip, R, anim in ((f"react_{w}_ground", CR, W["crawler"][f"react_{w}_ground"]),
+                              (f"react_{w}_ground_prone", WR, W["react"][f"react_{w}_ground_prone"])):
+            c = fk.point(fk.worlds(R, [anim], I - 0.02), "head", (0, 5, 0))
+            skull[clip] = [round(float(c[0]), 2), round(float(c[2]), 2)]
+    out["exec_skull"] = skull
     return out
 
 

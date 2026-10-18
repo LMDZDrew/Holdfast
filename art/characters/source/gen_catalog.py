@@ -61,7 +61,7 @@ lines += [f"| walker `body.{k}` | {v:.2f} |" for k, v in sp.items() if v]
 lines += [f"| player `{k}` | {v:.2f} |" for k, v in mv.items()]
 lines += ["", "## Pairing distances", "", "Distance in pixels (1/16 block) from the survivor's feet to the attacker's origin, along the survivor's facing; the attacker faces the survivor.", "",
           "| Pair | Distance (px) |", "|---|---:|", "| Upright grab (`grab_*` + `grabbed_*`) | 18 |"]
-lines += [f"| {k} | {v['dist']:.2f} |" for k, v in pr.items()]
+lines += [f"| {k} | {v['dist']:.2f} |" for k, v in pr.items() if "dist" in v]
 lines += [f"| Execution `{k}` | {v} |" for k, v in [("knife", 18), ("bat_quick", 28), ("bat_charged", 28), ("axe", 26), ("machete", 22)]]
 lines.append("")
 open(DOC, "w").write("\n".join(lines))

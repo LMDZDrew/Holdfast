@@ -115,6 +115,39 @@ Full-body clips (postures, attacks, grabs, deaths, reactions) need the arms and 
 | Injury-limited movement | — | — | `move_limp` (mild, 85%), `move_limp_severe` (55%), `move_arm_injured` (95%), `move_crawl_legless` (20%), `move_crutch_improvised` (45%), `move_crutch_medical` (60%), `move_prosthesis` (80%); each cycle is authored so its feet match that speed at 1x |
 | Death | `death_headshot` | `crawler_death` | — |
 
+## Rest and ready stances (2026-10-17, Claude)
+
+Andrew asked for natural resting carries outside combat and ready stances during and shortly after it. He said swords looked permanently combat-ready, the axe read as a T-pose, and the knife and hatchet holds were unnatural.
+
+- **Clips** (editable source `player_weapons.STANCES`):
+  - knife, hatchet, katana and fire axe have `rest_<family>` (rest) and `hold_<family>` (ready);
+  - machete and bat use their `hold_` carry for both.
+- **Ready** is what every swing starts from and returns to; swing keys between are unchanged.
+- **Rest poses:**
+  - knife and hatchet: arm relaxed with a neutral wrist, blade or head forward and down;
+  - katana: lowered about 20° so the 26 px blade stays off the ground;
+  - fire axe: one hand at the side, head forward and low.
+- **Ready poses:**
+  - knife: forward low guard;
+  - hatchet: head forward and up (the accepted swing's rest);
+  - katana: unchanged two-hand chudan;
+  - fire axe: "port arms", both hands, head up by the left shoulder, solved with `Builder.solve_two`.
+- **Machete fix:** its blade now points forward and down as well. The old blade-down hang put its tip about 1 px into the ground, which the new ground check found.
+- **Rejected:** a rigid-arm over-shoulder rest. With no elbow, a handle from the right fist to the right shoulder lies along that same arm; `check_carries` measured 1.5 px inside it.
+- **State:** client-only `MeleeStance`; nothing is saved or sent.
+  - READY lasts `READY_TICKS` = 80 client game ticks (4 s, a provisional default) after a combat event: an accepted attack attempt, hit or miss (the local click, or another player's server swing packet), or any server-started clip (execution, grab, bite, blunt charge).
+  - These don't refresh it: holding, mining, item use, looking at walkers, and clicks refused during a swing.
+  - Switching to another weapon family starts at REST. Death, respawn, disconnect and world changes rebuild the state.
+- **Layers:** rest→ready fades over 3 ticks, ready→rest over 8 (nearby-angle `MeleeFade`). Weapon-to-weapon switches cut. Attacks never wait for the stance: the action layer starts at once, and the hold fades to ready underneath it.
+- **Checks:** `check_carries.py` covers every rest and ready carry for:
+  - arm-in-chest;
+  - support grip within the solver's slide range;
+  - the weapon's own cubes against head, torso, legs and the free arm;
+  - the authored axis within 3°;
+  - weapon at least 0.5 px above the ground.
+
+  `check_weapon_motion.py` also covers the `rest_` clips. Appearance still needs the game.
+
 ## Where the server must decide — animations never do
 
 Every `timeline` event in the clips is a **presentation cue** for sounds, particles, camera shake and knockback visuals. The server never reads animation events and never waits for a client to report one. It decides from its own state, clock and hit tests, then tells clients which clip to play.

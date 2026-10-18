@@ -121,12 +121,13 @@ def main():
             "death.attack.holdfast_core.walker_infection": "%1$s succumbed to a walker bite",
             "death.attack.holdfast_core.walker_infection.player": "%1$s succumbed to a walker bite"}
     for r in ("weapon_cannot_execute", "no_clip_for_posture", "too_far", "not_facing", "head_covered", "target_busy",
-              "already_executed", "blunt_not_charged"):
+              "already_executed", "blunt_not_charged", "too_close", "obstructed", "no_room"):
         lang[f"message.holdfast_core.execute_refused.{r}"] = {
             "weapon_cannot_execute": "Can't finish it with this", "no_clip_for_posture": "No way to finish it like this",
             "too_far": "Too far away", "not_facing": "Face it first", "head_covered": "Its head is covered",
             "target_busy": "It's on someone", "already_executed": "Already being finished",
-            "blunt_not_charged": "Wind up first (hold use)"}[r]
+            "blunt_not_charged": "Wind up first (hold use)", "too_close": "Too close; step back",
+            "obstructed": "Something's in the way", "no_room": "No room to do it here"}[r]
     for item, (cubes, mats, name) in ITEMS.items():
         k = 1.0 if fits(cubes, 1.0) else 0.5
         held = {"rotation": [0, 0, 0], "translation": [0, 0, 0], "scale": [1 / k] * 3}

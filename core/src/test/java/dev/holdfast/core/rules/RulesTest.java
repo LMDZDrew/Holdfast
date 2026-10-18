@@ -165,7 +165,7 @@ class RulesTest {
     @Test
     void refusalsAreSpecific() {
         double d = ExecutionRules.clipFor(WeaponClass.KNIFE, Posture.UPRIGHT).orElseThrow().distPx();
-        assertEquals(ExecutionRules.Refusal.TOO_FAR, ExecutionRules.validate(request(WeaponClass.KNIFE, Posture.UPRIGHT, d + 30)).orElseThrow());
+        // distance is judged by the alignment step from any approach (ExecutionAlignmentTest), not here
         assertEquals(ExecutionRules.Refusal.NOT_FACING, ExecutionRules.validate(
                 new ExecutionRules.Request(WeaponClass.KNIFE, Posture.UPRIGHT, d, 40, true, false, false, 0)).orElseThrow());
         assertEquals(ExecutionRules.Refusal.TARGET_BUSY, ExecutionRules.validate(

@@ -123,6 +123,8 @@ public final class PlayerGameTests {
             WalkerEntity w = h.spawn(CoreEntities.WALKER.get(), new Vec3(1.5 + 4 * i, 2, 0.5 + d));
             w.setPosture(postures[i]);
             w.setNoAi(true);
+            w.moveTo(w.getX(), w.getY(), w.getZ(), 180.0F, 0.0F);   // head toward the player (not over its body)
+            w.setYBodyRot(180.0F);
             ws[i] = w;
             final int n = i;
             h.runAfterDelay(5, () -> {

@@ -69,6 +69,14 @@ L += ["    );", "",
       "        for (Swing s : SWINGS) if (s.clip().equals(clip)) return s;",
       "        throw new IllegalArgumentException(\"no swing timing for \" + clip);",
       "    }", "",
+      "    /**",
+      "     * Skull centre at each execution reaction's impact, walker-local px {x, z} (the walker faces -z), from",
+      "     * placement.py. The server aligns the player so this skull lands where the player clip strikes.",
+      "     */",
+      "    public static final java.util.Map<String, double[]> EXEC_SKULL = java.util.Map.ofEntries("]
+L.append(",\n".join(f"        java.util.Map.entry(\"{k}\", new double[]{{{v[0]}, {v[1]}}})"
+                    for k, v in sorted(pair["exec_skull"].items())))
+L += ["    );", "",
       "    /** Walker lunge: the server's own hit moment after the lunge starts (S1). */",
       "    public static final int LUNGE_HIT_TICK = 11, CRAWLER_LUNGE_HIT_TICK = 10;",
       "    /** Reach of a lunge or ankle grab, blocks (S1, proposed). */",
