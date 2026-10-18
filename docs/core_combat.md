@@ -78,6 +78,10 @@ Andrew observed walker hits registering as soon as he clicked. A click now only 
 | Mod interactions | TaCZ gun type is read from the held gun's `GunId` through TaCZ's index (`TimelessAPI.getCommonGunIndex(...).getType()`), compile-only. |
 | Test | JUnit: each refusal reason; pistol accepted, rifle/shotgun/smg refused; cancel before and after commit; target moved before kill. |
 
+#### 4b. Pistol executions spend a round (2026-10-17)
+
+Andrew noticed pistol executions cost no bullet. A pistol execution is refused with `NO_AMMO` ("Out of ammo") unless the held TaCZ gun has a round: its magazine count plus a chambered round (`TaczGuns.rounds`). At the server kill tick, `TaczGuns.consumeRound` spends one round from the gun in hand, the way a shot would: the chambered round, re-chambered from the magazine if any are left, otherwise one from the magazine. This uses TaCZ 1.1.8's `IGun` methods (`getCurrentAmmoCount`, `reduceCurrentAmmoCount`, `hasBulletInBarrel`, `setBulletInBarrel`). Untested: headless GameTests don't load TaCZ. Whether TaCZ itself skips consumption in creative mode was not checked, so Holdfast always spends the round.
+
 #### 4a. Executions from any approach (2026-10-17, Claude)
 
 Andrew wants executions from the front, rear, either side and diagonals, within legitimate range and never through obstacles. Eligibility was never front-only: the player had to face the walker within 25° from any side. What made it front-only was the alignment. The server always spun the walker to face the player and slid it into the slot in front of them, and every authored pair assumed a frontal blow.
@@ -104,9 +108,22 @@ Andrew wants executions from the front, rear, either side and diagonals, within 
 
 `PlayerCondition` serialises to player NBT through a Forge capability. Walker dormancy (`dormant`, `prone`, kind) is saved in the walker's entity NBT. Grabs and executions are transient and resolved at shutdown as above. Automated check: `ConditionNbtTest` round trip; scripted reconnect check is a GameTest to run later on the dedicated server.
 
+## Despawning (2026-10-17)
+
+Andrew asked for walker despawning to limit lag; the decision is recorded in `decisions.md`. Walkers stay persistent to vanilla (no despawn on chunk unload). Holdfast removes loaded ones by `DespawnRules`, checked once a second per walker on the server, using real non-spectator players:
+
+| Rule | Default (config `walkers`) |
+|---|---|
+| A living walker with no player within `despawnDistance` for `despawnAfterSeconds` | 96 blocks, 60 s |
+| A corpse that long out of range | same |
+| A corpse `corpseDespawnMinutes` after death, if no player is within `corpseHiddenDistance` | 10 min, 24 blocks |
+| Never: a walker that is grabbing someone | — |
+
+Time out of range and corpse age are saved in the walker's NBT (`HfFarTicks`, `HfCorpseAge`) and keep counting after a reload. Setting a time to 0 disables that removal. Tests: JUnit `DespawnRulesTest` (3); GameTests remove a reloaded corpse past its time and a walker past its out-of-range time, and keep a fresh corpse and a fresh walker. The defaults are provisional, and performance has not been measured.
+
 ## Walker entity (minimal, Stage 1)
 
-`WalkerEntity` (GeckoLib, exported `walker.geo.json` / `walker_crawler.geo.json`): ordinary walker speed and senses, no variants. Kinds: upright, prone (dormant until it sees or hears), crawler. Melee approach, lunge at 1.2 blocks, grab attempt resolved by the server (S1). Takes no accumulated damage; dies only by brain kill. Three animation controllers as in `animation.md`, gait and arm/head sets from the UUID seed. Corpses persist as the ended state (design §12) — Stage 1 keeps the dead walker as a lying corpse entity that despawns only by explicit cleanup (not yet decided).
+`WalkerEntity` (GeckoLib, exported `walker.geo.json` / `walker_crawler.geo.json`): ordinary walker speed and senses, no variants. Kinds: upright, prone (dormant until it sees or hears), crawler. Melee approach, lunge at 1.2 blocks, grab attempt resolved by the server (S1). Takes no accumulated damage; dies only by brain kill. Three animation controllers as in `animation.md`, gait and arm/head sets from the UUID seed. Corpses lie as entities until the despawn rules above remove them.
 
 ## Audio and blood (presentation)
 

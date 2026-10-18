@@ -181,4 +181,43 @@ public final class WalkerGameTests {
             h.succeed();
         });
     }
+
+    // ------------------------------------------------------------ despawning (DespawnRules; no real players here)
+
+    private static WalkerEntity reloaded(GameTestHelper h, boolean corpse, long farTicks, long corpseAge) {
+        WalkerEntity w = walker(h, Posture.UPRIGHT);
+        if (corpse) w.brainKill(null, 0);
+        CompoundTag tag = new CompoundTag();
+        w.saveWithoutId(tag);
+        tag.putLong("HfFarTicks", farTicks);
+        tag.putLong("HfCorpseAge", corpseAge);
+        w.discard();
+        WalkerEntity copy = CoreEntities.WALKER.get().create(h.getLevel());
+        copy.load(tag);
+        copy.setUUID(UUID.randomUUID());
+        h.getLevel().addFreshEntity(copy);
+        return copy;
+    }
+
+    @GameTest(template = "arena", timeoutTicks = 100)
+    public static void oldCorpseDespawnsWithNobodyNear(GameTestHelper h) {
+        WalkerEntity old = reloaded(h, true, 0, dev.holdfast.core.CoreConfig.despawn().corpseAfterTicks() - 10);
+        WalkerEntity fresh = reloaded(h, true, 0, 0);
+        h.runAfterDelay(45, () -> {
+            h.assertTrue(old.isRemoved(), "a corpse past its time was kept");
+            h.assertFalse(fresh.isRemoved(), "a fresh corpse was removed");
+            h.succeed();
+        });
+    }
+
+    @GameTest(template = "arena", timeoutTicks = 100)
+    public static void walkerOutOfRangeLongEnoughDespawns(GameTestHelper h) {
+        WalkerEntity w = reloaded(h, false, dev.holdfast.core.CoreConfig.despawn().walkerAfterTicks() - 10, 0);
+        WalkerEntity fresh = reloaded(h, false, 0, 0);
+        h.runAfterDelay(45, () -> {
+            h.assertTrue(w.isRemoved(), "a walker out of range long enough was kept");
+            h.assertFalse(fresh.isRemoved(), "a walker that just arrived was removed");
+            h.succeed();
+        });
+    }
 }

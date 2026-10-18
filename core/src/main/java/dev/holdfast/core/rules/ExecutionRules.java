@@ -20,7 +20,7 @@ public final class ExecutionRules {
 
     public enum Refusal {
         WEAPON_CANNOT_EXECUTE, NO_CLIP_FOR_POSTURE, TOO_FAR, NOT_FACING, HEAD_COVERED, TARGET_BUSY,
-        ALREADY_EXECUTED, BLUNT_NOT_CHARGED, TOO_CLOSE, OBSTRUCTED, NO_ROOM
+        ALREADY_EXECUTED, BLUNT_NOT_CHARGED, TOO_CLOSE, OBSTRUCTED, NO_ROOM, NO_AMMO
     }
 
     /** Which side of an upright walker the player came from; each has its own walker reaction. */

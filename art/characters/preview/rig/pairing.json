@@ -37,6 +37,16 @@
   "skull_height": 5.94,
   "skull_x": -0.0
  },
+ "katana_ground_crawler": {
+  "dist": 33.08,
+  "skull_height": 5.94,
+  "skull_x": -0.0
+ },
+ "katana_ground_prone": {
+  "dist": 37.08,
+  "skull_height": 5.94,
+  "skull_x": -0.0
+ },
  "bat_ground_crawler": {
   "dist": 29.08,
   "skull_height": 5.94,
@@ -106,6 +116,22 @@
    -0.35,
    -4.91
   ],
+  "react_katana": [
+   -0.35,
+   -4.91
+  ],
+  "react_katana_left": [
+   -0.35,
+   -4.91
+  ],
+  "react_katana_right": [
+   -0.35,
+   -4.91
+  ],
+  "react_katana_rear": [
+   -0.35,
+   -4.91
+  ],
   "react_bat_charged": [
    -0.35,
    -4.91
@@ -159,6 +185,14 @@
    -7.08
   ],
   "react_machete_ground_prone": [
+   0.0,
+   -11.08
+  ],
+  "react_katana_ground": [
+   0.0,
+   -7.08
+  ],
+  "react_katana_ground_prone": [
    0.0,
    -11.08
   ],

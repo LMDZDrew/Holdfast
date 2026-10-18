@@ -119,6 +119,11 @@ Full-body clips (postures, attacks, grabs, deaths, reactions) need the arms and 
 
 Andrew asked for natural resting carries outside combat and ready stances during and shortly after it. He said swords looked permanently combat-ready, the axe read as a T-pose, and the knife and hatchet holds were unnatural.
 
+- **Revision after Andrew's review:**
+  - He likes ready.
+  - Rest arms now stay close to vanilla's item-holding arm: about 10° forward, 3° out, no shoulder shift; the free arm hangs 3° out.
+  - The resting fire axe is reversed: head trailing behind and low, bit facing back.
+  - `check_carries` also layers every carry over the walk and sprint cycles to keep weapons out of the moving legs.
 - **Clips** (editable source `player_weapons.STANCES`):
   - knife, hatchet, katana and fire axe have `rest_<family>` (rest) and `hold_<family>` (ready);
   - machete and bat use their `hold_` carry for both.

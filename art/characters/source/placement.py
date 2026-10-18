@@ -13,7 +13,7 @@ from lib import OUT
 SHIN_FRONT_Z = -2.5          # survivor shins span z -2..2; grab just in front
 KNIFE_GROUND_TARGET_Z = -12.0
 # skull centre in front of the survivor's feet for each ground execution: longer weapons stand further back
-GROUND_TARGET_Z = {"knife": KNIFE_GROUND_TARGET_Z, "machete": -17.0, "bat": -22.0, "axe": -24.0, "pistol": -20.0}
+GROUND_TARGET_Z = {"knife": KNIFE_GROUND_TARGET_Z, "machete": -17.0, "katana": -26.0, "bat": -22.0, "axe": -24.0, "pistol": -20.0}
 
 
 def local_point(R, anim, t, bone, pt):

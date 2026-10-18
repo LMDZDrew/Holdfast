@@ -68,6 +68,8 @@ public class WalkerEntity extends PathfinderMob implements GeoEntity {
     private int nextVocalTick;
     /** Server: ticks of stagger left; no lunges or grabs. */
     private int staggerTicks;
+    /** Server despawn bookkeeping (DespawnRules): time with no player in range, and time since death. */
+    private long farTicks, corpseAgeTicks;
     // client bookkeeping
     private final int[] seenNonce = {-1, -1, -1};
     private final String[] seenClip = {"", "", ""};
@@ -198,6 +200,8 @@ public class WalkerEntity extends PathfinderMob implements GeoEntity {
         super.tick();
         if (level().isClientSide) return;
         if (staggerTicks > 0) staggerTicks--;
+        if (isCorpse()) corpseAgeTicks++;
+        if (tickCount % DESPAWN_CHECK_TICKS == 0 && despawnCheck()) return;
         if (fullClipTicks > 0 && fullClipTicks != Integer.MAX_VALUE && --fullClipTicks == 0 && !isCorpse()) {
             entityData.set(FULL_CLIP, "");
             entityData.set(CLIP_NONCE, entityData.get(CLIP_NONCE) + 1);
@@ -212,6 +216,24 @@ public class WalkerEntity extends PathfinderMob implements GeoEntity {
             nextVocalTick = tickCount + (getTarget() == null ? 180 + random.nextInt(180) : 100 + random.nextInt(80));
             playSound(getTarget() != null ? CoreSounds.WALKER_SNARL.get() : CoreSounds.WALKER_GROAN.get(), 0.9F, 0.85F + random.nextFloat() * 0.3F);
         }
+    }
+
+    private static final int DESPAWN_CHECK_TICKS = 20;
+
+    /** Server: apply DespawnRules once a second; true if this walker was removed. */
+    private boolean despawnCheck() {
+        double nearest = Double.POSITIVE_INFINITY;
+        for (Player p : level().players()) {
+            if (p.isSpectator()) continue;
+            nearest = Math.min(nearest, p.distanceTo(this));
+        }
+        var s = dev.holdfast.core.CoreConfig.despawn();
+        farTicks = dev.holdfast.core.rules.DespawnRules.farTicks(farTicks, nearest, DESPAWN_CHECK_TICKS, s);
+        if (!dev.holdfast.core.rules.DespawnRules.remove(isCorpse(), Grabs.isGrabbing(this), nearest, farTicks, corpseAgeTicks, s)) {
+            return false;
+        }
+        discard();
+        return true;
     }
 
     /** Lying walkers (prone, crawler, corpses) get a low square box covering head to hips (~1.6 blocks). */
@@ -285,6 +307,8 @@ public class WalkerEntity extends PathfinderMob implements GeoEntity {
         tag.putBoolean("HfCorpse", isCorpse());
         tag.putInt("HfSkin", skin());
         if (isCorpse()) tag.putString("HfDeathClip", fullClip());
+        tag.putLong("HfFarTicks", farTicks);
+        tag.putLong("HfCorpseAge", corpseAgeTicks);
     }
 
     @Override
@@ -296,6 +320,8 @@ public class WalkerEntity extends PathfinderMob implements GeoEntity {
             setPosture(Posture.UPRIGHT);
         }
         setDormant(tag.getBoolean("HfDormant"));
+        farTicks = tag.getLong("HfFarTicks");
+        corpseAgeTicks = tag.getLong("HfCorpseAge");
         entityData.set(SKIN, tag.contains("HfSkin") ? tag.getInt("HfSkin") : new Random(getUUID().getLeastSignificantBits()).nextInt(4));
         if (tag.getBoolean("HfCorpse")) {
             entityData.set(CORPSE, true);

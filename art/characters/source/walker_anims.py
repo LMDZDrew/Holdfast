@@ -431,18 +431,25 @@ EXECS = {
     "bat_charged": dict(length=1.1, dist=28, commit=0.06, impact=0.2, kind="blunt_kill", fall="side"),
     "axe":         dict(length=1.3, dist=26, commit=0.30, impact=0.46, release=0.86, kind="chop_top", fall="side"),
     "machete":     dict(length=0.95, dist=22, commit=0.16, impact=0.30, release=0.62, kind="chop_side", fall="side"),
+    # two-handed katana (Andrew 2026-10-17: it borrowed the one-handed machete chop and looked odd): a straight
+    # thrust through the face from the guard, held, then drawn out
+    # dist: from the guard the 26 px blade must stay clear of the head (at 30 px its tip was already inside it);
+    # marker: a thrust kills with the tip, so contact is measured there (measure.py, check_exec_variants.py)
+    "katana":      dict(length=1.15, dist=36, commit=0.18, impact=0.32, release=0.70, kind="thrust", fall="back",
+                        marker="katanaTip"),
     # downward stab into a target on the ground; the player anim is solved against the crawler,
     # the prone walker is placed so its head sits in the same spot (dist values set by placement())
     "knife_ground": dict(length=1.2, dist=0, dist_prone=0, commit=0.32, impact=0.5, release=0.86, kind="stab_ground"),
     # same scheme for the other melee weapons (Andrew, 2026-10-16); release = blade out / bat lifted
     "axe_ground":     dict(length=1.4, commit=0.34, impact=0.56, release=0.96, kind="chop_ground"),
     "machete_ground": dict(length=1.1, commit=0.2, impact=0.38, release=0.72, kind="chop_ground"),
+    "katana_ground":  dict(length=1.3, commit=0.3, impact=0.5, release=0.9, kind="chop_ground"),
     "bat_ground":     dict(length=1.2, commit=0.2, impact=0.42, release=0.74, kind="blunt_ground"),
     # TaCZ pistol class only (decisions.md); player clips in player_guns.py start from TaCZ's own hold
     "pistol":         dict(length=1.1, dist=24, commit=0.18, impact=0.36, kind="shot", fall="back"),
     "pistol_ground":  dict(length=1.2, commit=0.22, impact=0.46, release=0.56, kind="shot_ground"),
 }
-GROUND_EXECS = ("knife", "axe", "machete", "bat", "pistol")
+GROUND_EXECS = ("knife", "axe", "machete", "katana", "bat", "pistol")
 
 
 def reactions():
@@ -480,6 +487,16 @@ def reactions():
             a.pose(R - 0.06, head=[0, -6, -10])                              # blade wrenched out, head swings back
             a.pose(R + 0.04, root_pos=[0, 0, 3], torso=[-6, 0, 0], head=[-14, 10, 8])  # shoved off
             hit = collapse(a, R, "back")
+        elif kind == "thrust":
+            # the blade goes in through the face: head driven back onto it, hangs there until it is drawn out
+            a.pose(0.12, torso=[10, 0, 0])
+            full(a, I - 0.02, APPROACH)
+            # impaled: the skull stays on the blade (a big head whip pulled it off the tip); the body sags under it
+            a.pose(I + 0.05, head=[-10, 0, 2], jaw=[34, 0, 0], torso=[12, 0, 0], root_pos=[0, 0, 0],
+                   rightArm=[-40, 0, 22], leftArm=[-36, 0, -20], rightForearm=[-4, 0, 0], leftForearm=[-4, 0, 0])
+            a.pose(R - 0.08, head=[-8, 0, 2], torso=[14, 0, 0], hips_pos=[0, -1, 0], rightShin=[16, 0, 0], leftShin=[14, 0, 0])
+            a.pose(R + 0.02, head=[-12, 4, 0])                                    # blade drawn out
+            hit = collapse(a, R, "back")
         elif kind == "shot":
             # close-range shot to the forehead: head whips back, knees go, falls straight back
             full(a, I - 0.02, APPROACH)
@@ -511,7 +528,7 @@ def reactions():
             hit = collapse(a, R, "side")
         a.sound(I, {"stab": "holdfast:hit.knife_skull", "blunt_kill": "holdfast:hit.blunt_skull_heavy",
                     "chop_top": "holdfast:hit.axe_skull", "chop_side": "holdfast:hit.blade_skull",
-                    "shot": "holdfast:hit.gunshot_skull"}[kind])
+                    "thrust": "holdfast:hit.blade_skull", "shot": "holdfast:hit.gunshot_skull"}[kind])
         a.sound(hit, "holdfast:body.fall")
         a.event(I, "kill")
         if "release" in e:
@@ -527,7 +544,7 @@ def reactions():
 # spinning to face the player. Name: the side of the WALKER the player is on. Timing (impact, kill, release) is
 # the front pair's, so the server's kill tick is unchanged.
 DIRECTIONS = {"left": 90.0, "right": 270.0, "rear": 0.0}     # pair yaw theta (front pair: 180)
-UPRIGHT_EXECS = ("knife", "axe", "machete", "bat_charged", "pistol")
+UPRIGHT_EXECS = ("knife", "axe", "machete", "katana", "bat_charged", "pistol")
 
 
 def directional_reactions():
@@ -536,7 +553,7 @@ def directional_reactions():
         e = EXECS[name]
         I, kind = e["impact"], e["kind"]
         R = e.get("release", I)
-        pinned = kind in ("stab", "chop_side", "chop_top")          # hangs on the blade until it is wrenched out
+        pinned = kind in ("stab", "chop_side", "chop_top", "thrust")          # hangs on the blade until it is wrenched out
         for side in DIRECTIONS:
             a = Anim(round(R + 1.0, 2), "hold_on_last_frame")
             full(a, 0, APPROACH)
@@ -561,7 +578,7 @@ def directional_reactions():
                 hit = collapse(a, I + 0.12, fall)
             a.sound(I, {"stab": "holdfast:hit.knife_skull", "blunt_kill": "holdfast:hit.blunt_skull_heavy",
                         "chop_top": "holdfast:hit.axe_skull", "chop_side": "holdfast:hit.blade_skull",
-                        "shot": "holdfast:hit.gunshot_skull"}[kind])
+                        "thrust": "holdfast:hit.blade_skull", "shot": "holdfast:hit.gunshot_skull"}[kind])
             a.sound(hit, "holdfast:body.fall")
             a.event(I, "kill")
             if "release" in e:
@@ -585,6 +602,7 @@ def _ground_reaction(w):
     I, R = e["impact"], e["release"]
     blunt = e["kind"].startswith(("blunt", "shot"))          # no blade to pull out: the head bounces
     hit = {"knife": "holdfast:hit.knife_skull", "axe": "holdfast:hit.axe_skull", "machete": "holdfast:hit.machete_skull",
+           "katana": "holdfast:hit.blade_skull",
            "bat": "holdfast:hit.bat_skull", "pistol": "holdfast:hit.gunshot_skull"}[w]
     out = {}
     # prone walker: lifts its head at the player, gets pinned

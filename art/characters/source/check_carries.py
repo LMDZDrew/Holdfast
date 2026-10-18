@@ -5,7 +5,8 @@
     carrying arm is exempt within 5 px of the fist, where the hand closes on the grip;
   - a carry with an authored axis (player_weapons.STANCES) points within 3 degrees of it, and a one-hand carry
     without one hangs blade down (machete); solved carries are judged by their geometry only;
-  - every weapon point stays at least 0.5 px above the ground.
+  - every weapon point stays at least 0.5 px above the ground;
+  - layered over the walk and sprint cycles, the weapon stays out of the moving legs.
 
 Uses the regenerated authoring keys, not a new solver run. This checks geometry; Andrew still judges appearance.
 """
@@ -101,6 +102,24 @@ for name, weapon, stance in clips:
         failures.append(f"{name}: support hand {grip:.2f} px off the handle")
     if clash > 0.3:
         failures.append(f"{name}: weapon {clash:.2f} px inside the {clash_where}")
+# Moving legs: each carry layered over the walk and sprint cycles (legs and body from the gait, arms and weapon from
+# the carry, as the client layers them); the weapon must stay out of the legs.
+for gait in ("move_walk", "move_sprint"):
+    g = load(gait)
+    for name, weapon, stance in clips:
+        a = load(name)
+        worst, where = 0.0, ""
+        for t in np.arange(0, g.length, .05):
+            W = fk.worlds(pa.SR, [g, a], t)
+            for p in weapon_points(W, weapon):
+                for bone in ("rightLeg", "leftLeg"):
+                    d = depth_in(W, bone, p)
+                    if d > worst:
+                        worst, where = d, f"{bone} t={t:.2f}"
+        if worst > 0.3:
+            failures.append(f"{name} over {gait}: weapon {worst:.2f} px inside the {where}")
+        else:
+            print(f"{name} over {gait}: weapon clear of the legs (deepest {max(0.0, worst):.2f} px)")
 if failures:
     print("FAIL\n  " + "\n  ".join(failures))
     raise SystemExit(1)

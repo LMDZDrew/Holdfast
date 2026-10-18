@@ -270,6 +270,44 @@ def knife():
     return b, dict(impacts=[(I, 2.5)], weapon="knife")
 
 
+def katana_guard(b, t):
+    # the ready chudan (player_weapons hold_katana): hilt at the navel, tip at throat height
+    b.solve_two(t, P(1, 23, -22), axis=U(0, 0.45, -0.89), edge=U(0, -0.89, -0.45))
+
+
+def katana():
+    """Two-handed thrust through the face (tsuki) from the guard: draw the hands back to the right hip with the blade
+    level, drive it in with the whole body, hold, draw it out and return to guard."""
+    e = wa.EXECS["katana"]
+    b = Builder("exec_katana", e["length"], weapon="katana", react=W["react"]["react_katana"], dist=e["dist"])
+    I, R = e["impact"], e["release"]
+    tip = 7.8                                   # katanaTip lies 7.8 px past the solved katanaEdge marker
+    b.pose(0.0, **STAND, rightArm=[-62, -45, 14], rightItem=[0, 0, 0], leftArm=[-60, 20, -6])
+    katana_guard(b, 0.0)
+    # chamber: hands back by the right hip, blade level and aimed, weight on the back foot
+    b.pose(e["commit"], torso=[-2, 18, 0], body_pos=[0, -0.3, 1.0], head=[2, -10, 0], leftLeg=[-6, 0, 0], rightLeg=[8, 0, 0])
+    b.solve_two(e["commit"], P(5, 23, -12), axis=U(-0.08, 0.06, -1), edge=U(0, -1, 0))
+    # thrust: lunge, the tip through the face to the middle of the skull
+    b.pose(I, torso=[10, -4, 0], body_pos=[0, -1.0, -3.0], head=[8, -2, 0], leftLeg=[-22, 0, 0], rightLeg=[12, 0, 0])
+    Hm, _ = b.walker(I)
+    deep = hp(Hm, (0, 5, 1.5))
+    axis = U(*(deep - P(0, 20, -6)))
+    b.solve_two(I, deep - axis * tip, axis=axis, edge=U(0, -1, 0))
+    # hold it in: same reachable lunge, the tip kept in the skull while the walker hangs on it
+    b.pose(0.48, torso=[10, -4, 0], body_pos=[0, -1.0, -3.0])
+    Hm, _ = b.walker(0.48)
+    b.solve_two(0.48, hp(Hm, (0, 5, 1.5)) - axis * tip, axis=axis, edge=U(0, -1, 0))
+    # draw it out along the same line
+    b.pose(R, torso=[2, 6, 0], body_pos=[0, -0.5, -1.0], head=[4, 2, 0], leftLeg=[-8, 0, 0], rightLeg=[6, 0, 0])
+    Hm, _ = b.walker(R)
+    b.solve_two(R, hp(Hm, (0, 5, -8)) - axis * (tip + 4), axis=axis, edge=U(0, -1, 0))
+    b.pose(e["length"], **STAND)
+    katana_guard(b, e["length"])
+    b.a.event(e["commit"], "commit").event(I, "kill").event(R, "release")
+    b.a.sound(0.1, "holdfast:player.exert_light").sound(I, "holdfast:player.exert_heavy").sound(R - 0.06, "holdfast:knife.pull")
+    return b, dict(impacts=[(I, 3.0)], weapon="katana")
+
+
 def bat_ready(b, t, extra=None):
     # bat up on the right shoulder, both hands on it
     b.solve_two(t, from_hands((0, 15, -5), (0.25, 0.85, 0.45)), axis=U(0.25, 0.85, 0.45))
@@ -490,7 +528,7 @@ def build():
     import player_more
     import copy
     execs = dict(exec_knife=knife(), exec_bat_quick=bat_quick(), bat_charge_hold=bat_charge(),
-                 exec_bat_charged=bat_charged(), exec_axe=axe(), exec_machete=machete())
+                 exec_bat_charged=bat_charged(), exec_axe=axe(), exec_machete=machete(), exec_katana=katana())
     out, reports = {}, []
     for k, (b, info) in execs.items():
         out[k] = (b.a, info)

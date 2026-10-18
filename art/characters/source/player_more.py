@@ -157,6 +157,8 @@ OVERHEAD = {
                 sounds=((0.15, "holdfast:player.exert_heavy"), (0.8, "holdfast:player.exert_strain"), (1.15, "holdfast:player.breath_heavy"))),
     "bat": dict(two=True, edge=False, up=P(0, 44, 8), hit=(0, 7.5, 0), follow=None, shift=0,
                 sounds=((0.06, "holdfast:player.exert_heavy"), (0.42, "holdfast:player.exert_heavy"), (0.9, "holdfast:player.breath_heavy"))),
+    "katana": dict(two=True, edge=True, up=P(0, 46, 10), hit=(0, 7, 0), follow=(0, 6, 0), shift=0,
+                   sounds=((0.12, "holdfast:player.exert_light"), (0.5, "holdfast:player.exert_heavy"), (0.86, "holdfast:player.exert_strain"))),
     "machete": dict(two=False, edge=True, up=P(8, 38, 4), hit=(0, 7, 0), follow=(0, 5.8, 0), shift=2,
                     sounds=((0.08, "holdfast:player.exert_light"), (0.38, "holdfast:player.exert_heavy"), (0.64, "holdfast:player.exert_strain"))),
 }

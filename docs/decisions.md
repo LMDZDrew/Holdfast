@@ -79,6 +79,13 @@ Status: accepted design unless labeled proposed. This file supersedes older word
 - Subsequent direction: Codex should address the click shimmy, jumping and axe/knife instability first, then leave Claude an updated handoff. Andrew likes the extracted effects but rejects the ding in **`axe_hit.mp3`**; exclude that source from playback. Stop implementation and write the handoff if the active usage window reaches 5% remaining.
 - **Proposed for evaluation, not selected:** Andrew wants to consider tailoring first-person presentation to Punchy. Evaluate a reversible Forge 1.20.1 client trial and ownership/synchronization with Holdfast and TaCZ before replacing existing first-person animation. Keep server combat outcomes authoritative and preserve accepted gun animations.
 
+## Review of stances and executions (Andrew, 2026-10-17)
+
+- He likes the dynamic ready stances. Rest carries should keep the arms close to the vanilla stance (no flaring), and the resting axe is reversed (head trailing).
+- Pistol executions must spend a round. An empty gun can't execute.
+- The katana needs its own execution; it borrowed the one-handed machete chop and looked odd.
+- **Walkers despawn to limit lag.** This supersedes design §12's "corpses persist as the ended state" for Stage 1. Living walkers despawn after a while with no player in range; corpses despawn some minutes after death, never in sight of a player. Exact times are configurable; defaults are provisional (`core_combat.md`, "Despawning").
+
 ## Explicitly deferred
 
 Character skill leveling, friendly/recruitable survivors, dynamic dismemberment, broad stealth disguises beyond Whisperer masks, advanced structural physics, and guaranteed shader FPS. They can be revisited after a representative playable prototype.

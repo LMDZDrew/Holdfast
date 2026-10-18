@@ -108,21 +108,26 @@ def _hang(b, s):
     return [6 + 1.6 * b, 2 + s, 13 + 0.7 * b]
 
 
+def _rest(b, s):
+    """Rest arm, close to vanilla's item-holding arm (Andrew 2026-10-17: the rest arms flared out too much)."""
+    return [-10 + 1.0 * b, 1 + 0.5 * s, 3 + 0.4 * b]
+
+
 STANCES = {
     # knife: relaxed, wrist neutral, blade forward and down along the thigh; ready: forward low guard
-    ("knife", "rest"): dict(arm=_hang, axis=(0.15, -0.6, -0.79), edge=(0.0, -1.0, 0.0)),
+    ("knife", "rest"): dict(arm=_rest, axis=(0.15, -0.6, -0.79), edge=(0.0, -1.0, 0.0)),
     # machete (one carry for both stances): the old blade-down hang put its tip ~1 px into the ground
     ("machete", "ready"): dict(arm=_hang, axis=(0.15, -0.6, -0.79), edge=(0.0, -1.0, 0.0)),
     ("knife", "ready"): dict(arm=lambda b, s: [-26 + 1.2 * b, 6 + 0.6 * s, 10 + 0.5 * b], axis=(0.2, 0.3, -0.93), edge=(0.0, -1.0, 0.0)),
     # hatchet: head forward and down at the side; ready: head forward and a little up, bit down (the rest pose its
     # accepted swing was authored around)
-    ("hatchet", "rest"): dict(arm=_hang, axis=(0.12, -0.45, -0.88), edge=(0.0, -1.0, 0.0)),
+    ("hatchet", "rest"): dict(arm=_rest, axis=(0.12, -0.45, -0.88), edge=(0.0, -1.0, 0.0)),
     ("hatchet", "ready"): dict(arm=_hang, axis=(0.12, 0.3, -0.95), edge=(0.0, -1.0, 0.0)),
     # katana rest: lowered one-handed, blade ~20 degrees below level so its 26 px stay off the ground, edge down
-    ("katana", "rest"): dict(arm=_hang, axis=(0.12, -0.34, -0.93), edge=(0.0, -1.0, 0.0)),
-    # fire axe rest: one hand at the side, head forward and low, bit facing forward (a rigid-arm shoulder carry would
-    # run the handle along the carrying arm, so it was rejected by check_carries)
-    ("axe", "rest"): dict(arm=_hang, axis=(0.15, -0.55, -0.82), edge=(0.0, -0.3, -1.0)),
+    ("katana", "rest"): dict(arm=_rest, axis=(0.12, -0.34, -0.93), edge=(0.0, -1.0, 0.0)),
+    # fire axe rest: one hand at the side, reversed (Andrew 2026-10-17): the head trails behind and low, bit facing
+    # back (a rigid-arm shoulder carry would run the handle along the carrying arm; check_carries rejected it)
+    ("axe", "rest"): dict(arm=_rest, axis=(0.15, -0.55, 0.82), edge=(0.0, -0.3, 1.0)),
     # fire axe ready ("port arms"): both hands, handle across the body, head up by the left shoulder; solved with
     # Builder.solve_two so the left hand finds the handle (replaces the low arms-forward carry read as a T-pose).
     # The katana ready stays the two-hand chudan below.
@@ -164,9 +169,10 @@ def carry(weapon, stance="ready"):
             right = [-68 + 1.2 * breath, -45 + .8 * shift, 14 + .6 * breath]
         if spec and "arm" in spec:
             right = spec["arm"](breath, shift)
-        a.pose(t, rightArm=right, leftArm=[-5 + 1.1 * breath, 0, -13 - 0.6 * breath],
-               rightArm_pos=[-1, 0.08 * breath, -2 if two else -0.2],
-               leftArm_pos=[1, -0.08 * breath, -2 if two else -0.2],
+        rest = stance == "rest"                      # vanilla-like arms: no shoulder shift, the free arm hangs
+        a.pose(t, rightArm=right, leftArm=[-2 + 1.1 * breath, 0, -3 - 0.4 * breath] if rest else [-5 + 1.1 * breath, 0, -13 - 0.6 * breath],
+               rightArm_pos=[0, 0.08 * breath, 0] if rest else [-1, 0.08 * breath, -2 if two else -0.2],
+               leftArm_pos=[0, -0.08 * breath, 0] if rest else [1, -0.08 * breath, -2 if two else -0.2],
                head=[1.2 * breath, 1.1 * shift, 0.5 * breath], rightItem=[0, 0, 0])
         W = fk.worlds(pa.SR, [a], t)
         if spec and spec.get("solve"):

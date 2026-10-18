@@ -82,6 +82,10 @@ public final class Executions {
         ExecutionRules.Request req = new ExecutionRules.Request(weapon, w.posture(), Math.hypot(dx, dz) * 16.0, facingErr, true,
                 Grabs.isGrabbing(w), targeted(w), charge);
         Optional<ExecutionRules.Refusal> refusal = ExecutionRules.validate(req);
+        // A pistol execution is a real shot (Andrew 2026-10-17: it cost no bullet): it needs a round to start.
+        if (refusal.isEmpty() && weapon == WeaponClass.PISTOL && rounds(p.getMainHandItem()) < 1) {
+            refusal = Optional.of(ExecutionRules.Refusal.NO_AMMO);
+        }
         CombatTimings.Exec clip = refusal.isPresent() ? null : ExecutionRules.clipFor(weapon, w.posture()).orElseThrow();
         ExecutionRules.Alignment al = null;
         if (refusal.isEmpty()) {
@@ -117,6 +121,14 @@ public final class Executions {
         LAST_APPROACH.put(p.getUUID(), al.approach());
         w.playFull(al.targetClip(), clip.lengthTicks() + 40);
         Grabs.clip(p, clip.playerClip(), w);
+    }
+
+    private static int rounds(net.minecraft.world.item.ItemStack stack) {
+        return net.minecraftforge.fml.ModList.get().isLoaded("tacz") ? dev.holdfast.core.compat.tacz.TaczGuns.rounds(stack) : 0;
+    }
+
+    private static void consumeRound(net.minecraft.world.item.ItemStack stack) {
+        if (net.minecraftforge.fml.ModList.get().isLoaded("tacz")) dev.holdfast.core.compat.tacz.TaczGuns.consumeRound(stack);
     }
 
     /** Last refusal / approach per player, for GameTests and the debug command. */
@@ -190,6 +202,8 @@ public final class Executions {
             boolean inPlace = a.target.isAlive() && !a.target.isCorpse() && a.target.position().distanceTo(a.snapped) <= IN_PLACE;
             switch (a.session.tick(now, inPlace)) {
                 case KILL -> {
+                    // the shot spends its round at the kill tick, from the gun still in hand
+                    if (a.weapon == WeaponClass.PISTOL) consumeRound(p.getMainHandItem());
                     if (!a.gun.isEmpty()) CoreNet.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> p),
                             new dev.holdfast.core.net.GunShotPacket(p.getId(), a.gun));
                     a.target.brainKill(a.targetClip, 0);

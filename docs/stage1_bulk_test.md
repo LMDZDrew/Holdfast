@@ -1,6 +1,16 @@
 # Stage 1 bulk test sheet (for Andrew)
 
-## Current review: stances, all-angle executions, plus Codex's motion fixes (2026-10-17)
+## Current review: your stance and execution notes (2026-10-17, second pass)
+
+Branch `claude/stage1-stances-executions`; hashes of the installed jars are in `testing.md`. Run `/hfa stop` first. Report by number.
+
+1. **Rest arms and reversed axe.** Hold each melee weapon at rest (no fighting for 4 s): the arms should now sit close to the vanilla stance, not flared out. The fire axe at rest is reversed, with the head trailing behind you, low, bit facing back. If "reversed" meant something else (for example, only the blade turned to face the other way), say so. Ready stances are unchanged.
+2. **Katana executions.** The katana now has its own two-handed executions instead of the machete chop: standing, a thrust through the face from the guard (it hangs on the blade, then drops when you draw it out); on a prone or crawler walker, a two-handed overhead cut. Try it from the front, a side and behind, standing and on the ground.
+3. **Pistol executions cost a round.** Note the ammo count, execute with a TaCZ pistol: one round should be gone. Empty the pistol: the execution should refuse with "Out of ammo".
+4. **Despawning.** With `/holdfast walker`, spawn a few, kill one, then go more than 96 blocks away for over a minute and come back: the living ones should be gone. A corpse disappears 10 minutes after death, but only while nobody is within 24 blocks of it. These are provisional defaults in the `walkers` section of the server config (`despawnDistance`, `despawnAfterSeconds`, `corpseDespawnMinutes`, `corpseHiddenDistance`).
+5. The earlier items still stand if not yet tried: attacks and fast clicks, jumping, executions from every side, and the quick gun check.
+
+## Earlier review: stances, all-angle executions, plus Codex's motion fixes (2026-10-17)
 
 Branch `claude/stage1-stances-executions`, code `1da61ff`, on top of Codex's `c327bef` (its motion corrections are included and also still await your look). Installed on both sides: core `CA805B1D…`, harness `4CC35E0F…` (full hashes in `testing.md`). The server restarted at 20:02 and is ready; the client is closed. The no-ding impact pack and Tissou pack are unchanged. Run `/hfa stop` first. Report by number; "fine" is a valid answer.
 

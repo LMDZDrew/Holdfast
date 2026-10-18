@@ -31,6 +31,7 @@
  "message.holdfast_core.execute_refused.too_close": "Too close; step back",
  "message.holdfast_core.execute_refused.obstructed": "Something's in the way",
  "message.holdfast_core.execute_refused.no_room": "No room to do it here",
+ "message.holdfast_core.execute_refused.no_ammo": "Out of ammo",
  "item.holdfast_core.knife": "Kitchen Knife",
  "item.holdfast_core.machete": "Machete",
  "item.holdfast_core.fire_axe": "Fire Axe",

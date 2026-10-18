@@ -57,7 +57,7 @@ def run():
                 if gap > 1.0:
                     failures.append(f"{clip}{side}: skull {gap:.2f} px off the strike point")
                 continue
-            strike = pa.WEAPON[weapon][0]
+            strike = wa.EXECS[name].get("marker", pa.WEAPON[weapon][0])
             first_in, max_d, early = None, 0.0, []
             for i in range(int(a.length / 0.01) + 1):
                 t = round(i * 0.01, 3)
