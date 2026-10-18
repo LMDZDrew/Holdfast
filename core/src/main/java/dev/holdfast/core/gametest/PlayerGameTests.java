@@ -64,8 +64,32 @@ public final class PlayerGameTests {
             Grabs.escape(p);
             h.assertFalse(Grabs.isGrabbed(p), "escape inside the window was refused");
             h.assertFalse(ConditionCapability.of(p).infected(), "escaped but infected");
+            h.assertTrue(w.fullClip().equals("grab_shoved"),"escape was replaced by generic stagger/release");
             h.succeed();
         });
+    }
+
+    private static void ankleEscape(GameTestHelper h,Posture posture,GrabRules.Kind kind,String reaction) {
+        ServerPlayer p=player(h);
+        WalkerEntity w=walker(h);
+        w.setPosture(posture);
+        h.assertTrue(Grabs.start(w,p,kind),"ankle grab refused");
+        h.runAfterDelay(CoreConfig.grabWindowTicks()/2,() -> {
+            Grabs.escape(p);
+            h.assertFalse(Grabs.isGrabbed(p),"ankle escape refused");
+            h.assertTrue(w.fullClip().equals(reaction),"paired kick overwritten: "+w.fullClip());
+            h.assertFalse(ConditionCapability.of(p).infected(),"escaped but infected");
+            h.succeed();
+        });
+    }
+
+    @GameTest(template="arena",timeoutTicks=100)
+    public static void proneEscapeKeepsPairedKick(GameTestHelper h) {
+        ankleEscape(h,Posture.PRONE,GrabRules.Kind.PRONE_ANKLE,"prone_ankle_kicked");
+    }
+    @GameTest(template="arena",timeoutTicks=100)
+    public static void crawlerEscapeKeepsPairedKick(GameTestHelper h) {
+        ankleEscape(h,Posture.CRAWLER,GrabRules.Kind.CRAWLER_ANKLE,"crawler_ankle_kicked");
     }
 
     @GameTest(template = "arena", timeoutTicks = 200)

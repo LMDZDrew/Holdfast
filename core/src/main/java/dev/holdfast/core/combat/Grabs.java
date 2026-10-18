@@ -117,14 +117,16 @@ public final class Grabs {
             return;
         }
         Clips c = clips(g.session.kind);
+        // Remove ownership before stagger releases victims, then install the paired escape AFTER the generic
+        // stagger. Otherwise releaseByAttacker overwrites the player's escape and stagger overwrites the walker.
+        end(p, g, "escaped");
+        g.walker.stagger(null);
         g.walker.playFull(c.walkerEscaped, 18);
         clip(p, c.victimEscape, g.walker);
         Vec3 away = g.walker.position().subtract(p.position()).normalize().scale(GrabRules.ESCAPE_KNOCKBACK);
         g.walker.setDeltaMovement(away.x, 0.15, away.z);
         g.walker.hurtMarked = true;
-        g.walker.stagger(null);
         p.causeFoodExhaustion(1.0F);
-        end(p, g, "escaped");
     }
 
     /** A brain kill, stagger or shove on the walker by anyone releases its victim (S6). */

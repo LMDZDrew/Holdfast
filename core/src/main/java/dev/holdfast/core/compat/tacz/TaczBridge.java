@@ -3,8 +3,8 @@ package dev.holdfast.core.compat.tacz;
 import com.tacz.guns.api.event.common.EntityHurtByGunEvent;
 import dev.holdfast.core.combat.Strikes;
 import dev.holdfast.core.entity.WalkerEntity;
-import dev.holdfast.core.rules.BodyRegion;
 import dev.holdfast.core.rules.WeaponClass;
+import dev.holdfast.core.rules.ContactGeometry;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -22,23 +22,43 @@ public final class TaczBridge {
     public static void register() {
         MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, false, EntityHurtByGunEvent.Pre.class, TaczBridge::onGunHurt);
         MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, false, EntityHurtByGunEvent.Post.class, TaczBridge::onGunHurtOther);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGHEST,false,com.tacz.guns.api.event.common.GunMeleeEvent.class,event -> {
+            if(event.getLogicalSide()==LogicalSide.SERVER && event.getShooter() instanceof net.minecraft.server.level.ServerPlayer p
+                    && (dev.holdfast.core.combat.Grabs.isGrabbed(p) || dev.holdfast.core.combat.Executions.isExecuting(p)))
+                event.setCanceled(true); // Native shove cannot bypass a server-owned grab/paired execution.
+        });
     }
 
     /** Any other living target keeps TaCZ's own damage; clients get the gunshot flesh response (decisions.md). */
     private static void onGunHurtOther(EntityHurtByGunEvent.Post event) {
         if (event.getLogicalSide() != LogicalSide.SERVER || !(event.getHurtEntity() instanceof net.minecraft.world.entity.LivingEntity le)
                 || le instanceof WalkerEntity) return;
-        Vec3 hit = event.getBullet() != null ? event.getBullet().position() : le.getEyePosition();
-        Vec3 dir = event.getBullet() != null ? event.getBullet().getDeltaMovement() : Vec3.ZERO;
-        dev.holdfast.core.combat.Strikes.feedbackOther(le, hit, dir, WeaponClass.Contact.GUNSHOT, event.isHeadShot());
+        Vec3[] ray=bulletSegment(event,le);
+        var b=le.getBoundingBox();
+        var box=new ContactGeometry.Box(b.minX,event.isHeadShot()?b.maxY-(b.maxY-b.minY)*.25:b.minY,b.minZ,b.maxX,b.maxY,b.maxZ);
+        var hit=ContactGeometry.segment(Strikes.point(ray[0]),Strikes.point(ray[1]),box);
+        Vec3 entry=hit.map(h -> Strikes.vec(h.entry())).orElseGet(() -> Strikes.vec(
+                ContactGeometry.nearestToSegment(Strikes.point(ray[0]),Strikes.point(ray[1]),box)));
+        Vec3 exit=hit.filter(ContactGeometry.Segment::crossesExit).map(h -> Strikes.vec(h.exit())).orElse(null);
+        Strikes.feedbackOther(le,entry,ray[1].subtract(ray[0]),WeaponClass.Contact.GUNSHOT,event.isHeadShot(),exit);
     }
 
     private static void onGunHurt(EntityHurtByGunEvent.Pre event) {
         if (event.getLogicalSide() != LogicalSide.SERVER || !(event.getHurtEntity() instanceof WalkerEntity w)) return;
         event.setCanceled(true);
-        Vec3 hit = event.getBullet() != null ? event.getBullet().position() : w.getEyePosition();
-        BodyRegion region = event.isHeadShot() ? BodyRegion.HEAD : Strikes.region(w, hit);
+        Vec3[] ray=bulletSegment(event,w);
+        Strikes.Contact hit=Strikes.trace(w,ray[0],ray[1],event.isHeadShot());
         WeaponClass cls = event.getGunId() != null ? TaczGuns.classOf(event.getGunId()) : WeaponClass.RIFLE;
-        Strikes.apply(event.getAttacker(), w, cls, hit, region, 1.0, 0);
+        Strikes.apply(event.getAttacker(), w, cls, hit, 1.0, 0);
+    }
+
+    private static Vec3[] bulletSegment(EntityHurtByGunEvent event, net.minecraft.world.entity.LivingEntity target) {
+        var bullet=event.getBullet();
+        // TaCZ onBulletTick casts position -> position + deltaMovement before posting Pre/Post and before moving.
+        // EntityHurtByGunEvent carries no TacHitResult or hit location. Do not use the previous tick's stale segment.
+        if(bullet!=null && bullet.getDeltaMovement().lengthSqr()>1e-12)
+            return new Vec3[]{bullet.position(),bullet.position().add(bullet.getDeltaMovement())};
+        Vec3 from=event.getAttacker()==null?target.getEyePosition().add(0,0,-1):event.getAttacker().getEyePosition();
+        return new Vec3[]{from,target.getBoundingBox().getCenter()};
     }
 }

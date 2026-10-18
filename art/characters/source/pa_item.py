@@ -80,10 +80,17 @@ def grip(part):
     return A @ np.array([HAND_SIDE[part], 2.0, -10.0])
 
 
-def pa_position(part):
-    """Constant Player Animator position key (JSON values) that moves its pivot onto our fist."""
+def pa_position(part, offset_bb=None):
+    """Player Animator position (JSON values), including an optional authoring wrist translation in arm space."""
     p = A.T @ (fist(part) - grip(part))
+    if offset_bb is not None:
+        p += A.T @ (np.array(offset_bb,float) * [1,-1,1])
     return [round(float(p[0]), 4), round(float(-p[1]), 4), round(float(p[2]), 4)]
+
+
+def from_pa_position(part, value):
+    p=(np.array(value,float)-np.array(pa_position(part))) * [1,-1,1]
+    return (A @ p) * [1,-1,1]
 
 
 def to_pa_rotation(e_deg, near=None):
@@ -109,9 +116,11 @@ def self_test(n=200, seed=3):
         e = rng.uniform(-180, 180, 3)
         worst = max(worst, float(np.abs(S @ lib.bb_matrix(e) @ S - zyx(e)).max()))
         for part in ("rightItem", "leftItem"):
+            offset=rng.uniform(-8,8,3)
+            worst=max(worst,float(np.max(np.abs(from_pa_position(part,pa_position(part,offset))-offset))))
             w = rng.uniform(-10, 10, 3) + np.array(FIST_BB[part])
-            ours = fist(part) + zyx(e) @ (bb_to_mc(w) - ARM_PIVOT[part] - fist(part))
-            pos = np.array(pa_position(part)) * [1, -1, 1]
+            ours = fist(part) + offset*[1,-1,1] + zyx(e) @ (bb_to_mc(w) - ARM_PIVOT[part] - fist(part))
+            pos = np.array(pa_position(part,offset)) * [1, -1, 1]
             m = model_point(part, w) - 8.0
             pa = grip(part) + A @ (pos + zyx(to_pa_rotation(e)) @ m)
             worst = max(worst, float(np.abs(ours - pa).max()))
@@ -125,4 +134,4 @@ if __name__ == "__main__":
         print(part, "fist", fist(part), "grip", np.round(grip(part), 4), "position key", pa_position(part))
     w = self_test()
     print(f"self test worst difference {w:.2e}")
-    raise SystemExit(0 if w < 1e-6 else 1)
+    raise SystemExit(0 if w < 1e-4 else 1)  # exported position keys round to four decimals

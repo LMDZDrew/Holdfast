@@ -27,11 +27,11 @@ def ankle_anims():
     out["grabbed_ankle_seize"] = (a, dict(impacts=[(0.12, 2.5)]))
 
     a = Anim(0.8, True)          # yanking the leg against the grip
-    for t, k in ((0, 0), (0.2, 1), (0.4, 0), (0.6, -1), (0.8, 0)):
+    for t, k in ((0,0),(.12,.6),(.26,1),(.4,.2),(.54,-1),(.68,-.3),(.8,0)):
         a.pose(t, **dict(HELD, rightLeg=[-14 + 8 * k, 0, 0], torso=[-6 - 2 * abs(k), 0, 0], head=[46 + 3 * k, 6, 0],
-                         body_pos=[0, -0.4, 1.0 + 0.4 * k], rightArm=[-30, 0, 34 + 4 * k], leftArm=[-26, 0, -38 - 4 * k]))
+                         body_pos=[0,-.4-.12*max(0,k),1+.4*k],rightArm=[-30+3*k,0,34+3*k],leftArm=[-26-2*k,0,-38-5*k]))
     a.sound(0.0, "holdfast:player.strain")
-    out["grabbed_ankle_struggle"] = (a, dict(impacts=[], tremor=0.4))
+    out["grabbed_ankle_struggle"] = (a, dict(impacts=[], tremor=0.15))
 
     a = Anim(0.6, False)          # escape: stamp the free foot into its face
     a.pose(0.0, **HELD)
@@ -126,16 +126,18 @@ def knife_ground():
     Hm, Wm = b.walker(I - 0.07)
     down = pa.hd(Hm, (0, -1, 0))
     b.solve_weapon(I - 0.07, pa.hp(Hm, (0, 8, 0)) - down * 4, axis=down)                 # tip just above the skull
-    b.pose(I, body_pos=[4, -4.2, -0.6], torso=[40, -4, 0], head=[40, 0, 0])
+    # With rigid arms a deep crouch puts the desired fist only 4 px from a 9.55 px arm's shoulder. A shallower
+    # forward lean lets the arm extend naturally and the blade follow the skull axis instead of folding the wrist.
+    b.pose(I, body_pos=[4, -2.3, -0.6], torso=[20, -4, 0], head=[40, 0, 0])
     Hm, Wm = b.walker(I)
-    b.solve_weapon(I, pa.hp(Hm, (0, 3.5, 0)), axis=pa.hd(Hm, (0, -1, 0)))
+    b.solve_weapon(I, pa.hp(Hm, (0, 2.5, 0)), axis=pa.hd(Hm, (0, -1, 0)), reg=0.00002, w_axis=200)
     b.solve_left(I, fk.point(Wm, "torso", (0, 10, 2.5)) + P(-3, 0, 0))
-    b.pose(0.66, body_pos=[4, -4.4, -0.8], torso=[42, -6, 0])
+    b.pose(0.66, body_pos=[4, -2.3, -0.6], torso=[20, -4, 0])
     Hm, Wm = b.walker(0.66)
-    b.solve_weapon(0.66, pa.hp(Hm, (0, 2.5, 0)), axis=pa.hd(Hm, (0, -1, 0)))
-    b.pose(0.8, body_pos=[4, -4.3, -0.7], torso=[41, -5, 0])
+    b.solve_weapon(0.66, pa.hp(Hm, (0, 2.5, 0)), axis=pa.hd(Hm, (0, -1, 0)), reg=0.00002, w_axis=200)
+    b.pose(0.8, body_pos=[4, -2.3, -0.6], torso=[20, -4, 0])
     Hm, Wm = b.walker(0.8)
-    b.solve_weapon(0.8, pa.hp(Hm, (0, 2.5, 0)), axis=pa.hd(Hm, (0, -1, 0)))
+    b.solve_weapon(0.8, pa.hp(Hm, (0, 2.5, 0)), axis=pa.hd(Hm, (0, -1, 0)), reg=0.00002, w_axis=200)
     b.pose(R, body_pos=[4, -3.0, 0], torso=[26, 6, 0], head=[34, 0, 0])
     Hm, Wm = b.walker(R)
     up = -pa.hd(Hm, (0, -1, 0))
@@ -157,7 +159,7 @@ OVERHEAD = {
                 sounds=((0.15, "holdfast:player.exert_heavy"), (0.8, "holdfast:player.exert_strain"), (1.15, "holdfast:player.breath_heavy"))),
     "bat": dict(two=True, edge=False, up=P(0, 44, 8), hit=(0, 7.5, 0), follow=None, shift=0,
                 sounds=((0.06, "holdfast:player.exert_heavy"), (0.42, "holdfast:player.exert_heavy"), (0.9, "holdfast:player.breath_heavy"))),
-    "katana": dict(two=True, edge=True, up=P(0, 46, 10), hit=(0, 7, 0), follow=(0, 6, 0), shift=0,
+    "katana": dict(two=True, edge=True, up=P(0, 46, 10), hit=(0, 3.2, 0), follow=(0, 2.2, 0), shift=0, sink=.8,
                    sounds=((0.12, "holdfast:player.exert_light"), (0.5, "holdfast:player.exert_heavy"), (0.86, "holdfast:player.exert_strain"))),
     "machete": dict(two=False, edge=True, up=P(8, 38, 4), hit=(0, 7, 0), follow=(0, 5.8, 0), shift=2,
                     sounds=((0.08, "holdfast:player.exert_light"), (0.38, "holdfast:player.exert_heavy"), (0.64, "holdfast:player.exert_strain"))),
@@ -175,7 +177,7 @@ def overhead_ground(w):
     def strike(t, target, axis, edge=None):
         edge = edge if o["edge"] else None
         if o["two"]:
-            b.solve_two(t, target, axis=axis, edge=edge, upright=up)
+            b.solve_two(t, target, axis=axis, edge=edge, upright=up, reg=0.00002 if w == "katana" else 0.002)
         else:
             b.solve_weapon(t, target, axis=axis, edge=edge, upright=up)
 
@@ -200,12 +202,12 @@ def overhead_ground(w):
     Hm, _ = b.walker(I - 0.07)
     strike(I - 0.07, pa.hp(Hm, (0, 8, 0)) + P(0, 9, 5), U(0, 0.1, -1), U(0, -1, 0.1))
     # impact, whole body into it
-    b.pose(I, body_pos=[sx, -2.6, -1.6], torso=[30 if o["two"] else 34, 0 if o["two"] else -6, 0], head=[32, 0, 0],
+    b.pose(I, body_pos=[sx, -2.6-o.get('sink',0), -1.6], torso=[30 if o["two"] else 34, 0 if o["two"] else -6, 0], head=[32, 0, 0],
            leftLeg=[-22, 0, 0], rightLeg=[14 if o["two"] else -6, 0, 0], **({} if o["two"] else {"leftArm": [-40, 0, -14]}))
     Hm, _ = b.walker(I)
     strike(I, pa.hp(Hm, o["hit"]), CHOP_AXIS, CHOP_EDGE)
     t1 = round(I + 0.12, 2)
-    b.pose(t1, body_pos=[sx, -2.7 if o["edge"] else -2.0, -1.6 if o["edge"] else -1.0], torso=[31 if o["edge"] else 24, 0, 0])
+    b.pose(t1, body_pos=[sx, (-2.7 if o["edge"] else -2.0)-o.get('sink',0), -1.6 if o["edge"] else -1.0], torso=[31 if o["edge"] else 24, 0, 0])
     Hm, _ = b.walker(t1)
     if o["edge"]:                         # sink in, then work it free
         strike(t1, pa.hp(Hm, o["follow"]), CHOP_AXIS, CHOP_EDGE)

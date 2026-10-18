@@ -2,6 +2,16 @@
 
 Status: accepted design unless labeled proposed. This file supersedes older wording in `design.md` and the original Word document.
 
+## Third stance/execution review (Andrew, 2026-10-17)
+
+- Blood particles must visibly originate at the weapon/bullet impact site on the walker. Server feedback supplies a surface entry, incoming direction, and a separate gunshot exit where available. Execution contacts follow the authored skull pose; free melee remains a regional ray approximation, not animated mesh collision.
+- Knife and katana executions need deeper insertion, standing and on the ground, including side/rear approaches. Measure physical blade insertion as well as nearest-face depth; do not lengthen weapon geometry to manufacture contact.
+- Andrew clarified the resting fire axe problem: "the head/blade direction, maybe give the same resting position as the hatchet." Match that carry direction. Preserve the accepted dynamic ready poses and all firearm animation assets.
+- These are requirements, not in-game acceptance of the new implementation. The other second-review items remain unreported.
+- During this pass Andrew reported that the torso still "shimmers" and clarified **"Twists/twitches on clicks"**. Remove the ordinary attack clips' lateral torso twist as well as vanilla's additional swing. Forward strike lean remains; executions and accepted gun clips are separate actions.
+- Andrew also requested the main hand halfway along the longer axe handle and clarified **"Resting carry only"**. Apply that grip to the resting fire axe, then return to the existing combat grip for ready, swings and executions.
+- Andrew requested a richer grab QTE animation and **F** as the default execution and TaCZ shove binding, with editable controls in Settings. Holdfast's single context mapping covers escape/kick free, execute and cancel under the Holdfast category; TaCZ's existing editable melee mapping covers its shove. When both share a key, a grab/active execution or pistol execution request takes precedence, while rifles and non-execution contexts retain TaCZ melee. The server still decides the request; presentation complexity does not introduce button mashing or extra outcome authorities.
+
 ## Identity and scope
 
 - Faithful to AMC's *The Walking Dead* in atmosphere and recognizable remnants, with original playable survivors and hostile human communities. Spoilers are fine.

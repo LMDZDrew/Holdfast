@@ -138,11 +138,11 @@ class Builder:
         self.report.append(f"{self.name} t={t:.2f} weapon miss {err:.2f}px")
         return Wm
 
-    def solve_two(self, t, target, axis=None, edge=None, w_axis=8.0, w_edge=6.0, w_grip=1.5, reg=0.002, upright=0.0):
+    def solve_two(self, t, target, axis=None, edge=None, w_axis=8.0, w_edge=6.0, w_grip=1.5, reg=0.002, upright=0.0, marker=None):
         """Two-handed: solve right arm, wrist, left arm and where the left hand sits on the handle together.
         Vanilla player arms are rigid (no elbow), so the grip may slide along the handle (local z +4..-4).
         upright > 0 keeps the blade plane (handle and edge) vertical, so a chop doesn't read as tilted."""
-        strike = WEAPON[self.weapon][0]
+        strike = marker or WEAPON[self.weapon][0]
         g0 = np.concatenate([self.prev["rightArm"], self.prev["rightItem"], self.prev["leftArm"], [2.0]])
 
         def parts(x):
@@ -242,24 +242,27 @@ def knife():
     # Into the temple on the walker's left (the player's right), blade travelling right to left across the head.
     # Andrew, in game 2026-10-16: the frontal eye-socket stab read as passing through the face; the rigid
     # vanilla arm could only bring the blade ~50 deg off a head-on line anyway, and a hook suits it.
-    temple, deep = (-4, 4.5, -0.5), (-0.5, 4.5, -0.5)
+    temple, deep = (-4, 4.5, -0.5), (2.0, 4.5, -0.5)
     # commit: step in hard, blade comes round beside the head
     b.pose(0.22, body_pos=[0, -0.8, -2.5], torso=[8, 6, 0], head=[6, -2, 0], leftLeg=[-22, 0, 0], rightLeg=[14, 0, 0])
     Hm, Wm = b.walker(0.22)
     b.solve_left(0.22, fk.point(Wm, "torso", (0, 9, -2.5)))
     side = hd(Hm, (-1, 0, 0))                    # out of the walker's left temple
     b.solve_weapon(0.22, hp(Hm, temple) + side * 6, axis=-side)
+    b.pose(I - .06, body_pos=[0, 0, -9.7], torso=[14, -10, 0], head=[6, -2, 0], rightArm_pos=[0, 1, -2])
+    Hm, _ = b.walker(I - .06)
+    b.solve_weapon(I - .06, hp(Hm, temple) + hd(Hm, (-1, 0, 0))*2, reg=.00002)
     # impact: into the temple, whole body behind it
-    b.pose(I, body_pos=[0, -1.1, -3], torso=[14, -10, 0], head=[8, -4, 0])
+    b.pose(I, body_pos=[0, 0, -9.7], torso=[14, -10, 0], head=[8, -4, 0], rightArm_pos=[0, 1, -2])
     Hm, Wm = b.walker(I)
-    b.solve_weapon(I, hp(Hm, deep), axis=hd(Hm, (1, 0, 0)))
+    b.solve_weapon(I, hp(Hm, deep), axis=hd(Hm, (1, 0, 0)), w_axis=100, reg=0.00002)
     b.solve_left(I, fk.point(Wm, "torso", (0, 9, -2.5)))
     # drive it home
-    b.pose(0.45, body_pos=[0, -1.3, -3.4], torso=[17, -12, 0], head=[10, -4, 0])
+    b.pose(0.45, body_pos=[0, 0, -10.0], torso=[17, -12, 0], head=[10, -4, 0], rightArm_pos=[0, 1, -2])
     Hm, Wm = b.walker(0.45)
-    b.solve_weapon(0.45, hp(Hm, (0.8, 4.5, -0.5)), axis=hd(Hm, (1, 0, 0)))
+    b.solve_weapon(0.45, hp(Hm, (2.8, 4.5, -0.5)), axis=hd(Hm, (1, 0, 0)), w_axis=100, reg=0.00002)
     # wrench it out with a twist, back the way it came
-    b.pose(0.6, body_pos=[0, -0.8, -2], torso=[6, 8, 0], head=[4, 4, 0])
+    b.pose(0.6, body_pos=[0, -0.8, -2], torso=[6, 8, 0], head=[4, 4, 0], rightArm_pos=[0, 0, 0])
     Hm, Wm = b.walker(0.6)
     b.solve_weapon(0.6, hp(Hm, temple) + hd(Hm, (-1, 0, 0)) * 6 + P(1, -2, 2), axis=U(-0.8, 0.3, -0.5))
     # shove the body off the free hand
@@ -287,16 +290,19 @@ def katana():
     # chamber: hands back by the right hip, blade level and aimed, weight on the back foot
     b.pose(e["commit"], torso=[-2, 18, 0], body_pos=[0, -0.3, 1.0], head=[2, -10, 0], leftLeg=[-6, 0, 0], rightLeg=[8, 0, 0])
     b.solve_two(e["commit"], P(5, 23, -12), axis=U(-0.08, 0.06, -1), edge=U(0, -1, 0))
+    b.pose(I - .06, torso=[4, 6, 0], body_pos=[0, -.5, -3], head=[5, -4, 0])
+    Hm, _ = b.walker(I - .06)
+    b.solve_two(I - .06, hp(Hm, (0, 5, -5.5)), axis=U(0, 0, -1), edge=U(0, -1, 0), marker="katanaTip", reg=.00002)
     # thrust: lunge, the tip through the face to the middle of the skull
-    b.pose(I, torso=[10, -4, 0], body_pos=[0, -1.0, -3.0], head=[8, -2, 0], leftLeg=[-22, 0, 0], rightLeg=[12, 0, 0])
+    b.pose(I, torso=[10, -4, 0], body_pos=[0, -1.0, -6.0], head=[8, -2, 0], leftLeg=[-22, 0, 0], rightLeg=[12, 0, 0])
     Hm, _ = b.walker(I)
-    deep = hp(Hm, (0, 5, 1.5))
+    deep = hp(Hm, (0, 5, 3.5))
     axis = U(*(deep - P(0, 20, -6)))
-    b.solve_two(I, deep - axis * tip, axis=axis, edge=U(0, -1, 0))
+    b.solve_two(I, deep, axis=axis, edge=U(0, -1, 0), marker="katanaTip", w_axis=30, reg=0.00002)
     # hold it in: same reachable lunge, the tip kept in the skull while the walker hangs on it
-    b.pose(0.48, torso=[10, -4, 0], body_pos=[0, -1.0, -3.0])
+    b.pose(0.48, torso=[10, -4, 0], body_pos=[0, -1.0, -6.0])
     Hm, _ = b.walker(0.48)
-    b.solve_two(0.48, hp(Hm, (0, 5, 1.5)) - axis * tip, axis=axis, edge=U(0, -1, 0))
+    b.solve_two(0.48, hp(Hm, (0, 5, 3.5)), axis=axis, edge=U(0, -1, 0), marker="katanaTip", w_axis=30, reg=0.00002)
     # draw it out along the same line
     b.pose(R, torso=[2, 6, 0], body_pos=[0, -0.5, -1.0], head=[4, 2, 0], leftLeg=[-8, 0, 0], rightLeg=[6, 0, 0])
     Hm, _ = b.walker(R)
@@ -440,24 +446,29 @@ def grab_anims():
     a = Anim(0.5, False)
     a.pose(0.0, **STAND, rightArm=[-10, 0, 4], leftArm=[-10, 0, -4], rightItem=[0, 0, 0])
     a.pose(0.1, body_pos=[0, 0, 1.5], torso=[-10, 0, 0], head=[-12, 0, 0])
+    a.pose(0.18, rightArm=[-72,-14,8],leftArm=[-46,14,-10],head=[-8,12,-2]) # catch one wrist, then brace
     a.pose(0.3, rightArm=[-80, -8, 0], leftArm=[-82, 8, 0])
     a.pose(0.5, **STRUG)
     a.sound(0.1, "holdfast:player.gasp")
     out["grabbed_seize"] = (a, dict(impacts=[(0.4, 3.0)]))
 
-    a = Anim(0.8, True)              # straining against it: arms locked out, leaning back, head turned from the teeth
-    for t, k in ((0, 0), (0.2, 1), (0.4, 0), (0.6, -1), (0.8, 0)):
-        a.pose(t, **dict(STRUG, rightArm=[-84 + 4 * k, -10, 0], leftArm=[-80 - 4 * k, 12, 0],
-                         head=[-6, 18 + 6 * k, 0], torso=[-8 - abs(k), 0, 0], body_pos=[0, -0.6, 1.2 + 0.3 * k]))
+    a = Anim(0.8, True) # brace, one grip slips under pressure, regain the frame; not two arms pumping together
+    for t,k,slip in ((0,0,0),(.12,.65,0),(.26,1,1),(.40,.25,.3),(.54,-.75,0),(.68,-.35,-.35),(.8,0,0)):
+        a.pose(t,**dict(STRUG,rightArm=[-84+5*k+3*slip,-10-4*slip,2*slip],
+                        leftArm=[-80-3*k,12+5*slip,-2*slip],head=[-6+2*k,18+4*k,1.5*slip],
+                        torso=[-8-1.3*max(0,k),0,1.2*slip],body_pos=[0,-.6-.15*max(0,k),1.2+.35*k],
+                        rightLeg=[18-3*k,0,0],leftLeg=[-10+2*k,0,0]))
     a.sound(0.0, "holdfast:player.strain")
-    out["grabbed_struggle"] = (a, dict(impacts=[], tremor=0.6))
+    out["grabbed_struggle"] = (a, dict(impacts=[], tremor=0.18))
 
     a = Anim(0.6, False)
     a.pose(0.0, **STRUG)
     a.pose(0.08, torso=[6, 0, 0], body_pos=[0, -0.9, 0.6], rightArm=[-70, -10, 0], leftArm=[-68, 12, 0])
+    a.pose(.12,torso=[11,0,0],body_pos=[0,-.85,-.8],rightArm=[-86,-4,3],leftArm=[-82,5,-3],head=[0,5,0])
     a.pose(0.16, rightArm=[-95, 0, 4], leftArm=[-95, 0, -4], torso=[14, 0, 0], body_pos=[0, -0.6, -2.5],
            leftLeg=[-24, 0, 0], rightLeg=[16, 0, 0], head=[2, 0, 0])
     a.pose(0.35, rightArm=[-60, 0, 6], leftArm=[-58, 0, -6], torso=[8, 0, 0])
+    a.pose(.46,torso=[3,0,0],body_pos=[0,-.2,-.4],rightArm=[-32,0,8],leftArm=[-28,0,-8],head=[4,0,0])
     a.pose(0.6, **STAND, rightArm=[-20, 0, 6], leftArm=[-20, 0, -6], rightItem=[0, 0, 0])
     a.sound(0.14, "holdfast:player.exert_heavy")
     a.event(0.14, "shove")
@@ -691,7 +702,9 @@ def to_player_animator(a, step=0.05, firearm_variant=False, geodesic_items=False
         for t in sorted(rot):
             near = pa_item.to_pa_rotation(rot[t], near)
             rot[t] = [round(float(v), 2) for v in near]
-        out.tracks.setdefault(part, {})["position"] = {0.0: pa_item.pa_position(part)}
+        authored_positions=b.tracks.get(part,{}).get('position')
+        out.tracks.setdefault(part, {})["position"] = ({t:pa_item.pa_position(part,v) for t,v in authored_positions.items()}
+                                                     if authored_positions else {0.0:pa_item.pa_position(part)})
     return out
 
 

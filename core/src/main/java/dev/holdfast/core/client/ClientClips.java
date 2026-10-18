@@ -203,6 +203,12 @@ public final class ClientClips {
         return !holdingGun(p) && !p.isUsingItem() && !inspecting(p) && !Weapons.held(p).firearm();
     }
 
+    static boolean executing(AbstractClientPlayer p) {
+        String name=ACTION_NAMES.get(p.getId());
+        var action=layer(p,ACTION);
+        return name!=null && name.startsWith("exec_") && action!=null && action.isActive();
+    }
+
     private static void clear(ModifierLayer<IAnimation> layer) {
         if (layer == null) return;
         layer.setAnimation(null);

@@ -3,6 +3,9 @@ package dev.holdfast.core.gametest;
 import com.mojang.authlib.GameProfile;
 import dev.holdfast.core.HoldfastCore;
 import dev.holdfast.core.combat.MeleeSwings;
+import dev.holdfast.core.combat.Strikes;
+import dev.holdfast.core.rules.ContactGeometry;
+import dev.holdfast.core.rules.BodyRegion;
 import dev.holdfast.core.entity.WalkerEntity;
 import dev.holdfast.core.registry.CoreEntities;
 import dev.holdfast.core.registry.CoreItems;
@@ -74,6 +77,7 @@ public final class MeleeGameTests {
             h.assertTrue(w.isCorpse(), "the knife to the head did not kill at contact");
             h.assertTrue(MeleeSwings.lastResult(p) == MeleeSwings.Result.HIT, "result " + MeleeSwings.lastResult(p));
             h.assertTrue(p.getMainHandItem().getDamageValue() == damageBefore + 1, "durability not spent once at contact");
+            assertSurfaceFeedback(h,w,BodyRegion.HEAD);
         });
         h.runAfterDelay(CombatTimings.swing(clip).lengthTicks() + 2, () -> {
             h.assertTrue(p.getMainHandItem().getDamageValue() == damageBefore + 1, "the swing resolved more than once");
@@ -142,8 +146,32 @@ public final class MeleeGameTests {
         h.runAfterDelay(contact(clip) + 1, () -> {
             h.assertTrue(MeleeSwings.lastResult(p) == MeleeSwings.Result.HIT, "result " + MeleeSwings.lastResult(p));
             h.assertTrue(w.busy() && !w.isCorpse(), "a body hit didn't stagger, or killed");
+            assertSurfaceFeedback(h,w,BodyRegion.TORSO);
             h.succeed();
         });
+    }
+
+    private static void assertSurfaceFeedback(GameTestHelper h,WalkerEntity w,BodyRegion region) {
+        var packet=Strikes.lastFeedback(w).orElseThrow();
+        var p=Strikes.localPoint(w,new Vec3(packet.x(),packet.y(),packet.z()));
+        h.assertTrue(packet.region()==region,"feedback region does not match the confirmed contact");
+        h.assertTrue(ContactGeometry.volumes(w.posture()).stream().anyMatch(v -> v.region()==region && v.box().surface(p,1e-6)),
+                "feedback point is not on the matching regional surface: "+p);
+    }
+
+    @GameTest(template="arena",timeoutTicks=40)
+    public static void fastBulletFeedbackStartsOnSkullSurface(GameTestHelper h) {
+        WalkerEntity w=walker(h,3);
+        Vec3 start=w.position().add(0,29/16.0,-4),end=start.add(0,0,8);
+        var hit=Strikes.trace(w,start,end,true);
+        Strikes.apply(null,w,WeaponClass.RIFLE,hit,1,0);
+        assertSurfaceFeedback(h,w,BodyRegion.HEAD);
+        var packet=Strikes.lastFeedback(w).orElseThrow();
+        h.assertTrue(packet.hasExit(),"full skull crossing has no exit point");
+        var exit=Strikes.localPoint(w,new Vec3(packet.exitX(),packet.exitY(),packet.exitZ()));
+        h.assertTrue(ContactGeometry.volumes(w.posture()).get(0).box().surface(exit,1e-6),"exit is not on skull surface");
+        h.assertTrue(new Vec3(packet.x(),packet.y(),packet.z()).distanceTo(start)>3,"feedback used bullet tick origin");
+        h.succeed();
     }
 
     /** A full blunt charge released at the head kills at the heavy swing's contact, not at release. */

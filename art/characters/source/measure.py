@@ -7,6 +7,7 @@ import player_anims as pa
 import walker_anims as wa
 
 import placement
+import contact_geometry as geometry
 from lib import Anim, OUT
 # Measure the exact generated keys that are about to ship, rather than running the nonlinear solvers again.
 raw = json.load(open(os.path.join(OUT, "player_keys.animation.json")))["animations"]
@@ -52,12 +53,15 @@ for name, (a, info) in out.items():
     else:
         react, RIG, dist = pa.W["react"][f"react_{w}"], pa.WR, e["dist"]
     first_in, last_in, max_d, early = None, None, 0.0, []
+    metrics = []
     for i in range(int(a.length / 0.01) + 1):
         t = round(i * 0.01, 3)
         Wm = fk.worlds(pa.SR, [a], t)
         Hm = fk.worlds(RIG, [react], t, world=pa.walker_world(dist))["head"]
         Hinv = np.linalg.inv(Hm)
         d = depth_inside(Hinv, fk.point(Wm, strike))
+        if e['impact'] <= t <= min(e.get('release', e['impact']), e['impact'] + .18):
+            metrics.append(geometry.penetration(Hinv, Wm, weapon, strike, cut=w == 'katana_ground'))
         # any part of the weapon inside the skull?
         R = Wm["rightItem"]
         z0, z1, ys = EXTENT[weapon]
@@ -69,8 +73,19 @@ for name, (a, info) in out.items():
         if anyin > 0.3 and t < e["impact"] - 0.06:
             early.append(t)
     rows[name] = dict(impact=e["impact"], first_in=first_in, last_in=last_in, max_depth=round(max_d, 2),
-                      clips_before_impact=early[:3])
+                      clips_before_impact=early[:3], penetration_samples=metrics)
     print(f"{name:18s} impact {e['impact']:.2f}  enters {first_in}  leaves {last_in}  depth {max_d:.2f}px  "
           f"early clipping {early[:3] if early else 'none'}")
+    threshold, key = geometry.minimum(w)
+    if threshold:
+        peak = max(v[key] for v in metrics)
+        print(f"  {key} peak {peak:.3f}px; target >= {threshold}; impact {metrics[0]}")
 import os
 json.dump(rows, open(os.path.join(os.path.dirname(__file__), "..", "build", "contact.json"), "w"), indent=1)
+failed = []
+for name, row in rows.items():
+    threshold, key = geometry.minimum(name[5:])
+    if threshold and max(v[key] for v in row['penetration_samples']) < threshold:
+        failed.append(f'{name}: {key} below {threshold}px')
+if failed:
+    raise SystemExit('FAIL depth: ' + '; '.join(failed))

@@ -115,7 +115,23 @@ Full-body clips (postures, attacks, grabs, deaths, reactions) need the arms and 
 | Injury-limited movement | — | — | `move_limp` (mild, 85%), `move_limp_severe` (55%), `move_arm_injured` (95%), `move_crawl_legless` (20%), `move_crutch_improvised` (45%), `move_crutch_medical` (60%), `move_prosthesis` (80%); each cycle is authored so its feet match that speed at 1x |
 | Death | `death_headshot` | `crawler_death` | — |
 
-## Rest and ready stances (2026-10-17, Claude)
+## Review 3 source corrections (2026-10-17, Codex)
+
+Andrew also confirmed the remaining torso issue is twisting/twitching on clicks. Ordinary weapon/empty-hand swing clips no longer key side-to-side torso yaw or roll. Weapon poses are solved against that stable torso before export, preserving intended strike targets rather than stripping the body transform after solving the hands. Forward weight shift/lean remains. Source motion checks and a real Player Animator playback test guard against reintroducing this swivel. The client pose diagnostic now samples `body` and `torso` too; previous logs sampled only arms/items.
+
+The resting fire axe now uses the hatchet's arm and item-axis/edge direction, following Andrew's clarification. He subsequently requested a handle-midpoint grip **at rest only**. Its handle spans local Z +3 to -14.5 px, so the source shifts the held item 5.75 px along its own handle to put Z=-5.75 at the unchanged fist. The exporter converts that wrist translation into Player Animator's hand frame; the semantics and carry checks include it. The mesh is unchanged. Rest-to-ready intentionally regrips to the accepted combat hold; ready, swings and executions retain their original grip. The shared axe carry also applies to the current hammer family alias; the midpoint calculation is for the authored fire axe.
+
+Knife executions target deeper points across the skull with a stronger reachable lunge. The ground knife uses a shallower torso lean so the rigid arm can extend rather than fold the wrist. Katana thrusts solve the tip directly; ground cuts drive the edge lower with additional body sink. Knife side/rear skulls follow the frontal skull's motion during insertion, keeping the victim's approach facing; knife/katana ground skull roll is delayed until withdrawal. No weapon geometry was extended.
+
+`contact_geometry.py`, `measure.py` and `check_exec_variants.py` add physical blade length inside the skull and penetration from entry along the striking axis. The skull bounds are 8 by 6 by 8 px, excluding the jaw. Targets: knife >=5 px blade inside, katana thrust >=6 px penetration, ground katana >=4 px edge penetration. Variant checks enforce the target peak and a minimum within 0.25 px of target throughout the first 100 ms after impact. Later withdrawal is intentionally allowed. These source measurements do not prove the in-game view.
+
+`make_all.sh` now measures and checks execution variants before generating server timing/contact tables. Melee execution kill ticks round measured first entry **up** to the next server tick; pistol timing remains authored. `execution_contacts.py` samples the skull and striking axis at that actual kill tick for every approach/posture and emits entry/optional exit points. Hand-editing exports remains prohibited.
+
+Grab polish in this pass: upright seize catches one wrist before bracing with both hands; the struggle loop now alternates brace, a slipping grip, and recovery rather than pumping both arms together. Ground struggles have an uneven leg pull and counterbalancing arms. Successful shoves add compression, extension, and recovery beats. The original durations/loop lengths, server escape window, bite rules and single-press input remain. Camera tremor is reduced so the richer body motion stays readable. The HUD adds restrained corner brackets, a segmented pressure countdown, urgency color, and the currently bound key. It does not judge timing.
+
+The escape handler previously started the paired shove/kick, then generic stagger re-entered `releaseByAttacker` and replaced both participants' clips. It now releases ownership before stagger and installs the paired escape afterwards. Upright, prone and crawler server tests guard that reaction selection.
+
+## Rest and ready stances (2026-10-17, Claude; historical carry details below)
 
 Andrew asked for natural resting carries outside combat and ready stances during and shortly after it. He said swords looked permanently combat-ready, the axe read as a T-pose, and the knife and hatchet holds were unnatural.
 

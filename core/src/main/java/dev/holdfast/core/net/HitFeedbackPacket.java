@@ -16,7 +16,15 @@ import java.util.function.Supplier;
  * play the matching flesh/skull sound and blood spatter. Sent only after the rule resolved; never sent for misses.
  */
 public record HitFeedbackPacket(int targetId, double x, double y, double z, double dx, double dy, double dz,
-                                WeaponClass.Contact contact, BodyRegion region, WalkerStrikeRules.Outcome outcome) {
+                                WeaponClass.Contact contact, BodyRegion region, WalkerStrikeRules.Outcome outcome,
+                                boolean hasExit, double exitX, double exitY, double exitZ) {
+    public HitFeedbackPacket(int targetId,double x,double y,double z,double dx,double dy,double dz,
+                             WeaponClass.Contact contact,BodyRegion region,WalkerStrikeRules.Outcome outcome) {
+        this(targetId,x,y,z,dx,dy,dz,contact,region,outcome,false,0,0,0);
+    }
+    public HitFeedbackPacket withExit(Vec3 exit) {
+        return new HitFeedbackPacket(targetId,x,y,z,dx,dy,dz,contact,region,outcome,true,exit.x,exit.y,exit.z);
+    }
     public static HitFeedbackPacket of(int targetId, Vec3 at, Vec3 direction, WeaponClass.Contact contact, BodyRegion region,
                                        WalkerStrikeRules.Outcome outcome) {
         Vec3 d = direction.lengthSqr() < 1e-6 ? Vec3.ZERO : direction.normalize();
@@ -34,11 +42,14 @@ public record HitFeedbackPacket(int targetId, double x, double y, double z, doub
         b.writeEnum(m.contact);
         b.writeEnum(m.region);
         b.writeEnum(m.outcome);
+        b.writeBoolean(m.hasExit);
+        if(m.hasExit) { b.writeDouble(m.exitX); b.writeDouble(m.exitY); b.writeDouble(m.exitZ); }
     }
 
     static HitFeedbackPacket decode(FriendlyByteBuf b) {
-        return new HitFeedbackPacket(b.readVarInt(), b.readDouble(), b.readDouble(), b.readDouble(), b.readFloat(), b.readFloat(),
+        HitFeedbackPacket packet=new HitFeedbackPacket(b.readVarInt(), b.readDouble(), b.readDouble(), b.readDouble(), b.readFloat(), b.readFloat(),
                 b.readFloat(), b.readEnum(WeaponClass.Contact.class), b.readEnum(BodyRegion.class), b.readEnum(WalkerStrikeRules.Outcome.class));
+        return b.readBoolean()?packet.withExit(new Vec3(b.readDouble(),b.readDouble(),b.readDouble())):packet;
     }
 
     static void handle(HitFeedbackPacket m, Supplier<NetworkEvent.Context> ctx) {

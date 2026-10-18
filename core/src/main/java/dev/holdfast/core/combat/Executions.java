@@ -143,6 +143,17 @@ public final class Executions {
         return Optional.ofNullable(LAST_APPROACH.get(p.getUUID()));
     }
 
+    /** Source-measured entry on this reaction's skull at the server kill frame; never a fixed entity offset. */
+    public static HitFeedbackPacket contactFeedback(WalkerEntity w, WeaponClass weapon, String reaction) {
+        var c=CombatTimings.EXEC_CONTACT.get(reaction);
+        if(c==null) throw new IllegalStateException("Missing generated execution contact: "+reaction);
+        Vec3 entry=Strikes.world(w,new dev.holdfast.core.rules.ContactGeometry.Point(c.x(),c.y(),c.z()));
+        Vec3 direction=Strikes.world(w,new dev.holdfast.core.rules.ContactGeometry.Point(c.dx(),c.dy(),c.dz())).subtract(w.position());
+        HitFeedbackPacket packet=HitFeedbackPacket.of(w.getId(),entry,direction,weapon.contact,BodyRegion.HEAD,WalkerStrikeRules.Outcome.BRAIN_KILL);
+        if(c.hasExit()) packet=packet.withExit(Strikes.world(w,new dev.holdfast.core.rules.ContactGeometry.Point(c.exitX(),c.exitY(),c.exitZ())));
+        return packet;
+    }
+
     /** The walker's skull, horizontally (upright: above its feet; lying: ahead of its origin, from the rig). */
     static Vec3 skullPoint(WalkerEntity w) {
         if (!w.posture().onGround()) return w.position().add(0, 29 / 16.0, 0);
@@ -206,11 +217,9 @@ public final class Executions {
                     if (a.weapon == WeaponClass.PISTOL) consumeRound(p.getMainHandItem());
                     if (!a.gun.isEmpty()) CoreNet.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> p),
                             new dev.holdfast.core.net.GunShotPacket(p.getId(), a.gun));
+                    HitFeedbackPacket contact=contactFeedback(a.target,a.weapon,a.targetClip);
                     a.target.brainKill(a.targetClip, 0);
-                    Vec3 head = a.target.position().add(0, a.target.posture().onGround() ? 0.3 : 1.8, 0);
-                    CoreNet.CHANNEL.send(PacketDistributor.TRACKING_ENTITY.with(() -> a.target),
-                            HitFeedbackPacket.of(a.target.getId(), head, head.subtract(p.getEyePosition()), a.weapon.contact,
-                                    BodyRegion.HEAD, WalkerStrikeRules.Outcome.BRAIN_KILL));
+                    Strikes.feedback(a.target,contact);
                     p.getMainHandItem().hurtAndBreak(1, p, x -> {});
                 }
                 case FAILED_TARGET_MOVED, CANCELLED, DONE -> it.remove();

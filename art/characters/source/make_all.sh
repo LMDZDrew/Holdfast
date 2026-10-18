@@ -4,10 +4,13 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 ART=..
+if [ "${1:-}" != "--finish" ]; then
 python3 build_model.py
 python3 walker_anims.py
 python3 placement.py > /dev/null
 python3 player_anims.py | tee "$ART/build/solver_report.txt" | tail -1
+fi
+# --finish resumes the export/check stages after source-driven scoped regeneration of already solved build/ keys.
 
 A="$ART/export/assets/holdfast"
 rm -rf "$ART/export"
@@ -28,9 +31,12 @@ python3 check_carries.py
 python3 check_locomotion.py
 python3 check_weapon_motion.py
 python3 check_pa_semantics.py
+python3 measure.py
+python3 check_exec_variants.py
 python3 gen_core_tables.py
 python3 gen_catalog.py
 python3 pa_item.py | tail -1
+python3 gen_core_assets.py
 python3 gen_testmod_clips.py
 python3 gen_test_items.py
 python3 build_preview.py

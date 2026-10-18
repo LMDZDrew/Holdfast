@@ -12,22 +12,22 @@ public final class CombatTimings {
                        int commitTick, int killTick, int releaseTick, int lengthTicks, double distPx) {}
 
     public static final List<Exec> EXECS = List.of(
-        new Exec(List.of(WeaponClass.KNIFE), Posture.UPRIGHT, "exec_knife", "react_knife", 4, 5, 14, 20, 18.0),
+        new Exec(List.of(WeaponClass.KNIFE), Posture.UPRIGHT, "exec_knife", "react_knife", 4, 6, 14, 20, 18.0),
         new Exec(List.of(WeaponClass.AXE), Posture.UPRIGHT, "exec_axe", "react_axe", 6, 9, 17, 26, 26.0),
         new Exec(List.of(WeaponClass.MACHETE, WeaponClass.HATCHET), Posture.UPRIGHT, "exec_machete", "react_machete", 3, 6, 12, 19, 22.0),
         new Exec(List.of(WeaponClass.KATANA), Posture.UPRIGHT, "exec_katana", "react_katana", 4, 6, 14, 23, 36.0),
         new Exec(List.of(WeaponClass.BAT, WeaponClass.HAMMER), Posture.UPRIGHT, "exec_bat_charged", "react_bat_charged", 1, 4, 4, 22, 28.0),
         new Exec(List.of(WeaponClass.PISTOL), Posture.UPRIGHT, "exec_pistol", "react_pistol", 4, 7, 7, 22, 24.0),
-        new Exec(List.of(WeaponClass.KNIFE), Posture.CRAWLER, "exec_knife_ground", "react_knife_ground", 6, 9, 17, 24, 19.08),
-        new Exec(List.of(WeaponClass.KNIFE), Posture.PRONE, "exec_knife_ground", "react_knife_ground_prone", 6, 9, 17, 24, 23.08),
+        new Exec(List.of(WeaponClass.KNIFE), Posture.CRAWLER, "exec_knife_ground", "react_knife_ground", 6, 10, 17, 24, 19.08),
+        new Exec(List.of(WeaponClass.KNIFE), Posture.PRONE, "exec_knife_ground", "react_knife_ground_prone", 6, 10, 17, 24, 23.08),
         new Exec(List.of(WeaponClass.AXE), Posture.CRAWLER, "exec_axe_ground", "react_axe_ground", 7, 11, 19, 28, 31.08),
         new Exec(List.of(WeaponClass.AXE), Posture.PRONE, "exec_axe_ground", "react_axe_ground_prone", 7, 11, 19, 28, 35.08),
-        new Exec(List.of(WeaponClass.MACHETE, WeaponClass.HATCHET), Posture.CRAWLER, "exec_machete_ground", "react_machete_ground", 4, 7, 14, 22, 24.08),
-        new Exec(List.of(WeaponClass.MACHETE, WeaponClass.HATCHET), Posture.PRONE, "exec_machete_ground", "react_machete_ground_prone", 4, 7, 14, 22, 28.08),
+        new Exec(List.of(WeaponClass.MACHETE, WeaponClass.HATCHET), Posture.CRAWLER, "exec_machete_ground", "react_machete_ground", 4, 8, 14, 22, 24.08),
+        new Exec(List.of(WeaponClass.MACHETE, WeaponClass.HATCHET), Posture.PRONE, "exec_machete_ground", "react_machete_ground_prone", 4, 8, 14, 22, 28.08),
         new Exec(List.of(WeaponClass.KATANA), Posture.CRAWLER, "exec_katana_ground", "react_katana_ground", 6, 10, 18, 26, 33.08),
         new Exec(List.of(WeaponClass.KATANA), Posture.PRONE, "exec_katana_ground", "react_katana_ground_prone", 6, 10, 18, 26, 37.08),
-        new Exec(List.of(WeaponClass.BAT, WeaponClass.HAMMER), Posture.CRAWLER, "exec_bat_ground", "react_bat_ground", 4, 8, 15, 24, 29.08),
-        new Exec(List.of(WeaponClass.BAT, WeaponClass.HAMMER), Posture.PRONE, "exec_bat_ground", "react_bat_ground_prone", 4, 8, 15, 24, 33.08),
+        new Exec(List.of(WeaponClass.BAT, WeaponClass.HAMMER), Posture.CRAWLER, "exec_bat_ground", "react_bat_ground", 4, 9, 15, 24, 29.08),
+        new Exec(List.of(WeaponClass.BAT, WeaponClass.HAMMER), Posture.PRONE, "exec_bat_ground", "react_bat_ground_prone", 4, 9, 15, 24, 33.08),
         new Exec(List.of(WeaponClass.PISTOL), Posture.CRAWLER, "exec_pistol_ground", "react_pistol_ground", 4, 9, 11, 24, 27.08),
         new Exec(List.of(WeaponClass.PISTOL), Posture.PRONE, "exec_pistol_ground", "react_pistol_ground_prone", 4, 9, 11, 24, 31.08)
     );
@@ -85,8 +85,8 @@ public final class CombatTimings {
         java.util.Map.entry("react_knife_ground", new double[]{0.0, -7.08}),
         java.util.Map.entry("react_knife_ground_prone", new double[]{0.0, -11.08}),
         java.util.Map.entry("react_knife_left", new double[]{-0.35, -4.91}),
-        java.util.Map.entry("react_knife_rear", new double[]{-0.35, -4.91}),
-        java.util.Map.entry("react_knife_right", new double[]{-0.35, -4.91}),
+        java.util.Map.entry("react_knife_rear", new double[]{-0.34, -4.92}),
+        java.util.Map.entry("react_knife_right", new double[]{-0.35, -4.92}),
         java.util.Map.entry("react_machete", new double[]{2.45, -7.06}),
         java.util.Map.entry("react_machete_ground", new double[]{0.0, -7.08}),
         java.util.Map.entry("react_machete_ground_prone", new double[]{0.0, -11.08}),
@@ -99,6 +99,48 @@ public final class CombatTimings {
         java.util.Map.entry("react_pistol_left", new double[]{-0.35, -4.91}),
         java.util.Map.entry("react_pistol_rear", new double[]{-0.35, -4.91}),
         java.util.Map.entry("react_pistol_right", new double[]{-0.35, -4.91})
+    );
+
+    /** Measured skull surface entry and incoming direction, walker-local px, for each execution reaction. */
+    public record ExecContact(double x, double y, double z, double dx, double dy, double dz,
+                              boolean hasExit, double exitX, double exitY, double exitZ) {}
+    public static final java.util.Map<String, ExecContact> EXEC_CONTACT = java.util.Map.ofEntries(
+        java.util.Map.entry("react_axe", new ExecContact(0.432916, 27.866296, -9.256837, 0.307919, -0.053504, 0.949907, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_axe_ground", new ExecContact(0.46993, 7.872609, -9.43914, 0.049461, -0.977598, 0.204586, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_axe_ground_prone", new ExecContact(0.46993, 7.872609, -13.43914, 0.049461, -0.977598, 0.204586, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_axe_left", new ExecContact(-3.841908, 27.964588, -5.087238, 0.949907, -0.053504, -0.307919, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_axe_rear", new ExecContact(-0.475855, 27.973517, -1.259578, -0.307919, -0.053504, -0.949907, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_axe_right", new ExecContact(3.274682, 27.972067, -4.775802, -0.949907, -0.053504, 0.307919, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_bat_charged", new ExecContact(-1.745819, 25.672438, -5.286946, 0.360845, 0.927491, -0.097729, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_bat_charged_left", new ExecContact(-0.717004, 25.578087, -3.477473, -0.097729, 0.927491, -0.360845, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_bat_charged_rear", new ExecContact(1.182067, 25.322236, -4.569955, -0.360845, 0.927491, 0.097729, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_bat_charged_right", new ExecContact(-0.053146, 24.912331, -6.601542, 0.097729, 0.927491, 0.360845, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_bat_ground", new ExecContact(-2.076372, 8.172253, -9.423773, 0.597786, -0.775263, -0.204006, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_bat_ground_prone", new ExecContact(-2.076372, 8.172253, -13.423773, 0.597786, -0.775263, -0.204006, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_katana", new ExecContact(-0.302966, 24.832422, -8.1836, -0.005238, 0.551038, 0.834464, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_katana_ground", new ExecContact(0.015422, 8.292772, -3.856343, -0.043853, -0.738739, -0.672564, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_katana_ground_prone", new ExecContact(0.015422, 8.292772, -7.856343, -0.043853, -0.738739, -0.672564, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_katana_left", new ExecContact(-3.496204, 24.916548, -4.956234, 0.834464, 0.551038, 0.005238, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_katana_rear", new ExecContact(-0.389203, 25.656217, -2.883914, 0.005238, 0.551038, -0.834464, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_katana_right", new ExecContact(2.148362, 25.34435, -4.867832, -0.834464, 0.551038, -0.005238, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_knife", new ExecContact(-1.052311, 28.100213, -1.128225, 0.73102, -0.017832, -0.682123, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_knife_ground", new ExecContact(-0.007544, 8.298148, -8.932894, 0.000772, -0.785973, 0.61826, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_knife_ground_prone", new ExecContact(-0.007544, 8.298148, -12.932894, 0.000772, -0.785973, 0.61826, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_knife_left", new ExecContact(0.660792, 28.098096, -0.754477, -0.682123, -0.017832, -0.73102, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_knife_rear", new ExecContact(3.763507, 28.096827, -5.882255, -0.73102, -0.017832, 0.682123, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_knife_right", new ExecContact(-1.310722, 28.096787, -9.021864, 0.682123, -0.017832, 0.73102, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_machete", new ExecContact(-1.405544, 28.280919, -11.110507, 0.494661, 0.004824, 0.869073, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_machete_ground", new ExecContact(-0.262512, 8.66037, -8.671374, -0.055952, -0.988015, -0.143859, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_machete_ground_prone", new ExecContact(-0.262512, 8.66037, -12.671374, -0.055952, -0.988015, -0.143859, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_machete_left", new ExecContact(-2.969136, 28.288864, -1.869166, 0.869073, 0.004824, -0.494661, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_machete_rear", new ExecContact(2.758841, 28.288201, -2.171382, -0.494661, 0.004824, -0.869073, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_machete_right", new ExecContact(2.645708, 28.286774, -8.165172, -0.869073, 0.004824, 0.494661, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_pistol", new ExecContact(-0.301777, 28.001918, -7.402923, -0.018038, 0.124443, 0.992063, true, -0.44618, 28.998137, 0.538952)),
+        java.util.Map.entry("react_pistol_ground", new ExecContact(-0.030002, 7.834045, -9.474607, -0.001189, -0.716562, 0.697522, true, -0.037137, 3.532692, -5.287545)),
+        java.util.Map.entry("react_pistol_ground_prone", new ExecContact(-0.030002, 7.834045, -13.474607, -0.001189, -0.716562, 0.697522, true, -0.037137, 3.532692, -9.287545)),
+        java.util.Map.entry("react_pistol_left", new ExecContact(-3.800735, 27.801872, -4.763326, 0.992345, 0.119409, 0.031515, true, 4.239908, 28.769403, -4.507971)),
+        java.util.Map.entry("react_pistol_rear", new ExecContact(-0.400219, 27.562101, -1.155841, 0.019433, 0.106447, -0.994128, true, -0.228517, 28.502631, -9.939595)),
+        java.util.Map.entry("react_pistol_right", new ExecContact(3.269967, 27.748793, -4.616527, -0.993078, 0.117397, -0.003629, true, -4.958711, 28.721548, -4.646594))
     );
 
     /** Walker lunge: the server's own hit moment after the lunge starts (S1). */

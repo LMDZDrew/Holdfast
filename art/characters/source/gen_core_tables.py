@@ -7,6 +7,8 @@ events, the same files clients play, so the server resolves a swing when its vis
 Run after make_all.sh and measure.py."""
 import json, math, os
 import walker_anims as wa
+import contact_geometry as geometry
+import execution_contacts
 
 HERE = os.path.dirname(__file__)
 BUILD = os.path.join(HERE, "..", "build")
@@ -46,7 +48,7 @@ rows = []
 for classes, posture, pc, tc, key, dist in ROWS:
     e = wa.EXECS[key]
     measured = (contact.get(pc) or {}).get("first_in")
-    kill = tick(measured) if measured is not None else tick(e["impact"])
+    kill = geometry.kill_tick(measured, e["impact"])
     release = tick(e.get("release", e["impact"]))
     weapons = ", ".join(f"WeaponClass.{c}" for c in classes.split(","))
     rows.append(f"        new Exec(List.of({weapons}), Posture.{posture}, \"{pc}\", \"{tc}\", {tick(e['commit'])}, {kill}, "
@@ -76,6 +78,16 @@ L += ["    );", "",
       "    public static final java.util.Map<String, double[]> EXEC_SKULL = java.util.Map.ofEntries("]
 L.append(",\n".join(f"        java.util.Map.entry(\"{k}\", new double[]{{{v[0]}, {v[1]}}})"
                     for k, v in sorted(pair["exec_skull"].items())))
+L += ["    );", "",
+      "    /** Measured skull surface entry and incoming direction, walker-local px, for each execution reaction. */",
+      "    public record ExecContact(double x, double y, double z, double dx, double dy, double dz,",
+      "                              boolean hasExit, double exitX, double exitY, double exitZ) {}",
+      "    public static final java.util.Map<String, ExecContact> EXEC_CONTACT = java.util.Map.ofEntries("]
+contacts = execution_contacts.generate()
+L.append(",\n".join(f'        java.util.Map.entry("{name}", new ExecContact(' +
+                   ', '.join(str(v) for v in row['point'] + row['direction']) + ', ' +
+                   ('true' if row['exit'] else 'false') + ', ' + ', '.join(str(v) for v in (row['exit'] or [0.,0.,0.])) + '))'
+                   for name,row in sorted(contacts.items())))
 L += ["    );", "",
       "    /** Walker lunge: the server's own hit moment after the lunge starts (S1). */",
       "    public static final int LUNGE_HIT_TICK = 11, CRAWLER_LUNGE_HIT_TICK = 10;",

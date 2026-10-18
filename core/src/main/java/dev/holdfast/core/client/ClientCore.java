@@ -24,8 +24,9 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 /** Client wiring. Display and input only: the key sends a request, the HUD shows the server's state. */
 public final class ClientCore {
-    /** design.md: one consistent context key for escape, execute and cancel. Default V. */
-    public static final KeyMapping ACTION = new KeyMapping("key.holdfast_core.action", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_V,
+    /** One editable context key for escape, execute and cancel. Default F (Andrew 2026-10-17). */
+    public static final KeyMapping ACTION = new KeyMapping("key.holdfast_core.action", net.minecraftforge.client.settings.KeyConflictContext.IN_GAME,
+            InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_F,
             "key.categories.holdfast_core");
 
     private ClientCore() {}
@@ -35,6 +36,9 @@ public final class ClientCore {
         modBus.addListener(ClientCore::onKeys);
         modBus.addListener(ClientCore::onOverlays);
         modBus.addListener((FMLClientSetupEvent e) -> e.enqueueWork(ClientClips::registerLayers));
+        modBus.addListener((FMLClientSetupEvent e) -> e.enqueueWork(() -> {
+            if(net.minecraftforge.fml.ModList.get().isLoaded("tacz")) dev.holdfast.core.compat.tacz.TaczClientActions.register();
+        }));
         MinecraftForge.EVENT_BUS.addListener(ClientCore::onClientTick);
         MinecraftForge.EVENT_BUS.addListener(ClientClips::camera);
         MinecraftForge.EVENT_BUS.addListener(ClientCore::onClickInput);
@@ -57,10 +61,23 @@ public final class ClientCore {
         Minecraft mc = Minecraft.getInstance();
         ClientClips.tick();
         if (mc.player == null) return;
+        if(mc.screen!=null) { while(ACTION.consumeClick()) {} return; }
         while (ACTION.consumeClick()) {
+            if(!contextAvailable()) continue;
             Entity looked = mc.hitResult instanceof EntityHitResult eh ? eh.getEntity() : null;
             CoreNet.CHANNEL.sendToServer(new ActionPacket(looked == null ? -1 : looked.getId()));
         }
+    }
+
+    /** Input routing only. The server still checks eligibility, distance, ammo, timing and every outcome. */
+    public static boolean contextAvailable() {
+        var mc=Minecraft.getInstance();
+        if(mc.player==null || mc.screen!=null || mc.player.isSpectator()) return false;
+        var weapon=dev.holdfast.core.combat.Weapons.held(mc.player);
+        boolean walker=mc.hitResult instanceof EntityHitResult hit
+                && hit.getEntity() instanceof dev.holdfast.core.entity.WalkerEntity w && !w.isCorpse();
+        return dev.holdfast.core.rules.ContextKeyRules.owns(ClientState.promptStartClientTick>=0,
+                ClientClips.executing(mc.player),walker,weapon.firearm(),weapon==dev.holdfast.core.rules.WeaponClass.PISTOL);
     }
 
     /**
@@ -92,14 +109,7 @@ public final class ClientCore {
         long now = mc.level.getGameTime();
         // Grab escape prompt: the window and the key. Display only; the server judges the press.
         if (ClientState.promptStartClientTick >= 0 && ClientState.promptWindow > 0) {
-            float left = 1.0F - (now - ClientState.promptStartClientTick + partial) / ClientState.promptWindow;
-            left = Math.max(0, Math.min(1, left));
-            int bw = 120, bx = (w - bw) / 2, by = h / 2 + 24;
-            g.fill(bx - 1, by - 1, bx + bw + 1, by + 7, 0xC0000000);
-            g.fill(bx, by, bx + (int) (bw * left), by + 6, left > 0.35F ? 0xFFE8D27A : 0xFFD24A3A);
-            Component label = Component.translatable(ClientState.promptGround ? "hud.holdfast_core.kick_free" : "hud.holdfast_core.shove",
-                    ACTION.getTranslatedKeyMessage());
-            g.drawCenteredString(font, label, w / 2, by - 12, 0xFFFFFFFF);
+            GrabOverlay.draw(g, w, h, partial);
         } else if (!ClientState.lastResult.isEmpty() && now < ClientState.resultUntil) {
             g.drawCenteredString(font, Component.translatable("hud.holdfast_core.grab." + ClientState.lastResult), w / 2, h / 2 + 24, 0xFFFFFFFF);
         }

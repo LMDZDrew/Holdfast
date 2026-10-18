@@ -52,14 +52,17 @@ public final class HitEffects {
             default -> { n = kill ? 30 : 10; spread = 0.06; push = 0.35; }     // gunshot: exit spray along the shot
         }
         for (int i = 0; i < n; i++) {
-            double sx = m.dx() * push + (r.nextDouble() - 0.5) * spread;
-            double sy = m.dy() * push + r.nextDouble() * 0.08;
-            double sz = m.dz() * push + (r.nextDouble() - 0.5) * spread;
-            mc.level.addParticle(i % 3 == 0 ? BLOOD_DARK : BLOOD, m.x(), m.y(), m.z(), sx, sy, sz);
+            boolean exit = m.contact() == WeaponClass.Contact.GUNSHOT && m.hasExit() && i >= n * .7;
+            double sign = exit ? 1 : -1;
+            double sx = sign * m.dx() * push + (r.nextDouble() - 0.5) * spread;
+            double sy = sign * m.dy() * push + r.nextDouble() * 0.08;
+            double sz = sign * m.dz() * push + (r.nextDouble() - 0.5) * spread;
+            mc.level.addParticle(i % 3 == 0 ? BLOOD_DARK : BLOOD, exit ? m.exitX() : m.x(), exit ? m.exitY() : m.y(),
+                    exit ? m.exitZ() : m.z(), sx, sy, sz);
         }
         if (kill) {
             for (int i = 0; i < 6; i++) {
-                mc.level.addParticle(GORE, m.x(), m.y(), m.z(), m.dx() * 0.2 + (r.nextDouble() - 0.5) * 0.1, 0.05, m.dz() * 0.2 + (r.nextDouble() - 0.5) * 0.1);
+                mc.level.addParticle(GORE, m.x(), m.y(), m.z(), -m.dx() * 0.2 + (r.nextDouble() - 0.5) * 0.1, 0.05, -m.dz() * 0.2 + (r.nextDouble() - 0.5) * 0.1);
             }
         }
     }

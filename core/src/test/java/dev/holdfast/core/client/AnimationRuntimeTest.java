@@ -18,6 +18,23 @@ import java.nio.charset.StandardCharsets;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AnimationRuntimeTest {
+    @Test void ordinaryClicksDoNotSwivelTheTorsoInPlayerAnimator() throws Exception {
+        for(var timing:dev.holdfast.core.rules.CombatTimings.SWINGS) {
+            if(!timing.clip().startsWith("swing_")) continue; // charged overswing is a separate action
+            var player=new MeleeActionPlayer(clip(timing.clip()));
+            for(int tick=0;tick<timing.lengthTicks();tick++) {
+                for(int frame=0;frame<8;frame++) {
+                    float partial=frame/8f;
+                    player.setupAnim(partial);
+                    Vec3f body=player.get3DTransform("body",TransformType.ROTATION,partial,Vec3f.ZERO);
+                    assertEquals(0,body.getY(),.0002,timing.clip()+" body yaw at "+tick);
+                    assertEquals(0,body.getZ(),.0002,timing.clip()+" body roll at "+tick);
+                }
+                player.tick();
+            }
+        }
+    }
+
     static KeyframeAnimation clip(String name) throws Exception {
         try (var stream = AnimationRuntimeTest.class.getResourceAsStream("/assets/holdfast/player_animation/" + name + ".json")) {
             assertNotNull(stream, name);

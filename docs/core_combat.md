@@ -1,5 +1,9 @@
 # Holdfast core: Stage 1 server-owned combat slice
 
+## Review 3 impact placement contract (2026-10-17)
+
+The server supplies each confirmed impact's surface point and incoming direction. Free melee uses current posture-local regional boxes, with a closest-surface fallback for an accepted arc-margin ray. Region and point come from the same volume. This remains a static regional ray approximation, not animated mesh or weapon-mesh collision. Executions use source-generated blade/skull entry points/directions for the actual reaction/approach at the server kill frame. Bullets use TaCZ's collision segment against those volumes rather than an unprojected bullet tick position. Clients render outward entry blood there; a separately server-supplied traversed exit can render an exit burst. Feedback is transient, with no new saved state. Tests cover segment/surface math, live server feedback and generated execution transforms. Cosmetic packets never decide damage, regions or kills.
+
 Status: **implemented in source; 26 JUnit tests and 22 GameTests (2026-10-17 runtime corrections; earlier: 20 and 11) (walkers, and grabs/bites/executions/injury speed with a Forge FakePlayer) pass (`core\gradlew.bat build runGameTestServer`). Core gameplay and the current animation revision still need a real-player review; see `stage1_bulk_test.md`.** Mod id `holdfast_core`, Gradle project `core/` (Forge 1.20.1-47.4.8, same pins as Gate 0). This document is the CLAUDE.md "before implementing" statement for each shared system, and the map of where each rule lives. `animation.md` S1–S14 lists the moments; this file says how the core decides them.
 
 ## Principles (from `decisions.md`)

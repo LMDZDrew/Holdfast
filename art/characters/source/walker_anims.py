@@ -547,6 +547,46 @@ DIRECTIONS = {"left": 90.0, "right": 270.0, "rear": 0.0}     # pair yaw theta (f
 UPRIGHT_EXECS = ("knife", "axe", "machete", "katana", "bat_charged", "pistol")
 
 
+def pin_directional_skull(a, front, theta, impact, release):
+    """Keep the skull on a penetrating knife while retaining the victim's approach facing.
+
+    Follow the frontal skull's motion in the pair frame. A quarter turn around the skull's local Y keeps its
+    square X/Z cross-section aligned with the blade without turning a rear victim around to face the player.
+    Only bone poses change; the pair placement, weapon mesh and entity authority stay unchanged.
+    """
+    import copy
+    import numpy as np
+    import fk
+    from lib import bb_euler
+    rig = fk.rig('walker.geo.json')
+    original = copy.deepcopy(a)
+    yaw, frontal_yaw = fk.entity(yaw_deg=theta)[:3,:3], fk.entity(yaw_deg=180)[:3,:3]
+    local_yaw = fk.entity(yaw_deg=theta-180)[:3,:3]
+    t0 = impact-.02
+    centre = np.array([0.,5.,0.,1.])
+    start = fk.worlds(rig,[original],t0)['head'] @ centre
+    front_start = fk.worlds(rig,[front],t0)['head'] @ centre
+    for keys in a.tracks.get('head',{}).values():
+        for t in list(keys):
+            if t0 <= t <= release-.06:
+                del keys[t]
+    a.key(impact-.08,'head',rot=original.value('head','rotation',impact-.08),pos=[0,0,0])
+    times = sorted(set([t0,impact,release-.06] + [round(t0+i*.02,4) for i in range(int((release-.06-t0)/.02)+1)]))
+    for t in times:
+        fw = fk.worlds(rig,[front],t)['head']
+        ow = fk.worlds(rig,[original],t)
+        parent = ow[rig['bones']['head']['parent']]
+        rotation = parent[:3,:3].T @ yaw.T @ frontal_yaw @ fw[:3,:3] @ local_yaw
+        desired_centre = start[:3] + yaw.T @ frontal_yaw @ ((fw @ centre)[:3]-front_start[:3])
+        # Pair alignment covers X/Z only. The frontal head's tilt also changes its height; follow that height
+        # during the pin so side and rear skulls cannot lift off the blade.
+        desired_centre[1] = (fw @ centre)[1]
+        desired_pivot = desired_centre - parent[:3,:3] @ rotation @ centre[:3]
+        offset = parent[:3,:3].T @ (desired_pivot-ow['head'][:3,3])
+        a.key(t,'head',rot=bb_euler(rotation),pos=[-offset[0],offset[1],offset[2]])
+    a.key(release+.06,'head',pos=[0,0,0])
+
+
 def directional_reactions():
     out = {}
     for name in UPRIGHT_EXECS:
@@ -570,9 +610,13 @@ def directional_reactions():
                             root_pos=[0.8 * m, 0, 0], rightArm=[-44, 0, 10 + 8 * m], leftArm=[-40, 0, -10 + 8 * m],
                             rightForearm=[-4, 0, 0], leftForearm=[-4, 0, 0])
                 fall = "side" if side == "left" else "side_left"
+            if name in ("knife", "katana"):
+                # A penetrating blade pins the skull until withdrawal; the old directional head/body whip pulled
+                # the head off the blade immediately. Keep the approach pose, then retain the directional fall.
+                blow.update(head=APPROACH['head'], torso=APPROACH['torso'], root_pos=[0,0,0])
             a.pose(I + 0.05, **blow)
             if pinned:
-                a.pose(R - 0.06, **dict(blow, hips_pos=[0, -1, 0], rightShin=[16, 0, 0], leftShin=[14, 0, 0]))
+                a.pose(R - 0.06, **dict(blow, hips_pos=[0, 0 if name in ('knife','katana') else -1, 0], rightShin=[16, 0, 0], leftShin=[14, 0, 0]))
                 hit = collapse(a, R, fall)
             else:
                 hit = collapse(a, I + 0.12, fall)
@@ -583,6 +627,8 @@ def directional_reactions():
             a.event(I, "kill")
             if "release" in e:
                 a.event(R, "release")
+            if name == 'knife':
+                pin_directional_skull(a, reactions()['react_knife'], DIRECTIONS[side], I, R)
             out[f"react_{name}_{side}"] = a.fit_length()
     return out
 
@@ -617,11 +663,15 @@ def _ground_reaction(w):
         a.pose(I + 0.04, head=[-14, 0, 6], jaw=[34, 0, 0], rightForearm=[-2, 0, 0], leftForearm=[-2, 0, 0],
                rightArm=[14, 0, 166], leftArm=[14, 0, -166])                                  # slammed down, hands splay
         a.pose(I + 0.2, head=[-10, 0, 4], rightArm=[0, 0, 140], leftArm=[0, 0, -140])
+        if w in ('knife','katana'):
+            # Keep the penetrated skull on the blade; defer the head roll until it is withdrawn.
+            a.pose(I + .04, head=[-52,0,0])
+            a.pose(I + .2, head=[-52,0,0])
         if blunt:                                                                               # crushed: no pin, it bounces
             a.pose(I + 0.1, head=[-4, 0, 8], jaw=[38, 0, 0])
             a.pose(R, head=[-2, 14, 4], jaw=[28, 0, 0])
         else:
-            a.pose(R - 0.08, head=[-16, 0, 4])
+            a.pose(R - 0.08, head=[-52,0,0] if w in ('knife','katana') else [-16, 0, 4])
             a.pose(R + 0.06, head=[-6, 20, 0], jaw=[22, 0, 0])                                 # blade out, head rolls
         a.pose(R + 0.9, head=[-4, 30, 0], jaw=[20, 0, 0], rightArm=[0, 0, 120], leftArm=[0, 0, -120],
                rightForearm=[0, 0, 0], leftForearm=[0, 0, 0])

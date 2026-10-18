@@ -160,8 +160,8 @@ public final class MeleeSwings {
             a.result = c.obstructed() ? Result.OBSTRUCTED : Result.MISS;
         } else {
             WalkerEntity w = c.walker();
-            Vec3 at = Strikes.meleeHitPoint(p, w);
-            a.outcome = Strikes.apply(p, w, a.weapon, at, Strikes.region(w, at), a.strength, a.charge);
+            Strikes.Contact hit = Strikes.meleeContact(p, w);
+            a.outcome = Strikes.apply(p, w, a.weapon, hit, a.strength, a.charge);
             if (!p.getMainHandItem().isEmpty()) p.getMainHandItem().hurtAndBreak(1, p, x -> {});
             a.result = Result.HIT;
         }
@@ -172,7 +172,7 @@ public final class MeleeSwings {
     public record Contact(WalkerEntity walker, boolean obstructed) {}
 
     /**
-     * Validated ray: the player's current eye and view, their entity reach, each live walker's box grown by
+     * Validated ray: the player's current eye and view, their entity reach, each live walker's regional bounds grown by
      * {@link SwingRules#ARC_MARGIN}. The nearest box entered wins; a block hit before it means no hit.
      */
     public static Contact contact(ServerPlayer p) {
@@ -184,7 +184,7 @@ public final class MeleeSwings {
         WalkerEntity best = null;
         double bestD = Double.MAX_VALUE;
         for (WalkerEntity w : p.level().getEntitiesOfClass(WalkerEntity.class, search, w -> w.isAlive() && !w.isCorpse())) {
-            AABB box = w.getBoundingBox().inflate(SwingRules.ARC_MARGIN);
+            AABB box = Strikes.walkerBounds(w).inflate(SwingRules.ARC_MARGIN);
             Optional<Vec3> hit = box.contains(eye) ? Optional.of(eye) : box.clip(eye, end);
             if (hit.isEmpty()) continue;
             double d = hit.get().distanceToSqr(eye);
@@ -196,7 +196,7 @@ public final class MeleeSwings {
         if (best == null) return new Contact(null, false);
         Vec3 aim = Strikes.meleeHitPoint(p, best);
         var block = p.level().clip(new ClipContext(eye, aim, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, p));
-        if (block.getType() != HitResult.Type.MISS && block.getLocation().distanceToSqr(eye) < Math.min(bestD, aim.distanceToSqr(eye)) - 1.0E-6) {
+        if (block.getType() != HitResult.Type.MISS && block.getLocation().distanceToSqr(eye) < aim.distanceToSqr(eye) - 1.0E-6) {
             return new Contact(null, true);
         }
         return new Contact(best, false);

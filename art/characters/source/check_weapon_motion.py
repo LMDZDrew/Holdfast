@@ -78,7 +78,8 @@ def exported(name):
 def torso_depth(a, t, weapon):
     W = fk.worlds(pa.SR, [a], t)
     inv = np.linalg.inv(W["torso"])
-    fist, tip = fk.point(W, "rightItem"), fk.point(W, MARKER[weapon])
+    fist = (W['rightArm'] @ np.array([*pa.SR['bones']['rightItem']['rest'],1.]))[:3]
+    tip = fk.point(W, MARKER[weapon])
     worst = -1e9
     for u in np.linspace(0.3, 1.0, 6):      # skip the fist itself: the hand may rest against the body
         q = (inv @ np.array([*(fist + (tip - fist) * u), 1.0]))[:3]
@@ -105,6 +106,10 @@ def main():
         if (ex.get("holdfast_meta") or {}).get("geodesic_items"):
             pa.geodesic_item(a, baked, "rightItem", "rightArm")
         played = exported(name)                             # what Player Animator interpolates
+        if name.startswith('swing_'):
+            turns = played.tracks.get('body',{}).get('rotation',{}).values()
+            if any(abs(v[1])>.01 or abs(v[2])>.01 for v in turns):
+                failures.append(f'{name}: ordinary clicks must not swivel torso yaw/roll')
         L = a.length
         if a.loop:
             seam = ang(weapon_world(played, 0.0), weapon_world(played, L - 1e-6))

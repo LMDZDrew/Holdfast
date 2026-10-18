@@ -15,7 +15,7 @@ import org.joml.Quaternionf;
  * Holdfast layers and the camera view. It changes nothing; the log tells which clip or transition is responsible.
  */
 final class PoseTrace {
-    private static final String[] PARTS = {"rightArm", "rightItem", "leftArm", "leftItem"};
+    private static final String[] PARTS = {"rightArm", "rightItem", "leftArm", "leftItem", "body", "torso"};
     private static final float JUMP_DEG = 45.0F;
     private static final float RATE_DEG_PER_TICK = 150.0F;
     private static final Quaternionf[] LAST = new Quaternionf[PARTS.length];

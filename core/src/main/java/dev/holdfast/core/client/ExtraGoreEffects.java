@@ -55,6 +55,9 @@ public final class ExtraGoreEffects {
         var random = mc.level.random;
         int accepted = 0;
         for (int i = 0; i < count; i++) {
+            boolean exit = hit.contact() == dev.holdfast.core.rules.WeaponClass.Contact.GUNSHOT && hit.hasExit() && i >= count * .7;
+            Vec3 origin = exit ? new Vec3(hit.exitX(), hit.exitY(), hit.exitZ()) : new Vec3(hit.x(), hit.y(), hit.z());
+            Vec3 flow = exit ? forward : forward.scale(-1); // outward entry spatter; exit continues along the trajectory
             double force = switch (hit.contact()) {
                 case BLUNT -> 0.055;
                 case SLASH -> 0.11;
@@ -62,18 +65,19 @@ public final class ExtraGoreEffects {
                 case GUNSHOT -> 0.23;
             };
             double width = hit.contact() == dev.holdfast.core.rules.WeaponClass.Contact.SLASH ? 0.18 : 0.06;
-            Vec3 velocity = forward.scale(force * (0.4 + random.nextDouble()))
+            Vec3 velocity = flow.scale(force * (0.4 + random.nextDouble()))
                     .add(side.scale((random.nextDouble() - 0.5) * width))
                     .add(0, 0.015 + random.nextDouble() * 0.07, 0);
             var particle = ParticleBloodFactory.createParticle(mc.level,
-                    hit.x(), hit.y(), hit.z(), velocity.x, velocity.y, velocity.z,
+                    origin.x, origin.y, origin.z, velocity.x, velocity.y, velocity.z,
                     i % 2, BLOOD, BLOOD.scaleMin(), BLOOD.scaleMax());
             if (particle != null) {
                 mc.particleEngine.add(particle);
                 accepted++;
             }
         }
-        if (diagnosticBursts++ < 12) HoldfastCore.LOG.info("[holdfast] Extra Gore contact {} {}: {}/{} particles at {},{},{}",
-                hit.contact(), hit.outcome(), accepted, count, hit.x(), hit.y(), hit.z());
+        if (diagnosticBursts++ < 12) HoldfastCore.LOG.info("[holdfast] Extra Gore contact {} {} {}: {}/{} particles at {},{},{}; exit {} {},{},{}",
+                hit.contact(), hit.region(), hit.outcome(), accepted, count, hit.x(), hit.y(), hit.z(),
+                hit.hasExit(), hit.exitX(), hit.exitY(), hit.exitZ());
     }
 }

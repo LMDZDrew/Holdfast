@@ -3,6 +3,9 @@ package dev.holdfast.core.gametest;
 import com.mojang.authlib.GameProfile;
 import dev.holdfast.core.HoldfastCore;
 import dev.holdfast.core.combat.Executions;
+import dev.holdfast.core.combat.Strikes;
+import dev.holdfast.core.rules.CombatTimings;
+import dev.holdfast.core.rules.ContactGeometry;
 import dev.holdfast.core.entity.WalkerEntity;
 import dev.holdfast.core.registry.CoreEntities;
 import dev.holdfast.core.registry.CoreItems;
@@ -74,6 +77,7 @@ public final class ExecutionGameTests {
         h.assertTrue(p.position().distanceTo(before) < 1.6, "player slot too far from the walker");
         h.runAfterDelay(40, () -> {
             h.assertTrue(w.isCorpse(), "no kill from " + bearing + " deg");
+            assertContact(h,w,"react_knife"+expected.suffix);
             h.assertFalse(Executions.isExecuting(p), "still executing after the clip");
             Executions.request(p, w);
             h.assertFalse(Executions.isExecuting(p), "a corpse was executed again");
@@ -145,6 +149,30 @@ public final class ExecutionGameTests {
         h.assertTrue(w.position().distanceTo(before) < 1e-9 && Math.abs(wrap(w.getYRot())) < 1e-6, "lying walker moved or turned");
         h.runAfterDelay(45, () -> {
             h.assertTrue(w.isCorpse(), "no kill from the side");
+            assertContact(h,w,"react_knife_ground_prone");
+            h.succeed();
+        });
+    }
+
+    private static void assertContact(GameTestHelper h,WalkerEntity w,String reaction) {
+        var source=CombatTimings.EXEC_CONTACT.get(reaction);
+        Vec3 expected=Strikes.world(w,new ContactGeometry.Point(source.x(),source.y(),source.z()));
+        var packet=Strikes.lastFeedback(w).orElseThrow();
+        Vec3 actual=new Vec3(packet.x(),packet.y(),packet.z());
+        h.assertTrue(actual.distanceTo(expected)<1/16.0,"execution feedback missed generated surface by over 1 px: "+reaction);
+        h.assertTrue(actual.distanceTo(w.position().add(0,w.posture().onGround()?.3:1.8,0))>.01,
+                "execution used the old fixed entity-centre blood point");
+    }
+
+    @GameTest(template="arena",timeoutTicks=80)
+    public static void crawlerExecutionBloodUsesSkullEntryNotHips(GameTestHelper h) {
+        WalkerEntity w=walker(h,Posture.CRAWLER,0);
+        ServerPlayer p=player(h,w.position().add(0,0,9/16.0),0,0,1.4,new ItemStack(CoreItems.KNIFE.get()));
+        Executions.request(p,w);
+        h.assertTrue(Executions.isExecuting(p),"crawler execution refused: "+Executions.lastRefusal(p));
+        h.runAfterDelay(45,() -> {
+            h.assertTrue(w.isCorpse(),"crawler was not executed");
+            assertContact(h,w,"react_knife_ground");
             h.succeed();
         });
     }

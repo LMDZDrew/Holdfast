@@ -57,6 +57,8 @@ def load_pa(path):
                     # Held items are exported in Player Animator's hand frame (pa_item.py, whose self test
                     # covers that chain); map them back to the fist pivot this rig turns them about.
                     if ch == "position":
+                        offset=pa_item.from_pa_position(bone,vec)
+                        an.key(float(t),bone,pos=offset)
                         continue
                     near = pa_item.from_pa_rotation(vec, near)
                     vec = [float(x) for x in near]

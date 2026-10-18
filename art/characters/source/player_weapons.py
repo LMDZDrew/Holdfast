@@ -56,6 +56,11 @@ def breathe(length, target, axis, edge=None, lift=0.6):
 
 def swing(name, weapon, length, poses, two=False, sounds=(), commit=None, strike=None):
     """poses: [(t, body dict, target, axis, edge)]; body dict may include body_pos/torso/head/legs."""
+    # Andrew still sees a torso twitch on clicks after vanilla's extra swing was suppressed. These clips also
+    # authored 30-78 degree side-to-side torso turns. Keep the forward weight shift, but solve the hands against
+    # a stable torso yaw/roll so removing that turn cannot drag the weapon off its intended strike path.
+    poses = [(t, dict(body, torso=[body['torso'][0],0,0]) if 'torso' in body else dict(body), target, axis, edge)
+             for t,body,target,axis,edge in poses]
     b = Builder(name, length, weapon=weapon)
     b.pose(0.0, **STAND)
     carry, _ = relaxed_hold(weapon)
@@ -125,9 +130,8 @@ STANCES = {
     ("hatchet", "ready"): dict(arm=_hang, axis=(0.12, 0.3, -0.95), edge=(0.0, -1.0, 0.0)),
     # katana rest: lowered one-handed, blade ~20 degrees below level so its 26 px stay off the ground, edge down
     ("katana", "rest"): dict(arm=_rest, axis=(0.12, -0.34, -0.93), edge=(0.0, -1.0, 0.0)),
-    # fire axe rest: one hand at the side, reversed (Andrew 2026-10-17): the head trails behind and low, bit facing
-    # back (a rigid-arm shoulder carry would run the handle along the carrying arm; check_carries rejected it)
-    ("axe", "rest"): dict(arm=_rest, axis=(0.15, -0.55, 0.82), edge=(0.0, -0.3, 1.0)),
+    # Andrew clarified review 3: match the hatchet's resting head/blade direction. Keep the accepted ready unchanged.
+    ("axe", "rest"): dict(arm=_rest, axis=(0.12, -0.45, -0.88), edge=(0.0, -1.0, 0.0), grip_offset=5.75),
     # fire axe ready ("port arms"): both hands, handle across the body, head up by the left shoulder; solved with
     # Builder.solve_two so the left hand finds the handle (replaces the low arms-forward carry read as a T-pose).
     # The katana ready stays the two-hand chudan below.
@@ -189,6 +193,11 @@ def carry(weapon, stance="ready"):
             frame = np.column_stack((x, np.cross(z, x), z))
         wrist = bb_euler(W["rightItem"][:3, :3].T @ frame)
         a.key(t, "rightItem", rot=wrist)
+        if spec and spec.get('grip_offset'):
+            # The fire axe handle runs from local z +3 to -14.5: its midpoint is -5.75. Move the item along
+            # its own handle so that point sits at the unchanged fist. Rest only; ready/swings keep their grip.
+            offset=W['rightArm'][:3,:3].T @ frame @ np.array([0.,0.,spec['grip_offset']])
+            a.key(t,'rightItem',pos=[-offset[0],offset[1],offset[2]])
     # Same grip on every key; support hand can slide only within the physical handle.
     report = []
     if spec and spec.get("solve"):
@@ -339,9 +348,9 @@ def families():
     for heavy, length, contact in ((False, .45, .16), (True, .65, .26)):
         a = Anim(length, False)
         a.pose(0, **STAND, rightArm=[-12, 0, 12], leftArm=[-12, 0, -12], rightItem=[0, 0, 0])
-        a.pose(contact * .55, torso=[-3, 18, -2], body_pos=[0, -.25, .5], rightArm=[18, 8, 18], leftArm=[-38, 0, -12])
-        a.pose(contact, torso=[10, -14, 2], body_pos=[0, -.6, -1], rightArm=[-92, -6, 8], leftArm=[-30, 0, -14])
-        a.pose(contact + .08, torso=[12, -20, 3], rightArm=[-96, -8, 8])
+        a.pose(contact * .55, torso=[-3, 0, 0], body_pos=[0, -.25, .5], rightArm=[18, 8, 18], leftArm=[-38, 0, -12])
+        a.pose(contact, torso=[10, 0, 0], body_pos=[0, -.6, -1], rightArm=[-92, -6, 8], leftArm=[-30, 0, -14])
+        a.pose(contact + .08, torso=[12, 0, 0], rightArm=[-96, -8, 8])
         a.pose(length, **STAND, rightArm=[-12, 0, 12], leftArm=[-12, 0, -12])
         a.event(contact, "strike").sound(contact - .05, "holdfast_core:swing.light")
         out["swing_unarmed" + ("_heavy" if heavy else "")] = (a, dict(impacts=[], geodesic_items=True))
@@ -460,17 +469,24 @@ def build():
 
 if __name__ == "__main__":
     import sys, os, shutil, json
-    if "--refresh-movement-carries" in sys.argv:
+    if any(flag in sys.argv for flag in ('--refresh-movement-carries','--refresh-families','--refresh-rest-axe')):
         # Fast source regeneration while iterating on carries/gaits; executions and native gun poses stay intact.
         # The normal make_all.sh still rebuilds everything from scratch.
         from lib import OUT, write_json
-        out, speeds = locomotion()
-        for weapon in ("knife", "machete", "hatchet", "katana", "axe", "bat"):
-            a, _ = relaxed_hold(weapon)
-            out["hold_" + weapon] = (a, dict(weapon=weapon, impacts=[], geodesic_items=True))
-        for weapon in REST_FAMILIES:
-            a, _ = carry(weapon, "rest")
-            out["rest_" + weapon] = (a, dict(weapon=weapon, impacts=[], geodesic_items=True))
+        if '--refresh-rest-axe' in sys.argv:
+            a,report=carry('axe','rest')
+            out={'rest_axe':(a,dict(weapon='axe',impacts=[],geodesic_items=True))}
+        elif "--refresh-families" in sys.argv:
+            out, report = families()
+            print('\n'.join(report))
+        else:
+            out, speeds = locomotion()
+            for weapon in ("knife", "machete", "hatchet", "katana", "axe", "bat"):
+                a, _ = relaxed_hold(weapon)
+                out["hold_" + weapon] = (a, dict(weapon=weapon, impacts=[], geodesic_items=True))
+            for weapon in REST_FAMILIES:
+                a, _ = carry(weapon, "rest")
+                out["rest_" + weapon] = (a, dict(weapon=weapon, impacts=[], geodesic_items=True))
         pa.export(out, merge_keys=True)
         root = os.path.join(os.path.dirname(__file__), "..")
         target = os.path.join(root, "export", "assets", "holdfast")
@@ -478,7 +494,7 @@ if __name__ == "__main__":
             for folder, suffix in (("player_animation", ".json"), ("player_animation_extras", ".extras.json")):
                 shutil.copy2(os.path.join(OUT, folder, name + suffix), os.path.join(target, folder, name + suffix))
         shutil.copy2(os.path.join(OUT, "player_keys.animation.json"), os.path.join(root, "preview", "rig", "player_keys.animation.json"))
-        print(f"Refreshed {len(out)} movement/carry clips from editable source.")
+        print(f"Refreshed {len(out)} clips from editable source.")
         sys.exit(0)
     o, r, s = build()
     print(len(o), "clips;", s)

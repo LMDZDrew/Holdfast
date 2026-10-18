@@ -65,7 +65,11 @@ for name, weapon, stance in clips:
     for t in np.arange(0, a.length, .05):
         W = fk.worlds(pa.SR, [a], t)
         penetration = max(penetration, pa.body_penetration(W))
-        fist = fk.point(W, "rightItem")
+        fist = (W['rightArm'] @ np.array([*pa.SR['bones']['rightItem']['rest'],1.]))[:3]
+        if spec and spec.get('grip_offset'):
+            local_fist=(np.linalg.inv(W['rightItem']) @ np.array([*fist,1.]))[:3]
+            if np.linalg.norm(local_fist-[0,0,-spec['grip_offset']])>.03:
+                failures.append(f'{name} t={t:.2f}: fist missed the handle midpoint')
         if two:
             # the support hand may sit anywhere on the handle within the solver's slide range (item z -4..+4)
             hand = fk.point(W, "leftHand")

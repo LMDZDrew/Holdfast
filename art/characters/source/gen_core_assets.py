@@ -107,7 +107,8 @@ def main():
     atlas.save(os.path.join(tdir, "weapons_atlas.png"))
     lang = {"itemGroup.holdfast_core": "Holdfast", "entity.holdfast_core.walker": "Walker",
             "item.holdfast_core.walker_spawn_egg": "Walker Spawn Egg",
-            "key.categories.holdfast_core": "Holdfast", "key.holdfast_core.action": "Shove / Kick Free / Execute",
+            "key.categories.holdfast_core": "Holdfast", "key.holdfast_core.action": "Escape / Execute / Cancel",
+            "hud.holdfast_core.grip": "BREAK THE GRIP", "hud.holdfast_core.escape_once": "Press once to escape",
             "hud.holdfast_core.shove": "%s  SHOVE IT OFF", "hud.holdfast_core.kick_free": "%s  KICK FREE",
             "hud.holdfast_core.grab.escaped": "You broke free", "hud.holdfast_core.grab.released": "It let go",
             "hud.holdfast_core.grab.bitten_neck": "Bitten: neck", "hud.holdfast_core.grab.bitten_arm": "Bitten: forearm",
