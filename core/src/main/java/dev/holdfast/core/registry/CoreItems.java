@@ -3,6 +3,7 @@ package dev.holdfast.core.registry;
 import dev.holdfast.core.HoldfastCore;
 import dev.holdfast.core.item.BiteGuardItem;
 import dev.holdfast.core.item.MeleeWeaponItem;
+import dev.holdfast.core.item.MichonneKatanaItem;
 import dev.holdfast.core.rules.BodyRegion;
 import dev.holdfast.core.rules.WeaponClass;
 import net.minecraft.core.registries.Registries;
@@ -33,6 +34,9 @@ public final class CoreItems {
     public static final RegistryObject<Item> FIRE_AXE = melee("fire_axe", WeaponClass.AXE, true, Tiers.IRON, 7, -3.1F);
     public static final RegistryObject<Item> BASEBALL_BAT = melee("baseball_bat", WeaponClass.BAT, true, Tiers.WOOD, 5, -2.8F);
     public static final RegistryObject<Item> KATANA = melee("katana", WeaponClass.KATANA, true, Tiers.IRON, 5, -2.2F);
+    // Iconic weapons: an existing family's stats and animations with their own model (decisions.md).
+    public static final RegistryObject<Item> MICHONNE_KATANA = reg("michonne_katana",
+            () -> new MichonneKatanaItem(Tiers.IRON, 5, -2.2F, new Item.Properties()));
     public static final RegistryObject<Item> SLEDGEHAMMER = melee("sledgehammer", WeaponClass.HAMMER, true, Tiers.IRON, 8, -3.3F);
 
     // Bite protection (regions per slot: neck guard on the head slot, forearm/torso guard on the chest, shin guards on the feet).

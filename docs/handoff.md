@@ -1,5 +1,50 @@
 # Assistant handoff
 
+## For Codex — Michonne's Katana, 2026-10-18 (Claude)
+
+Branch **`claude/michonne-katana`** in worktree `C:/Users/drewl/Holdfast-katana`. It is built on `claude/ricks-python` (`f343b1a`), which is built on `97748d4`. Neither branch is merged or pushed. Your branches and checkout were not touched. Your `3ed6ea3` (knife/bat/katana execution contact) is newer than this branch's base, so merge carefully if you combine them.
+
+**Andrew's request:** a new weapon, "Michonne's Katana", from his baseline GLB plus six reference renders. He chose box-fit style with a GeckoLib item renderer.
+
+**Server-owned data and behaviour**
+- No new server rules, packets or saved state.
+- `MichonneKatanaItem extends MeleeWeaponItem implements GeoItem` with class KATANA, two-handed, tier IRON, damage 5, speed −2.2: identical to `katana`.
+- `Weapons.of`, swings, contact, executions, swooshes and blood all follow the katana family through `MeleeWeaponItem.weaponClass`.
+
+**Client display**
+- GeckoLib `GeoItemRenderer` with `DefaultedItemGeoModel(holdfast_core:michonne_katana)`, built in `initializeClient`.
+- The item model is `forge:separate_transforms`: GeckoLib in hand, ground and fixed views with the katana's display transforms, and a flat 64×64 icon in the GUI.
+- `ClientClips` picks the katana family through `Weapons.held`, so rest, hold and swing clips are unchanged.
+- The geometry sits in the katana's held-item frame through `pa_item.model_point`, so the clips need no changes.
+
+**Saved state:** none beyond an ordinary item stack. Forge remaps item IDs in older worlds.
+
+**Files**
+- `core/.../item/MichonneKatanaItem.java`
+- `CoreItems.MICHONNE_KATANA`
+- `gametest/IconicWeaponGameTests.java`
+- under `assets/holdfast_core`:
+  - `geo/item/`
+  - `textures/item/michonne_katana.png` and `_icon.png`
+  - `animations/item/` (empty)
+  - `models/item/michonne_katana.json`
+  - `credits/michonne_katana.txt` (the CC-BY credit)
+- the lang entry, in both `en_us.json` and `gen_core_assets.py`
+- the builder: `art/weapons/michonne_katana/` and its README
+
+**Shared art tools**
+- `box_fit.py`, `bake.py` and `preview_geo.py` moved from `art/guns/ricks_python/` to `art/boxmodel/`, with Python-builder imports updated. The rebuilt Python pack's contents are byte-identical.
+- New in `art/boxmodel/`: `gltf_binary.py` and `render_geo_blender.py`.
+- `bake.py` now accepts painter functions.
+- `core/build.gradle` gains `-PheldItemProbe` next to `-PgunPackProbe`, which also covers `tools/gunprobe/HeldItemProbe.java`. Both are excluded from release jars.
+
+**Tests:** `build runGameTestServer` passes, 50/50 required GameTests including the new one. Two isolated dev-client probes; probe 2 shows identical clips and placement to `katana`. Andrew has not seen it in game; nothing is installed. Details are in the `testing.md` entry for this item.
+
+**Open items for whoever continues**
+1. **Execution check.** Run a katana execution with this item and confirm contact. The blade is the real curved katana: about 0.8 rig px of tip offset toward the spine, and slimmer than the old box blade. Your execution-contact measurements were solved on the straight `katana` geometry; re-measure if the insertion reads short.
+2. **Deploy** on Andrew's go-ahead: replace the core jar on both Gate 0 and Prism gracefully, keeping protocol parity.
+3. **Iconic-weapon rules**, deferred for both this and Rick's Python: one per world, higher repair cost, no ordinary loot.
+4. **Shadeless renders.** `render_geo_blender.py` renders shadeless because Cycles shades overlapping coplanar strips badly. The game does not have that problem.
 ## Side task — Rick's Colt Python gun pack, 2026-10-18 (Claude)
 
 Branch **`claude/ricks-python`**, worktree `C:/Users/drewl/Holdfast-python`, from `97748d4`. This does not supersede the CURRENT STOP below; Codex's checkout, branch and uncommitted `core/build.gradle` were not touched.

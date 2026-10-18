@@ -129,6 +129,14 @@ Status: accepted design unless labeled proposed. This file supersedes older word
 - This first pass only has to exist and work. The design's one-unique-instance-per-world rule, repair cost and loot rules for iconic weapons are not implemented yet, and there is no crafting recipe.
 - The source model's licence is unverified. Keep the built pack private until it is confirmed.
 
+## Michonne's Katana (Andrew, 2026-10-18)
+
+- Michonne's Katana is its own item, `holdfast_core:michonne_katana`, in the katana weapon class: the same stats, swings, contact, executions and sounds as `katana`.
+- Andrew chose the box-fit style used for the Python, rendered by a GeckoLib item renderer, over a smooth OBJ mesh.
+- The model is the CC-BY-4.0 "Katana (low poly)" by Andrey 3D, restyled to match Andrew's reference renders: white wrap over black diamonds, round triquetra tsuba, gold habaki, crescent-knot engraving.
+- The credit ships in the jar (`assets/holdfast_core/credits/michonne_katana.txt`).
+- The one-per-world rule and the recipe and loot rules are deferred, as for the Python.
+
 ## Explicitly deferred
 
 Character skill leveling, friendly/recruitable survivors, broad stealth disguises beyond Whisperer masks, advanced structural physics, and guaranteed shader FPS. They can be revisited after a representative playable prototype. Dynamic dismemberment is now scheduled for the mechanics phase after animation acceptance, as specified above.

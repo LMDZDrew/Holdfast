@@ -1,5 +1,51 @@
 # Test record
 
+## Michonne's Katana — 2026-10-18, Claude (`claude/michonne-katana`, from `claude/ricks-python` `f343b1a`)
+
+**Request.** Andrew supplied `katana_low_poly.glb` and six reference renders of Michonne's katana. He chose "the box-fit style like the Python, with a GeckoLib item renderer", then asked to "finish up and write the handoff for codex."
+
+**Environment.** Windows 11. Scratch-venv Python 3.14.7 with numpy 2.5.4, scipy and Pillow 13.0.0. Blender 5.2.2 LTS. Temurin 17.0.20.1, Gradle 8.8, Forge 1.20.1-47.4.8, GeckoLib 4.8.4 (Modrinth `aC5KMoNg`), Player Animator 1.0.2-rc1, TaCZ 1.1.8-hotfix2. Evidence is in `core/build/test-evidence/2026-10-18-katana/` (ignored).
+
+**Static and research checks**
+- **The GLB.** 11 named parts, about 6k triangles, three 4K maps, and a CC-BY-4.0 credit in its asset extras. `art/boxmodel/gltf_binary.py` reads it.
+- **Edge side.** Zero thickness is at baseline −y and the 0.25 spine at +y, measured at four stations along the blade.
+- **GeckoLib conventions**, read from bytecode with `javap -c`:
+  - `BakedModelFactory$Builtin` negates cube origin x.
+  - The `VertexSet` quads, the non-mirrored `GeoQuad` u swap and `FaceUV$Rotation.NONE` together give the same per-face UV layout as TaCZ, so `bake.py` serves both.
+  - `GeoItemRenderer.renderByItem` translates by (0.5, 0.51, 0.5).
+- **Placement.** From `gen_core_assets.py` and `pa_item.model_point`: blade along −Z, edge −Y, guard face at −2.5, tip at −26, k = 0.5. The built geometry spans y −2.688..12.84, against −2.66..12.84 for the plain katana in the same frame.
+
+**Builder iterations**, all recorded rather than erased:
+- **Generic outline fitting of the blade** at a resolution fine enough for a 0.4 px-wide blade ran for over 10 minutes and was stopped. It was replaced by a curve sweep.
+- **First Blender renders.** The tsuba showed a black star and the habaki black stripes. The numpy preview showed a solid 16-gon, which identified this as Cycles shadow acne between coplanar overlapping faces. The renderer is now shadeless, emission only.
+- **Handle.** Outline fitting of the braided wrap mesh gave a ragged grip of 160 boxes. It is now 8 rounded-octagon segments with a painted wrap.
+- **Blade lines.** Per-box edge darkening drew lines across the blade segments, so it is off for this item.
+- **Tip.** The kissaki stepped where the edge/spine choice flipped near the point. The fix is a single global edge side, cubic-smoothed edge and spine lines, a straight kissaki taper, and 25 kissaki segments.
+- **Final build.** About 10 s. 190 boxes: blade 111 plus fittings. The baked texture is 2048×2048. The icon is a 64×64 render of the built model.
+
+**Core build and GameTests**
+- Command, from `core` with `JAVA_HOME` set: `.\gradlew.bat build runGameTestServer --no-daemon`.
+  - Before the new test: `BUILD SUCCESSFUL in 1m 27s`, all 49 required GameTests passed (`build.log`).
+  - With the new `IconicWeaponGameTests.michonneKatanaSwingsAsAKatana`: `BUILD SUCCESSFUL in 38s`, all 50 required tests passed (`build2.log`).
+- The new test checks that the item is KATANA and two-handed, that the katana heavy swing is still pending one tick before its contact tick, and that it resolves as a HIT spending durability once.
+
+**Isolated developer client.** `.\gradlew.bat runClient -PheldItemProbe=2026-10-18-katana/client-probeN --no-daemon`, using `core/tools/gunprobe/.../HeldItemProbe.java` with the copied probe world. It is never Andrew's Prism instance or Gate 0.
+- **Probe 1.** Logged `holdfast_core:michonne_katana equipped, weapon class KATANA`. All screenshots saved; `BUILD SUCCESSFUL in 1m 2s`.
+  - The two items' third-person poses differed.
+- **Probe 2.** Logs `ClientClips.describe` at every shot. Both items ran identical clips: `rest_katana` at rest, `swing_katana_heavy@5/@10`, then `hold_katana`. So the probe-1 difference was not the model.
+  - At the same moment, the third-person shots show Michonne's Katana in exactly the plain katana's placement and direction.
+  - The hotbar and inventory show the 64×64 icon. The hand path renders through GeckoLib.
+  - The magenta slot is a stale `holdfast:ricks_python` stack from the copied probe world, whose gun pack this client does not have.
+  - The registry warning "Object did not get ID it asked for" is Forge remapping a world saved before the item existed.
+- **Not checked:**
+  - an execution with this item
+  - dedicated-server and multiplayer sync
+  - Fresh Animations or First Person Model clients
+  - how a curved blade affects the execution-contact measurements (`contact_geometry.py`, `check_weapon_motion.py`)
+  - Andrew's own look
+
+**Not installed** on Gate 0 or Prism. It ships in the core jar, so installing it means replacing the core jar on both sides, gracefully, like any core deployment.
+
 ## Rick's Colt Python gun pack — 2026-10-18, Claude (`claude/ricks-python`, from `97748d4`)
 
 **Request:** Andrew supplied `gameready-colt-python-revolver.zip` and asked for it to be its own weapon: "give it the same properties and noise as TacZ's existing .357 magnum", with the hammer and reload animations matching that gun. He asked that the first pass "just exist and work". After the first in-game screenshots he said the animation "looks great" but the texture was "very bad", and asked for "a smooth, shiny nickel texture with a nice wooden handle".

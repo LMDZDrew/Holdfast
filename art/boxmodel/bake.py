@@ -151,7 +151,8 @@ def shade_walnut(albedo, ao):
 def bake(entries, source, ppu, atlas_w, swatch_rows=32, edge=0.93):
     """entries: list of (bone_cubes_of_same_bone, cube, part, material). Fills cube['uv']; returns (image, height).
 
-    material: 'nickel', 'flute' or 'walnut'. Hidden faces get a 1 px patch of the face's mean colour.
+    material: 'nickel', 'flute' or 'walnut' (sampled from `source`), or a callable painter(points, normals) -> RGB
+    for each texel's world point and normal. Hidden faces get a small patch.
     """
     faces, sizes = [], []
     part_box = {}
@@ -179,6 +180,15 @@ def bake(entries, source, ppu, atlas_w, swatch_rows=32, edge=0.93):
         s, t = np.meshgrid((np.arange(w) + 0.5) / w, (np.arange(h) + 0.5) / h)
         pts = to_world(cube, face_local(cube, f, s.ravel(), t.ravel()))
         n = np.repeat(world_normal(cube, f)[None], len(pts), 0)
+        if callable(mat):                                              # custom painter: colours from geometry
+            col = np.asarray(mat(pts, n), float).reshape(-1, 3).reshape(h, w, 3)
+            if w > 3 and h > 3:
+                col[0, :] *= edge; col[-1, :] *= edge; col[:, 0] *= edge; col[:, -1] *= edge
+            block = np.pad(np.clip(col, 0, 255).astype(np.uint8), ((1, 1), (1, 1), (0, 0)), mode='edge')
+            img[y:y + h + 2, x:x + w + 2, :3] = block
+            img[y:y + h + 2, x:x + w + 2, 3] = 255
+            cube['uv'][f] = {'uv': [x + 1, y + 1], 'uv_size': [w, h]}
+            continue
         alb, ao = source.lookup(part, pts)
         if mat == 'walnut':
             col = shade_walnut(alb, ao)

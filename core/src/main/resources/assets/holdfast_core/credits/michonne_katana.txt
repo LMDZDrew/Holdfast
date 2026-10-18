@@ -1,0 +1,5 @@
+Michonne's Katana (holdfast_core:michonne_katana) is adapted from "Katana (low poly)" by Andrey 3D
+(https://sketchfab.com/Andrey3Ds), https://sketchfab.com/3d-models/katana-low-poly-26e4d48383db4ab4893bc6424383cd61,
+licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
+
+Changes: rebuilt as box geometry, rescaled, and repainted with new fittings and markings for Holdfast.

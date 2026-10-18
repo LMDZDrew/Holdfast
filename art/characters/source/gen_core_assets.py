@@ -160,6 +160,8 @@ def main():
     json.dump({"parent": "minecraft:item/template_spawn_egg"}, open(os.path.join(mdir, "walker_spawn_egg.json"), "w"))
     if os.path.exists(AUDIO_LANG):
         lang.update(json.load(open(AUDIO_LANG)))
+    # Iconic weapons with their own GeckoLib models (art/weapons); their item models are not generated here.
+    lang[f"item.{MODID}.michonne_katana"] = "Michonne's Katana"
     json.dump(lang, open(os.path.join(ldir, "en_us.json"), "w"), indent=1)
     print(f"wrote {len(ITEMS)} weapon models, {len(GUARDS)} guards, {len(lang)} lang keys")
 

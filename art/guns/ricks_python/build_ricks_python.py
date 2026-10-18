@@ -28,10 +28,11 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-import bake
-import box_fit
-import fbx_binary
-import preview_geo as P
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'boxmodel'))   # shared box-model tools
+import bake  # noqa: E402
+import box_fit  # noqa: E402
+import fbx_binary  # noqa: E402
+import preview_geo as P  # noqa: E402
 
 NS, GUN = 'holdfast', 'ricks_python'
 DISPLAY_NAME = "Rick's Colt Python"
