@@ -28,11 +28,11 @@ def tick(s):
 # (weapon classes, posture, player clip, attacker clip, EXECS key, distance px)
 ROWS = []
 for w, classes in (("knife", "KNIFE"), ("axe", "AXE"), ("machete", "MACHETE,HATCHET"), ("katana", "KATANA"),
-                   ("bat_charged", "BAT,HAMMER"), ("pistol", "PISTOL")):
+                   ("bat_charged", "BAT,HAMMER")):
     e = wa.EXECS[w]
     ROWS.append((classes, "UPRIGHT", f"exec_{w}", f"react_{w}", w, float(e["dist"])))
 for w, classes in (("knife", "KNIFE"), ("axe", "AXE"), ("machete", "MACHETE,HATCHET"), ("katana", "KATANA"),
-                   ("bat", "BAT,HAMMER"), ("pistol", "PISTOL")):
+                   ("bat", "BAT,HAMMER")):
     ROWS.append((classes, "CRAWLER", f"exec_{w}_ground", f"react_{w}_ground", f"{w}_ground", pair[f"{w}_ground_crawler"]["dist"]))
     ROWS.append((classes, "PRONE", f"exec_{w}_ground", f"react_{w}_ground_prone", f"{w}_ground", pair[f"{w}_ground_prone"]["dist"]))
 

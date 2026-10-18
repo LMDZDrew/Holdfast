@@ -38,9 +38,9 @@ for p, w in [("seize", "prone_ankle_grab"), ("struggle", "prone_ankle_hold"), ("
 for p, w in [("seize", "crawler_reach"), ("struggle", "crawler_ankle_hold"), ("bitten", "crawler_ankle_bite"),
              ("bite_blocked", "crawler_ankle_bite_blocked"), ("kick", "crawler_ankle_kicked")]:
     P.append((f"ankle_crawler_{p}", f"grabbed_ankle_{p}", "crawler", w, pair["ankle_crawler"]["dist"]))
-for w, d in [("knife", 18), ("bat_quick", 28), ("bat_charged", 28), ("axe", 26), ("machete", 22), ("katana", 36), ("pistol", 24)]:
+for w, d in [("knife", 18), ("bat_quick", 28), ("bat_charged", 28), ("axe", 26), ("machete", 22), ("katana", 36)]:
     P.append((f"exec_{w}", f"exec_{w}", "walker", f"react_{w}", float(d)))
-for w in ("knife", "axe", "machete", "katana", "bat", "pistol"):
+for w in ("knife", "axe", "machete", "katana", "bat"):
     P.append((f"exec_{w}_ground_crawler", f"exec_{w}_ground", "crawler", f"react_{w}_ground", pair[f"{w}_ground_crawler"]["dist"]))
     P.append((f"exec_{w}_ground_prone", f"exec_{w}_ground", "walker", f"react_{w}_ground_prone", pair[f"{w}_ground_prone"]["dist"]))
 for _, pc, rig, wc, _ in P:

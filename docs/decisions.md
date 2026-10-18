@@ -2,6 +2,13 @@
 
 Status: accepted design unless labeled proposed. This file supersedes older wording in `design.md` and the original Word document.
 
+## Standing execution review (Andrew, 2026-10-18, afternoon)
+
+- Pistol executions are removed for every posture; TaCZ firing, ADS and shove remain unchanged. This supersedes the earlier handgun execution exception.
+- Katana first-person execution is accepted/resolved. Apply its FPM advance logic to the other standing melee executions; preserve accepted crawler/prone animation and FPM behavior. Fix the bat hand crossing through the player's head on its load/swing. Add a spawn egg for the existing crawler.
+- Andrew also reports Rick's Python disturbing hands when opening inventory; investigate the inventory preview separately from accepted gun motion.
+- No more agent game probes or test runs: Andrew owns visual review. Builds and export generation continue.
+
 ## Dawn-build follow-up and movement-pack clarification (Andrew, 2026-10-18)
 
 - After the exaggerated-blood installation, Andrew says blood "does look great"; preserve the accepted appearance. He rejects knife execution (no contact, reads as hitting) and specifies a fluid stab into the side of the head. This supersedes any older hooked/punch-like knife execution direction. Charged/wound-up bat also appears buggy and misses contact. Katana remains unfixed/rejected. Next pass prioritizes actual paired weapon-to-head alignment across these families; source-only contact measurements are insufficient acceptance.

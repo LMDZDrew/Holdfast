@@ -2,6 +2,7 @@ package dev.holdfast.core.registry;
 
 import dev.holdfast.core.HoldfastCore;
 import dev.holdfast.core.entity.WalkerEntity;
+import dev.holdfast.core.rules.Posture;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
@@ -18,9 +19,19 @@ public final class CoreEntities {
                     .clientTrackingRange(10)
                     .build(HoldfastCore.MODID + ":walker"));
 
+    // Registry variant uses the existing synced, saved crawler posture and identical walker mechanics.
+    public static final RegistryObject<EntityType<WalkerEntity>> CRAWLER = ENTITIES.register("crawler",
+            () -> EntityType.Builder.<WalkerEntity>of((type, level) -> {
+                WalkerEntity walker = new WalkerEntity(type, level);
+                walker.setPosture(Posture.CRAWLER);
+                return walker;
+            }, MobCategory.MONSTER).sized(1.6F, 0.5F).clientTrackingRange(10)
+                    .build(HoldfastCore.MODID + ":crawler"));
+
     private CoreEntities() {}
 
     public static void onAttributes(EntityAttributeCreationEvent event) {
         event.put(WALKER.get(), WalkerEntity.createAttributes().build());
+        event.put(CRAWLER.get(), WalkerEntity.createAttributes().build());
     }
 }

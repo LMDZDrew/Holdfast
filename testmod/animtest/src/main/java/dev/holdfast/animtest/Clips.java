@@ -275,7 +275,6 @@ public final class Clips {
         new Pair("exec_axe", "exec_axe", false, "react_axe", 26.0),
         new Pair("exec_machete", "exec_machete", false, "react_machete", 22.0),
         new Pair("exec_katana", "exec_katana", false, "react_katana", 36.0),
-        new Pair("exec_pistol", "exec_pistol", false, "react_pistol", 24.0),
         new Pair("exec_knife_ground_crawler", "exec_knife_ground", true, "react_knife_ground", 19.08),
         new Pair("exec_knife_ground_prone", "exec_knife_ground", false, "react_knife_ground_prone", 23.08),
         new Pair("exec_axe_ground_crawler", "exec_axe_ground", true, "react_axe_ground", 31.08),
@@ -285,8 +284,6 @@ public final class Clips {
         new Pair("exec_katana_ground_crawler", "exec_katana_ground", true, "react_katana_ground", 33.08),
         new Pair("exec_katana_ground_prone", "exec_katana_ground", false, "react_katana_ground_prone", 37.08),
         new Pair("exec_bat_ground_crawler", "exec_bat_ground", true, "react_bat_ground", 29.08),
-        new Pair("exec_bat_ground_prone", "exec_bat_ground", false, "react_bat_ground_prone", 33.08),
-        new Pair("exec_pistol_ground_crawler", "exec_pistol_ground", true, "react_pistol_ground", 27.08),
-        new Pair("exec_pistol_ground_prone", "exec_pistol_ground", false, "react_pistol_ground_prone", 31.08)
+        new Pair("exec_bat_ground_prone", "exec_bat_ground", false, "react_bat_ground_prone", 33.08)
     );
 }

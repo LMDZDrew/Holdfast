@@ -55,6 +55,7 @@ public final class ClientCore {
 
     private static void onRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(CoreEntities.WALKER.get(), ctx -> new GeoEntityRenderer<>(ctx, new WalkerModel()));
+        event.registerEntityRenderer(CoreEntities.CRAWLER.get(), ctx -> new GeoEntityRenderer<>(ctx, new WalkerModel()));
     }
 
     private static void onKeys(RegisterKeyMappingsEvent event) {

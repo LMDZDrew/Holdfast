@@ -138,14 +138,14 @@ class RulesTest {
     }
 
     @Test
-    void onlyPistolsAmongFirearmsCanExecute() {
-        double d = ExecutionRules.clipFor(WeaponClass.PISTOL, Posture.UPRIGHT).orElseThrow().distPx();
-        assertTrue(ExecutionRules.validate(request(WeaponClass.PISTOL, Posture.UPRIGHT, d)).isEmpty());
-        assertTrue(ExecutionRules.validate(request(WeaponClass.PISTOL, Posture.PRONE,
-                ExecutionRules.clipFor(WeaponClass.PISTOL, Posture.PRONE).orElseThrow().distPx())).isEmpty());
-        for (WeaponClass w : List.of(WeaponClass.RIFLE, WeaponClass.SHOTGUN, WeaponClass.SMG, WeaponClass.SNIPER,
-                WeaponClass.MG, WeaponClass.RPG)) {
-            assertEquals(ExecutionRules.Refusal.WEAPON_CANNOT_EXECUTE, ExecutionRules.validate(request(w, Posture.UPRIGHT, d)).orElseThrow());
+    void noFirearmsCanExecute() {
+        for (WeaponClass w : List.of(WeaponClass.PISTOL, WeaponClass.RIFLE, WeaponClass.SHOTGUN, WeaponClass.SMG,
+                WeaponClass.SNIPER, WeaponClass.MG, WeaponClass.RPG)) {
+            for (Posture p : Posture.values()) {
+                assertTrue(ExecutionRules.clipFor(w, p).isEmpty());
+                assertEquals(ExecutionRules.Refusal.WEAPON_CANNOT_EXECUTE,
+                        ExecutionRules.validate(request(w, p, 24)).orElseThrow());
+            }
         }
         assertEquals(WeaponClass.PISTOL, WeaponClass.fromTaczType("pistol"));
         assertEquals(WeaponClass.SMG, WeaponClass.fromTaczType("smg"));
@@ -155,7 +155,7 @@ class RulesTest {
     @Test
     void everyMeleeClassHasClipsForEveryPosture() {
         for (WeaponClass w : List.of(WeaponClass.KNIFE, WeaponClass.AXE, WeaponClass.MACHETE, WeaponClass.HATCHET,
-                WeaponClass.KATANA, WeaponClass.BAT, WeaponClass.HAMMER, WeaponClass.PISTOL)) {
+                WeaponClass.KATANA, WeaponClass.BAT, WeaponClass.HAMMER)) {
             for (Posture p : Posture.values()) {
                 assertTrue(ExecutionRules.clipFor(w, p).isPresent(), w + " " + p);
             }

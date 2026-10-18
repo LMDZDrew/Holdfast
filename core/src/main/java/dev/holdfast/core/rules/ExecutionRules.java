@@ -45,13 +45,14 @@ public final class ExecutionRules {
     private ExecutionRules() {}
 
     public static Optional<CombatTimings.Exec> clipFor(WeaponClass weapon, Posture posture) {
+        if (!weapon.canExecute) return Optional.empty();
         for (CombatTimings.Exec e : CombatTimings.EXECS) {
             if (e.posture() == posture && e.weapons().contains(weapon)) return Optional.of(e);
         }
         return Optional.empty();
     }
 
-    /** Empty when the request is valid. Firearms other than TaCZ "pistol" are refused (decisions.md). */
+    /** Empty when the request is valid. All firearms are refused (Andrew, 2026-10-18). */
     public static Optional<Refusal> validate(Request r) {
         if (!r.weapon().canExecute) return Optional.of(Refusal.WEAPON_CANNOT_EXECUTE);
         Optional<CombatTimings.Exec> clip = clipFor(r.weapon(), r.targetPosture());

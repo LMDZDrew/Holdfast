@@ -16,8 +16,7 @@ public final class CombatTimings {
         new Exec(List.of(WeaponClass.AXE), Posture.UPRIGHT, "exec_axe", "react_axe", 6, 9, 17, 26, 26.0),
         new Exec(List.of(WeaponClass.MACHETE, WeaponClass.HATCHET), Posture.UPRIGHT, "exec_machete", "react_machete", 3, 6, 12, 19, 22.0),
         new Exec(List.of(WeaponClass.KATANA), Posture.UPRIGHT, "exec_katana", "react_katana", 4, 6, 14, 23, 36.0),
-        new Exec(List.of(WeaponClass.BAT, WeaponClass.HAMMER), Posture.UPRIGHT, "exec_bat_charged", "react_bat_charged", 1, 4, 5, 24, 26.0),
-        new Exec(List.of(WeaponClass.PISTOL), Posture.UPRIGHT, "exec_pistol", "react_pistol", 4, 7, 7, 22, 24.0),
+        new Exec(List.of(WeaponClass.BAT, WeaponClass.HAMMER), Posture.UPRIGHT, "exec_bat_charged", "react_bat_charged", 1, 5, 5, 24, 26.0),
         new Exec(List.of(WeaponClass.KNIFE), Posture.CRAWLER, "exec_knife_ground", "react_knife_ground", 6, 10, 17, 24, 19.08),
         new Exec(List.of(WeaponClass.KNIFE), Posture.PRONE, "exec_knife_ground", "react_knife_ground_prone", 6, 10, 17, 24, 23.08),
         new Exec(List.of(WeaponClass.AXE), Posture.CRAWLER, "exec_axe_ground", "react_axe_ground", 7, 11, 19, 28, 31.08),
@@ -27,9 +26,7 @@ public final class CombatTimings {
         new Exec(List.of(WeaponClass.KATANA), Posture.CRAWLER, "exec_katana_ground", "react_katana_ground", 6, 10, 18, 26, 33.08),
         new Exec(List.of(WeaponClass.KATANA), Posture.PRONE, "exec_katana_ground", "react_katana_ground_prone", 6, 10, 18, 26, 37.08),
         new Exec(List.of(WeaponClass.BAT, WeaponClass.HAMMER), Posture.CRAWLER, "exec_bat_ground", "react_bat_ground", 4, 9, 15, 24, 29.08),
-        new Exec(List.of(WeaponClass.BAT, WeaponClass.HAMMER), Posture.PRONE, "exec_bat_ground", "react_bat_ground_prone", 4, 9, 15, 24, 33.08),
-        new Exec(List.of(WeaponClass.PISTOL), Posture.CRAWLER, "exec_pistol_ground", "react_pistol_ground", 4, 9, 11, 24, 27.08),
-        new Exec(List.of(WeaponClass.PISTOL), Posture.PRONE, "exec_pistol_ground", "react_pistol_ground_prone", 4, 9, 11, 24, 31.08)
+        new Exec(List.of(WeaponClass.BAT, WeaponClass.HAMMER), Posture.PRONE, "exec_bat_ground", "react_bat_ground_prone", 4, 9, 15, 24, 33.08)
     );
 
     /** One free swing: the clip clients play, and the server's commit and contact ticks from its timeline. */
@@ -111,10 +108,10 @@ public final class CombatTimings {
         java.util.Map.entry("react_axe_left", new ExecContact(-3.841908, 27.964588, -5.087238, 0.949907, -0.053504, -0.307919, false, 0.0, 0.0, 0.0)),
         java.util.Map.entry("react_axe_rear", new ExecContact(-0.475855, 27.973517, -1.259578, -0.307919, -0.053504, -0.949907, false, 0.0, 0.0, 0.0)),
         java.util.Map.entry("react_axe_right", new ExecContact(3.274682, 27.972067, -4.775802, -0.949907, -0.053504, 0.307919, false, 0.0, 0.0, 0.0)),
-        java.util.Map.entry("react_bat_charged", new ExecContact(-3.075945, 24.78415, -5.331758, 0.33765, 0.916518, -0.214446, false, 0.0, 0.0, 0.0)),
-        java.util.Map.entry("react_bat_charged_left", new ExecContact(-0.999167, 25.75607, -2.542116, -0.214446, 0.916518, -0.33765, false, 0.0, 0.0, 0.0)),
-        java.util.Map.entry("react_bat_charged_rear", new ExecContact(2.087986, 25.565788, -4.305355, -0.33765, 0.916518, 0.214446, false, 0.0, 0.0, 0.0)),
-        java.util.Map.entry("react_bat_charged_right", new ExecContact(0.010727, 24.523311, -7.732039, 0.214446, 0.916518, 0.33765, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_bat_charged", new ExecContact(0.188115, 30.366798, -6.559571, 0.738621, -0.50188, 0.450063, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_bat_charged_left", new ExecContact(-1.682021, 30.012687, -5.969263, 0.450063, -0.50188, -0.738621, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_bat_charged_rear", new ExecContact(-2.279388, 29.421453, -4.108171, -0.738621, -0.50188, -0.450063, false, 0.0, 0.0, 0.0)),
+        java.util.Map.entry("react_bat_charged_right", new ExecContact(0.977566, 30.00772, -3.843426, -0.450063, -0.50188, 0.738621, false, 0.0, 0.0, 0.0)),
         java.util.Map.entry("react_bat_ground", new ExecContact(-2.076372, 8.172253, -9.423773, 0.597786, -0.775263, -0.204006, false, 0.0, 0.0, 0.0)),
         java.util.Map.entry("react_bat_ground_prone", new ExecContact(-2.076372, 8.172253, -13.423773, 0.597786, -0.775263, -0.204006, false, 0.0, 0.0, 0.0)),
         java.util.Map.entry("react_katana", new ExecContact(-0.164661, 24.848099, -8.188205, -0.002304, 0.54428, 0.838901, false, 0.0, 0.0, 0.0)),

@@ -219,14 +219,16 @@ public final class ClientClips {
 
     /** FPM must preserve the authored pair-frame advance for these measured melee executions. */
     public static boolean pairedMeleeExecution(AbstractClientPlayer p) {
-        return pairedMelee(ACTION_NAMES.get(p.getId())) && executing(p) && !holdingGun(p);
+        String name = ACTION_NAMES.get(p.getId());
+        return (pairedMelee(name) || "exec_axe".equals(name) || "exec_machete".equals(name)) && executing(p) && !holdingGun(p);
     }
 
     /** Small first-person presentation correction; third-person placement and weapon geometry stay authored. */
     public static double pairedViewAdvance(AbstractClientPlayer p, float partial) {
         if (!pairedMeleeExecution(p)) return 0;
-        String name=ACTION_NAMES.get(p.getId());
-        double distance="exec_katana".equals(name)?.20:"exec_knife".equals(name)?.10:0;
+        // Apply the accepted katana view correction to every standing melee family.
+        // Ground/crawler executions keep their accepted FPM behavior.
+        double distance=.20;
         var action=layer(p,ACTION);
         if (!(action.getAnimation() instanceof KeyframeAnimationPlayer kp)) return 0;
         var timing=dev.holdfast.core.rules.ExecutionRules.clipFor(Weapons.held(p),dev.holdfast.core.rules.Posture.UPRIGHT);

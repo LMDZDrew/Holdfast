@@ -4,6 +4,6 @@ package dev.holdfast.core.rules;
 public final class ContextKeyRules {
     private ContextKeyRules() {}
     public static boolean owns(boolean grabbed,boolean executing,boolean lookingAtWalker,boolean firearm,boolean pistol) {
-        return grabbed || executing || lookingAtWalker && (!firearm || pistol);
+        return grabbed || executing || lookingAtWalker && !firearm;
     }
 }

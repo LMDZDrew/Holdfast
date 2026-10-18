@@ -16,7 +16,7 @@ public enum WeaponClass {
     BAT(Contact.BLUNT, false, true),
     HAMMER(Contact.BLUNT, false, true),
     STAFF(Contact.BLUNT, false, false),
-    PISTOL(Contact.GUNSHOT, true, true),
+    PISTOL(Contact.GUNSHOT, true, false),
     RIFLE(Contact.GUNSHOT, true, false),
     SHOTGUN(Contact.GUNSHOT, true, false),
     SMG(Contact.GUNSHOT, true, false),
@@ -30,7 +30,7 @@ public enum WeaponClass {
     public final Contact contact;
     /** Penetrates the skull on a committed hit without needing a full charge. */
     public final boolean penetrates;
-    /** May start a paired execution (decisions.md: of firearms, only TaCZ type "pistol"). */
+    /** May start a paired execution; firearms are excluded (Andrew, 2026-10-18). */
     public final boolean canExecute;
 
     WeaponClass(Contact contact, boolean penetrates, boolean canExecute) {

@@ -1,6 +1,6 @@
 # Rick's Colt Python (TaCZ gun pack)
 
-A Holdfast TaCZ gun pack, `holdfast:ricks_python`, displayed as **Rick's Colt Python**. Ammunition, damage, fire rate, recoil, reload timing, attachments, sounds, state machine and animations are TaCZ's `tacz:rhino357`: the stats are copied from that gun's data file, and the animations and sounds are referenced, not copied. The index `type` is `pistol`, so Holdfast's execution rules treat it as a handgun. The pack has no crafting recipe. One-per-world uniqueness is future work.
+A Holdfast TaCZ gun pack, `holdfast:ricks_python`, displayed as **Rick's Colt Python**. Ammunition, damage, fire rate, recoil, reload timing, attachments, sounds, state machine and animations are TaCZ's `tacz:rhino357`: the stats are copied from that gun's data file, and the animations and sounds are referenced, not copied. The index `type` is `pistol`. Andrew removed all firearm executions on 2026-10-18; firing/ADS and TaCZ shove remain gun-owned. The pack has no crafting recipe. One-per-world uniqueness is future work.
 
 ## Inputs (not committed)
 

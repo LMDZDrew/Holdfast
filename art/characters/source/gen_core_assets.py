@@ -107,6 +107,8 @@ def main():
     atlas.save(os.path.join(tdir, "weapons_atlas.png"))
     lang = {"itemGroup.holdfast_core": "Holdfast", "entity.holdfast_core.walker": "Walker",
             "item.holdfast_core.walker_spawn_egg": "Walker Spawn Egg",
+            "entity.holdfast_core.crawler": "Crawler",
+            "item.holdfast_core.crawler_spawn_egg": "Crawler Spawn Egg",
             "key.categories.holdfast_core": "Holdfast", "key.holdfast_core.action": "Escape / Execute / Cancel",
             "hud.holdfast_core.grip": "BREAK THE GRIP", "hud.holdfast_core.escape_once": "Press once to escape",
             "hud.holdfast_core.shove": "%s  SHOVE IT OFF", "hud.holdfast_core.kick_free": "%s  KICK FREE",
@@ -157,7 +159,8 @@ def main():
             armor_layer(colour, os.path.join(adir, f"{mat}_layer_1.png"))
             armor_layer(colour, os.path.join(adir, f"{mat}_layer_2.png"))
             done.add(mat)
-    json.dump({"parent": "minecraft:item/template_spawn_egg"}, open(os.path.join(mdir, "walker_spawn_egg.json"), "w"))
+    for egg in ("walker_spawn_egg", "crawler_spawn_egg"):
+        json.dump({"parent": "minecraft:item/template_spawn_egg"}, open(os.path.join(mdir, egg + ".json"), "w"))
     if os.path.exists(AUDIO_LANG):
         lang.update(json.load(open(AUDIO_LANG)))
     # Iconic weapons with their own GeckoLib models (art/weapons); their item models are not generated here.

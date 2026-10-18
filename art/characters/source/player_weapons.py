@@ -233,6 +233,26 @@ def carry(weapon, stance="ready"):
 HEAD, CHEST = 30.0, 21.0
 
 
+def bat_swings():
+    """Rebuild bat swings independently of other families and accepted carries."""
+    out, rep = {}, []
+    def add(b, info):
+        out[b.name] = (b.a, dict(info, geodesic_items=True))
+        rep.extend(b.report)
+    for heavy, length, wind, contact in ((False, .65, .12, .25), (True, .9, .22, .38)):
+        add(swing("swing_bat" + ("_heavy" if heavy else ""), "bat", length, [
+            (wind, dict(torso=[-3, 30, -4], body_pos=[0, -.3, .8], head=[2, -12, 0]),
+             pa.from_hands((7, 17, -7), (.5, .55, .66)), U(.5, .55, .66), None),
+            (contact, dict(torso=[10, -18, 4], body_pos=[0, -.9, -1.8], head=[-2, 7, -2], leftLeg=[-18, 0, 0], rightLeg=[10, 0, 0]),
+             P(-2, 27, -25), U(-.35, 0, -.94), None),
+            (contact + .14, dict(torso=[14, -48, 6], body_pos=[0, -1, -1.4], head=[-4, 15, -3]),
+             P(-16, 21, -5), U(-.97, -.1, .2), None),
+            (length, dict(**STAND), P(5, 9, -17), U(.32, -.65, -.69), None),
+        ], two=True, sounds=((contact - .08, "holdfast_core:swing.heavy" if heavy else "holdfast_core:swing.light"),),
+            commit=wind, strike=contact), dict(weapon="bat", impacts=[]))
+    return out, rep
+
+
 def families():
     out, rep = {}, []
 
@@ -325,17 +345,9 @@ def families():
         (0.62, dict(body_pos=[0, -1.8, -2.4], torso=[24, 0, 0]), P(0, 10, -18), U(0, -0.85, -0.5), U(0, -0.5, 0.85)),
         (1.0, dict(**STAND), *shoulder),
     ], two=True, sounds=((0.36, "holdfast_core:swing.heavy"),), commit=0.3, strike=0.46), dict(weapon="axe", impacts=[]))
-    for heavy, length, wind, contact in ((False, .65, .12, .25), (True, .9, .22, .38)):
-        add(swing("swing_bat" + ("_heavy" if heavy else ""), "bat", length, [
-            (wind, dict(torso=[-3, 30, -4], body_pos=[0, -.3, .8], head=[2, -12, 0]),
-             pa.from_hands((2, 18, -4), (.5, .55, .66)), U(.5, .55, .66), None),
-            (contact, dict(torso=[10, -18, 4], body_pos=[0, -.9, -1.8], head=[-2, 7, -2], leftLeg=[-18, 0, 0], rightLeg=[10, 0, 0]),
-             P(-2, 27, -25), U(-.35, 0, -.94), None),
-            (contact + .14, dict(torso=[14, -48, 6], body_pos=[0, -1, -1.4], head=[-4, 15, -3]),
-             P(-16, 21, -5), U(-.97, -.1, .2), None),
-            (length, dict(**STAND), P(5, 9, -17), U(.32, -.65, -.69), None),
-        ], two=True, sounds=((contact - .08, "holdfast_core:swing.heavy" if heavy else "holdfast_core:swing.light"),),
-            commit=wind, strike=contact), dict(weapon="bat", impacts=[]))
+    bat, bat_reports = bat_swings()
+    out.update(bat)
+    rep.extend(bat_reports)
     for weapon in ("knife", "machete", "hatchet", "katana", "axe", "bat"):
         carry, report = relaxed_hold(weapon)
         out["hold_" + weapon] = (carry, dict(weapon=weapon, impacts=[], geodesic_items=True))

@@ -69,6 +69,16 @@ def body_penetration(Wm, arms=("rightArm", "leftArm")):
     return worst
 
 
+def head_penetration(Wm):
+    """Arm clearance against the player's rotated head; standing bat poses only."""
+    inv = np.linalg.inv(Wm["head"])
+    lo, hi = SR["bones"]["head"]["cubes"][0]
+    lo, hi = lo - ARM_HALF - .35, hi + ARM_HALF + .35
+    return max(0., max(float(np.min(np.minimum(q - lo, hi - q)))
+        for arm in ("rightArm", "leftArm") for p in ARM_LINE[arm]
+        for q in [(inv @ Wm[arm] @ np.array([*p, 1.]))[:3]]))
+
+
 def head_frame(react, t, dist, R=None):
     Wm = fk.worlds(R or WR, [react], t, world=walker_world(dist))
     return Wm["head"], Wm
@@ -163,6 +173,8 @@ class Builder:
                 n = np.cross(R[:, 2], R[:, 1])
                 c += upright * (n[1] / np.linalg.norm(n)) ** 2
             c += w_grip * np.sum((fk.point(Wm, "leftHand") - grip) ** 2)
+            if self.weapon == "bat" and "ground" not in self.name:
+                c += 40.0 * head_penetration(Wm) ** 2
             c += W_BODY * body_penetration(Wm) ** 2
             c += reg * (np.sum((x[:3] - g0[:3]) ** 2) + np.sum((x[6:9] - g0[6:9]) ** 2)) + 3 * reg * np.sum(x[3:6] ** 2)
             c += 0.5 * max(0, abs(x[9]) - 4) ** 2
@@ -325,7 +337,7 @@ def bat_quick():
     b.pose(0.0, **STAND, rightArm=[-60, 30, 40], rightItem=[-40, 0, 0], leftArm=[-60, -20, 10])
     bat_ready(b, 0.0)
     b.pose(0.08, torso=[0, 22, 0], body_pos=[0, -0.4, 0.5], head=[4, -10, 0])
-    b.solve_two(0.08, from_hands((1.5, 16.5, -5), (0.5, 0.55, 0.65)), axis=U(0.5, 0.55, 0.65))
+    b.solve_two(0.08, from_hands((7, 17, -7), (0.5, 0.55, 0.65)), axis=U(0.5, 0.55, 0.65))
     b.pose(I, torso=[6, -18, 0], body_pos=[0, -0.8, -2], head=[6, -4, 0], leftLeg=[-20, 0, 0], rightLeg=[10, 0, 0])
     Hm, _ = b.walker(I)
     b.solve_two(I, hp(Hm, (-3, 5, 0)), axis=U(-0.2, 0, -1))
@@ -342,7 +354,7 @@ def bat_charge():
     b = Builder("bat_charge_hold", 1.0, loop=True, weapon="bat")
     for t, d in ((0.0, 0.0), (0.5, 0.4), (1.0, 0.0)):
         b.pose(t, body_pos=[0, -0.6 - d, 0.6], torso=[-2, 35 + 2 * d, 0], head=[2, -14, 0], rightLeg=[10, 0, 0], leftLeg=[-8, 0, 0])
-        b.solve_two(t, from_hands((1, 16 + d, -5.5), (0.45, 0.6, 0.65)), axis=U(0.45, 0.6, 0.65))
+        b.solve_two(t, from_hands((7, 17 + d, -7), (0.45, 0.6, 0.65)), axis=U(0.45, 0.6, 0.65))
     # The loop end must be the loop start: the warm-started solver lands on another arm/wrist solution for the
     # same target at t=1.0, which snapped the bat ~35 degrees once a second while charging (2026-10-17 check).
     for channels in b.a.tracks.values():
@@ -358,9 +370,9 @@ def bat_charged():
     I = e["impact"]
     b.pose(0.0, body_pos=[0, -0.6, 0.6], torso=[-2, 35, 0], head=[2, -14, 0], rightLeg=[10, 0, 0], leftLeg=[-8, 0, 0],
            rightArm=[-120, 40, 60], rightItem=[-20, 0, 0], leftArm=[-110, -20, 10])
-    b.solve_two(0.0, from_hands((1, 16, -5.5), (0.45, 0.6, 0.65)), axis=U(0.45, 0.6, 0.65))
+    b.solve_two(0.0, from_hands((7, 17, -7), (0.45, 0.6, 0.65)), axis=U(0.45, 0.6, 0.65))
     b.pose(0.12, body_pos=[0, -1.0, -2], torso=[0, 20, 0], head=[4, -6, 0], leftLeg=[-26, 0, 0], rightLeg=[14, 0, 0])
-    b.solve_two(0.12, from_hands((1.5, 16, -6), (0.6, 0.3, -0.75)), axis=U(0.6, 0.3, -0.75))
+    b.solve_two(0.12, from_hands((7, 17, -8), (0.6, 0.3, -0.75)), axis=U(0.6, 0.3, -0.75))
     b.pose(I, body_pos=[0, -.9, -4], torso=[12, -20, 0], head=[6, -4, 0])
     Hm, _ = b.walker(I)
     b.solve_two(I, hp(Hm, (0, 5, 0)), axis=U(-.65, 0, -.76), reg=.00002, w_axis=30)
@@ -716,7 +728,7 @@ def export(out, merge_keys=False):
     key_path = os.path.join(OUT, "player_keys.animation.json")
     keys = json.load(open(key_path))["animations"] if merge_keys and os.path.exists(key_path) else {}
     for k, (a, info) in out.items():
-        if k in ("exec_knife", "exec_katana", "exec_bat_charged"):
+        if k in ("exec_knife", "exec_katana", "exec_bat_charged") or (info.get("weapon") == "bat" and "ground" not in k):
             # IK can return equivalent angles several whole turns apart. Normalize BEFORE
             # Catmull-Rom baking; otherwise an arm circles through those turns between valid poses.
             for channels in a.tracks.values():

@@ -50,6 +50,9 @@ public final class CoreItems {
     public static final RegistryObject<Item> WALKER_SPAWN_EGG = reg("walker_spawn_egg",
             () -> new ForgeSpawnEggItem(CoreEntities.WALKER, 0x5a6b4e, 0x3a2a24, new Item.Properties()));
 
+    public static final RegistryObject<Item> CRAWLER_SPAWN_EGG = reg("crawler_spawn_egg",
+            () -> new ForgeSpawnEggItem(CoreEntities.CRAWLER, 0x5a6b4e, 0x652c26, new Item.Properties()));
+
     public static final RegistryObject<CreativeModeTab> TAB = TABS.register("holdfast", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.holdfast_core"))
             .icon(() -> new ItemStack(MACHETE.get()))

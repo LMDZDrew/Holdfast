@@ -2,6 +2,8 @@
  "itemGroup.holdfast_core": "Holdfast",
  "entity.holdfast_core.walker": "Walker",
  "item.holdfast_core.walker_spawn_egg": "Walker Spawn Egg",
+ "entity.holdfast_core.crawler": "Crawler",
+ "item.holdfast_core.crawler_spawn_egg": "Crawler Spawn Egg",
  "key.categories.holdfast_core": "Holdfast",
  "key.holdfast_core.action": "Escape / Execute / Cancel",
  "hud.holdfast_core.grip": "BREAK THE GRIP",
